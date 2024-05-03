@@ -1,10 +1,11 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, OnDestroy  } from '@angular/core';
 import { Product } from '../../api/product';
 import { Table } from 'primeng/table';
 import { MessageService, MenuItem, Message } from 'primeng/api';
 import { ShutterstockService } from '../../service/shutterstock.service';
 import { FileUpload } from 'primeng/fileupload';
 import { imageMetadata } from '../../interfaces/imageMetadata.interface';
+import { Subscription, interval } from 'rxjs';
 
 interface UploadEvent {
     originalEvent: Event;
@@ -15,7 +16,7 @@ interface UploadEvent {
     templateUrl: './shutterstock.component.html',
     providers: [MessageService]
 })
-export class ShutterstockComponent implements OnInit {
+export class ShutterstockComponent implements OnInit, OnDestroy  {
 
     @ViewChild('uploader') uploader: FileUpload;
 
@@ -60,14 +61,48 @@ export class ShutterstockComponent implements OnInit {
 
     report: any[] = [];
 
+    isRotated = false;
+
+    countdownMessage: string = '';
+
+    countdownSubscription: Subscription;
+
     constructor(
         private messageService: MessageService,
         private shutterstockService: ShutterstockService) { }
 
     async ngOnInit() {
+        const targetHour = 10;
+        const targetMinute = 0;
+        const targetSecond = 0;
+
+        this.countdownSubscription = interval(1000).subscribe(() => {
+            // Obtén la fecha y hora actual
+            const now = new Date();
+
+            // Configura la fecha y hora objetivo
+            const targetDate = new Date(now);
+            targetDate.setHours(targetHour, targetMinute, targetSecond);
+
+            // Calcula la diferencia en milisegundos
+            const timeDiff = targetDate.getTime() - now.getTime();
+
+            // Calcula las horas, minutos y segundos restantes
+            const hoursRemaining = Math.floor(timeDiff / (1000 * 60 * 60));
+            const minutesRemaining = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+            const secondsRemaining = Math.floor((timeDiff % (1000 * 60)) / 1000);
+
+            // Construye el mensaje con el contador regresivo
+            if (hoursRemaining < 0){
+                this.countdownMessage = `Realice un REFRESH, para cargar los datos`;
+            }else{
+                this.countdownMessage = `Tiempo restante: ${hoursRemaining}:${minutesRemaining}:${secondsRemaining}.`;
+            }
+          
+        });
 
         this.messagesInfo = [{ severity: 'info', summary: 'Info', detail: 'No hay datos cargados' }];
-        this.messagesInfoReport = [{ severity: 'info', summary: 'Info', detail: 'No se ha generado el reporte aún' }];
+        this.messagesInfoReport = [{ severity: 'info', summary: 'Info', detail: `No se ha generado el reporte aún:  ${this.countdownMessage}` }];
         this.messagesWarn = [{ severity: 'warn', summary: 'Warning', detail: `Se han detectado varios elementos con problemas` }];
         this.messagesError = [{ severity: 'error', summary: 'Error', detail: 'Los datos cargados son erroneos' }];
 
@@ -110,10 +145,24 @@ export class ShutterstockComponent implements OnInit {
             }
         ];
 
+        this.getReport();
+    }
+
+    async getReport(){
+        this.isRotated = false;
         this.report = await this.shutterstockService.getReportData(this.get30DaysAgoDate());
-        console.log(this.get30DaysAgoDate());
-        console.log(this.report);
-        
+        this.rotateOnClick();
+    }
+
+    rotateOnClick() {
+        this.isRotated = true;
+    }
+
+    ngOnDestroy() {
+        // Cancela la suscripción al destruir el componente
+        if (this.countdownSubscription) {
+            this.countdownSubscription.unsubscribe();
+        }
     }
 
     onGlobalFilter(table: Table, event: Event) {
@@ -123,11 +172,11 @@ export class ShutterstockComponent implements OnInit {
     get30DaysAgoDate(): string {
         const fechaActual = new Date();
         fechaActual.setDate(fechaActual.getDate() - 30);
-    
+
         const year = fechaActual.getFullYear();
         const month = String(fechaActual.getMonth() + 1).padStart(2, '0');
         const day = String(fechaActual.getDate()).padStart(2, '0');
-    
+
         return `${year}-${month}-${day}`;
     }
 
@@ -225,9 +274,9 @@ export class ShutterstockComponent implements OnInit {
         let csvContent = 'data:text/csv;charset=utf-8,';
         csvContent += 'id\n';
         this.imagesWithErrors.forEach(item => {
-          csvContent += `${item.id}\n`;
+            csvContent += `${item.id}\n`;
         });
         const encodedUri = encodeURI(csvContent);
         window.open(encodedUri);
-      }
+    }
 }

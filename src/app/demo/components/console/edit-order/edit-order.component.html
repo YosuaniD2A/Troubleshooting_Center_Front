@@ -1,0 +1,144 @@
+<div class="card px-6 py-6 flex justify-content-between">
+    <h1 class="mb-0 mr-2">Site Order ID: {{site_order_id}}</h1>
+    <button pButton [routerLink]="['/console']" icon="pi pi-arrow-left" label="Back"></button>
+</div>
+<div class="card px-6 py-6">
+    <p-table [value]="order?.items" [tableStyle]="{ 'min-width': '50rem' }">
+        <ng-template pTemplate="header">
+            <tr>
+                <th style="width:25%">Product</th>
+                <th style="width:25%">Design</th>
+                <th style="width:25%">SKU</th>
+                <th style="width:25%">Size</th>
+                <th style="width:25%">Color</th>
+                <th style="width:25%">Quantity</th>
+                <th style="width:30%">Images</th>
+                <th style="width:30%">Options</th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-item>
+            <tr>
+                <td>{{ item.product }}</td>
+                <td>{{ item.design }}</td>
+                <td>{{ item.sku }}</td>
+                <td>{{ item.size }}</td>
+                <td>{{ item.color }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>
+                    <div class="flex gap-2 flex-column align-items-center">
+                        <span>Front</span>
+                        <div class="flex gap-1 justify-content-center">
+                            <div class="frame2"><img [src]="item.front_art_url" width="50px" alt=""></div>
+                            <div class="frame2"><img [src]="item.front_mockup_url" width="50px" alt=""></div>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <div class="flex flex-column gap-2 justify-content-center">
+                        <button pButton pRipple label="Edit" class="p-button-warning" (click)="showDialog(item)"
+                            icon="pi pi-pencil" size="small" [raised]="true"></button>
+                    </div>
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+</div>
+<div class="card px-6 py-4">
+    <div class="grid">
+        <div class="col-4">
+            <h5>Shipping Address</h5>
+            <div>
+                <p class="mb-1 flex gap-2 align-items-baseline"><i class="pi pi-user" style="font-size: 1rem"></i>
+                    {{order?.ship_to}}</p>
+                <p class="mb-1 flex gap-2 align-items-baseline"><i class="pi pi-home"
+                        style="font-size: 1rem"></i>{{order?.address_1}} C.P.: {{order?.postal_code}}</p>
+                <p class="mb-1 flex gap-2 align-items-baseline"><i class="pi pi-map-marker
+                    " style="font-size: 1rem"></i>{{order?.city}}, {{order?.region}}, {{order?.country}}</p>
+                <p class="mb-1 flex gap-2 align-items-baseline"><i class="pi pi-phone"
+                        style="font-size: 1rem"></i>{{order?.phone}}</p>
+            </div>
+        </div>
+        <div class="col-5" *ngIf="order.pod_service !== 'swiftpo'">
+            <h5>Shipping Label</h5>
+            <div class="grid pl-2 my-2">
+                <div class="col-12 p-1 flex flex-column gap-2">
+                    <input pInputText id="url" [(ngModel)]="shippingUrl" placeholder="Shipping URL" />
+                </div>
+                <div class="col-6 p-1 flex flex-column gap-2">
+                    <p-dropdown [options]="carriers" [(ngModel)]="selectedCarrier" optionLabel="name" [showClear]="true" placeholder="Select a carrier"></p-dropdown>
+                </div>
+                <div class="col-6 p-1 flex flex-column gap-2">
+                    <input pInputText id="trackingCode" [(ngModel)]="trackingCode" placeholder="Tracking Code"/>
+                </div>
+            </div>
+            <div>
+                <button pButton pRipple label="Save" class="p-button-primary" (click)="saveShippingLabel()"
+                            icon="pi pi-save" size="small"></button>
+            </div>
+        </div>
+    </div>
+</div>
+<p-dialog header="Header" [(visible)]="visible" [modal]="true" [style]="{ width: '70rem' }"
+    [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }">
+    <ng-template pTemplate="header">
+        <div class="inline-flex align-items-baseline justify-content-center gap-2">
+            <h4>Design: </h4>
+            <h4 class="font-bold white-space-nowrap">{{selectedItem.design}}</h4>
+        </div>
+    </ng-template>
+    <div class="formgrid grid">
+        <div class="field col flex flex-column gap-3">
+            <span class="font-bold text-lg mb-2">Front</span>
+            <div class="flex gap-2 align-items-start">
+                <div class="frame">
+                    <img [src]="artURLFront" alt="">
+                </div>
+                <div class="w-full">
+                    <label for="artURLFront">Art URL</label>
+                    <input id="artURLFront" type="text" [(ngModel)]="artURLFront"
+                        (blur)="onTextChange($event, 'artURLFront')"
+                        class="mt-2 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full">
+                </div>
+            </div>
+            <div class="flex gap-2 align-items-start">
+                <div class="frame">
+                    <img [src]="mockupURLFront" alt="">
+                </div>
+                <div class="w-full">
+                    <label for="mockupURLFront">Mockup URL</label>
+                    <input id="mockupURLFront" type="text" [(ngModel)]="mockupURLFront"
+                        (blur)="onTextChange($event, 'mockupURLFront')"
+                        class="mt-2 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full">
+                </div>
+            </div>
+        </div>
+        <div class="field col flex flex-column gap-3">
+            <span class="font-bold text-lg mb-2">Back</span>
+            <div class="flex gap-2 align-items-start">
+                <div class="frame">
+                    <img [src]="artURLBack" alt="">
+                </div>
+                <div class="w-full">
+                    <label for="artURLBack">Art URL</label>
+                    <input id="artURLBack" type="text" [(ngModel)]="artURLBack"
+                        (blur)="onTextChange($event, 'artURLBack')"
+                        class="mt-2 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full">
+                </div>
+            </div>
+            <div class="flex gap-2 align-items-start">
+                <div class="frame">
+                    <img [src]="mockupURLBack" alt="">
+                </div>
+                <div class="w-full">
+                    <label for="mockupURLBack">Mockup URL</label>
+                    <input id="mockupURLBack" type="text" [(ngModel)]="mockupURLBack"
+                        (blur)="onTextChange($event, 'mockupURLBack')"
+                        class="mt-2 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full">
+                </div>
+            </div>
+        </div>
+    </div>
+    <ng-template pTemplate="footer">
+        <p-button icon="pi pi-save" (click)="saveImages()" label="Save" pAutoFocus [autofocus]="true"></p-button>
+    </ng-template>
+</p-dialog>

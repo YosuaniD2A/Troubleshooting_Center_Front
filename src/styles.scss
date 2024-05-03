@@ -17,3 +17,44 @@ $gutter: 1rem; //for primeflex grid system
 .mark-selector{
     min-width: 17rem;
 }
+
+.report-message{
+    padding: 20px;
+    width: 100;
+    // height: 40px;
+    border-radius: 5px;
+    background: #e9e9ff;
+    border: solid #696cff;
+    border-width: 0 0 0 6px;
+    color: #696cff;
+}
+
+.refresh-buttom{
+    cursor: pointer;
+    padding: 5px 8px 8px;
+    border-radius: 100%;
+    background: #e9e9ff00;
+    transition: background ease-in-out 0.3s;
+
+
+    &:hover{
+        background: #e9e9ff;        
+    }
+}
+
+.p-dropdown{
+    width: 100% !important;
+}
+
+.rotate {
+    animation: rotate 1s linear;
+}
+
+@keyframes rotate {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}

@@ -1,0 +1,65 @@
+<div class="card px-6 py-6">
+    <h1 class="mb-0 mr-2">Console Admin</h1>
+</div>
+<div class="card px-6 py-6">
+    <p-table
+        [value]="incomingOrders"
+        [paginator]="true"
+        [rows]="10"
+        [showCurrentPageReport]="true"
+        [tableStyle]="{ 'min-width': '50rem' }"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+        [rowsPerPageOptions]="[5, 10, 20]"
+    >
+        <ng-template pTemplate="header">
+            <tr>
+                <th style="width:25%">Site Order ID</th>
+                <th style="width:25%">Order ID</th>
+                <th style="width:25%">Site Name</th>
+                <th style="width:25%">Order Date</th>
+                <th style="width:25%">Shipping Country</th>
+                <th style="width:25%">Printing House</th>
+                <th style="width:30%">Items</th>
+                <th style="width:30%">Options</th>
+                <th style="width:30%">Flags</th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-order>
+            <tr>
+                <td>{{ order.site_order_id }}</td>
+                <td>{{ order.order_id }}</td>
+                <td>{{ order.site_name }}</td>
+                <td>{{ formatDate(order.order_date) }}</td>
+                <td>{{ order.country }}</td>
+                <td>{{ order.pod_service }}</td>
+                <td>
+                    <div class="flex gap-2 flex-column align-items-center">
+                        <span>Front</span>
+                        <div class="flex gap-1 justify-content-center" *ngFor="let item of order.items">
+                            <div class="frame"><img [src]="item.front_art_url" width="50px" alt=""></div>
+                            <div class="frame"><img [src]="item.front_mockup_url" width="50px" alt=""></div>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <div class="flex flex-column gap-2 justify-content-center">
+                        <button pButton pRipple [routerLink]="['/console/edit-order']" [queryParams]="{ site_order_id: order.site_order_id}" label="Edit" class="p-button-warning" icon="pi pi-pencil" size="small" [raised]="true"></button>
+                        <button pButton pRipple label="Send" class="p-button-info" icon="pi pi-send" size="small" [raised]="true"></button>
+                    </div>
+                </td>
+                <td>
+                    <div class="flex flex-column gap-2 align-items-center">
+                        <span class="white-space-nowrap" [ngClass]="statusFlagsImages(order) ? 'span-success' : 'span-danger'">Image URLs</span>
+                        <span class="white-space-nowrap" [ngClass]="statusFlagsShipping(order) ? 'span-success' : 'span-danger'" *ngIf="order.pod_service !== 'swiftpod'">Shipping label</span>
+                    </div>
+                </td>
+            </tr>
+        </ng-template>
+        <!-- <ng-template pTemplate="paginatorleft">
+            <p-button type="button" icon="pi pi-plus" styleClass="p-button-text"></p-button>
+        </ng-template>
+        <ng-template pTemplate="paginatorright">
+            <p-button type="button" icon="pi pi-cloud" styleClass="p-button-text"></p-button>
+        </ng-template> -->
+    </p-table>
+</div>

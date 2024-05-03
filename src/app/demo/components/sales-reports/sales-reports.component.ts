@@ -329,8 +329,8 @@ export class SalesReportsComponent implements OnInit {
             import('xlsx').then((xlsx) => {
                 const workbook = { Sheets: {}, SheetNames: [] };
                 const headerStyle = {
-                    font: { bold: true, color: { rgb: 'FFFFFF' } },
-                    fill: { fgColor: { rgb: '000000' } }
+                    font: { bold: true, color: { rgb: '000000' } },
+                    fill: { fgColor: { rgb: '4B4B4B' } }
                 };
 
                 tables.forEach((tableObject) => {
@@ -357,7 +357,7 @@ export class SalesReportsComponent implements OnInit {
                 });
 
                 const excelBuffer: any = xlsx.write(workbook, { bookType: 'xlsx', type: 'array' });
-                this.saveAsExcelFile(excelBuffer, 'Sales Report - ');
+                this.saveAsExcelFile(excelBuffer, 'Weekly Sales Report - ');
             });
 
         } catch (error) {

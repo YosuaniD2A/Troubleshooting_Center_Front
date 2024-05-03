@@ -23,7 +23,10 @@ export class AppMenuComponent implements OnInit {
             {
                 label: 'Dashboard',
                 items: [
+                    { label: 'Console', icon: 'pi pi-fw pi-tablet', routerLink: ['/console'] },
                     { label: 'Shutterstock License & Download', icon: 'pi pi-fw pi-download', routerLink: ['/shutterstock'] },
+                    { label: 'CTP Ship-update', icon: 'pi pi-fw pi-cloud-upload', routerLink: ['/crea-tu-playera'] },
+                    { label: 'SwiftPOD Ship-update', icon: 'pi pi-fw pi-cloud-upload', routerLink: ['/swiftpod'] },
                     { label: 'Sales Reports by Periods', icon: 'pi pi-fw pi-chart-bar', routerLink: ['/sales-reports'] },
                     { label: 'Change Broken Images', icon: 'pi pi-fw pi-images', routerLink: ['/broken-images'] },                  
                     { label: 'Scalablepress - Whithout Design_Id', icon: 'pi pi-fw pi-question', routerLink: ['/scalablepress'] },

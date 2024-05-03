@@ -12,6 +12,7 @@ import { IconService } from './demo/service/icon.service';
 import { NodeService } from './demo/service/node.service';
 import { PhotoService } from './demo/service/photo.service';
 import { DateFromStringPipe } from './demo/pipes/date-from-string.pipe';
+import { FormsModule } from '@angular/forms';
 //import { AgmCoreModule } from '@agm/core';
 import { environment } from 'src/environments/environment';
 
@@ -22,6 +23,7 @@ import { environment } from 'src/environments/environment';
     imports: [
         AppRoutingModule,
         AppLayoutModule,
+        FormsModule,
     ],
     providers: [
         { provide: LocationStrategy, useClass: HashLocationStrategy },

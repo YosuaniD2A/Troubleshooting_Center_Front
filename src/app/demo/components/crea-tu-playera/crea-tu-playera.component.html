@@ -1,0 +1,65 @@
+<div class="grid">
+    <!-- <div class="col-12">
+        <div class="card px-6 py-6">
+            <h1>Update status of Crea Tu Playera</h1>
+        </div>
+    </div>
+    <div class="col-12">
+    </div> -->
+    <div class="card col-12 px-6 py-6 ">
+        <p-toolbar styleClass="mt-4">
+            <ng-template pTemplate="left">
+                <div class="my-2 flex gap-4 align-items-center">
+                    <h1 class="mb-0 mr-2">Crea Tu Playera status updated</h1>
+                    <span class="refresh-buttom" pTooltip="Refresh" tooltipPosition="top" (click)="getCTPOrders()"><i class="pi pi-refresh" [class.rotate]="isRotated" style="font-size: 2rem"></i></span>
+                </div>
+            </ng-template>
+
+            <ng-template pTemplate="right">
+                <!-- <div class="my-2">
+                    <p-button class="mr-2">License</p-button>
+                </div> -->
+            </ng-template>
+        </p-toolbar>
+        <div class="mt-2">
+            <div class="mb-2">
+                <div class="report-message flex gap-2 align-items-center">
+                    <i class="pi pi-info-circle" style="font-size: 1.5rem"></i>
+                    <span>{{countdownMessage}}</span>
+                </div>
+            </div>
+            <div>
+                <p-table [value]="ctpOrders" [scrollable]="true" scrollHeight="400px" [tableStyle]="{'min-width': '50rem'}">
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th>Site order ID</th>
+                            <th>Order ID</th>
+                            <th>CTP ID</th>
+                            <th>Site name</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Status name</th>
+                            <th>Carrier</th>
+                            <th>Tracking URL</th>
+                            <th>Tracking number</th>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-order>
+                        <tr [ngClass]="{'bg-green-300': order.updated}">
+                            <td>{{order.site_order_id}}</td>
+                            <td>{{order.order_id}}</td>
+                            <td>{{order.id_ctp}}</td>
+                            <td>{{order.site_name}}</td>
+                            <td>{{order.date}}</td>
+                            <td>{{order.status}}</td>
+                            <td>{{order.status_name}}</td>
+                            <td>{{order.carrier}}</td>
+                            <td>{{order.tracking_url}}</td>
+                            <td>{{order.tracking_number}}</td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+            </div>
+        </div>
+    </div>
+</div>

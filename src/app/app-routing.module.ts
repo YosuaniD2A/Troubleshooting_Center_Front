@@ -10,7 +10,10 @@ import { AppLayoutComponent } from "./layout/app.layout.component";
                 path: '', component: AppLayoutComponent,
                 children: [
                     { path: '', loadChildren: () => import('./demo/components/dashboard/dashboard.module').then(m => m.DashboardModule) },
+                    { path: 'console', loadChildren: () => import('./demo/components/console/console.module').then(m => m.ConsoleModule) },
                     { path: 'shutterstock', loadChildren: () => import('./demo/components/shutterstock/shutterstock.module').then(m => m.ShutterstockModule) },
+                    { path: 'crea-tu-playera', loadChildren: () => import('./demo/components/crea-tu-playera/crea-tu-playera.module').then(m => m.CreaTuPlayeraModule) },
+                    { path: 'swiftpod', loadChildren: () => import('./demo/components/swiftpod/swiftpod.module').then(m => m.SwiftpodModule) },
                     { path: 'broken-images', loadChildren: () => import('./demo/components/broken-images/broken-images.module').then(m => m.BrokenImagesModule) },
                     { path: 'shipping-address', loadChildren: () => import('./demo/components/shipping-address/shipping-address.module').then(m => m.ShippingAddressModule) },
                     { path: 'sales-reports', loadChildren: () => import('./demo/components/sales-reports/sales-reports.module').then(m => m.SalesReportsModule) },

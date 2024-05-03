@@ -114,8 +114,8 @@
                 <ng-template pTemplate="left">
                     <span>
                         <p><strong>Ruta de descarga: </strong></p>
-                        <p>C:\Users\yborg\OneDrive\Documents\Proyectos activos\Dashboard
-                            D2America\Troubleshooting_bknd\download\</p>
+                        <p>C:\Users\loren\Documents\Proyectos Angular\Troubleshooting
+                            Github\Troubleshooting_Center_Bknd\downloads\</p>
                     </span>
                 </ng-template>
 
@@ -131,8 +131,10 @@
         <div class="card px-6 py-6">
             <p-toolbar styleClass="mt-4">
                 <ng-template pTemplate="left">
-                    <div class="my-2">
+                    <div class="my-2 flex gap-4 align-items-center">
                         <h1 class="mb-0 mr-2">Shutterstock licensed today</h1>
+                        <span class="refresh-buttom" pTooltip="Refresh" tooltipPosition="top" (click)="getReport()"><i
+                                class="pi pi-refresh" [class.rotate]="isRotated" style="font-size: 2rem"></i></span>
                     </div>
                 </ng-template>
 
@@ -144,10 +146,15 @@
             </p-toolbar>
             <div class="mt-4">
                 <div *ngIf="report.length == 0">
-                    <p-messages [(value)]="messagesInfoReport" [enableService]="false" [closable]="false"></p-messages>
+                    <!-- <p-messages [(value)]="messagesInfoReport" [enableService]="false" [closable]="false"></p-messages> -->
+                    <div class="report-message flex gap-2 align-items-center">
+                        <i class="pi pi-info-circle" style="font-size: 1.5rem"></i>
+                        <span>No se ha generado el reporte aún: {{countdownMessage}}</span>
+                    </div>
                 </div>
                 <div *ngIf="report.length != 0">
-                    <p-table [value]="report" [scrollable]="true" scrollHeight="400px" [tableStyle]="{'min-width': '50rem'}">
+                    <p-table [value]="report" [scrollable]="true" scrollHeight="400px"
+                        [tableStyle]="{'min-width': '50rem'}">
                         <ng-template pTemplate="header">
                             <tr>
                                 <th>Shutterstock ID</th>
@@ -175,3 +182,4 @@
             </div>
         </div>
     </div>
+</div>

@@ -14,7 +14,7 @@ export class ShutterstockService {
   uploadCSV(file: File, licenseType: string): Promise<any> {
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('licenseType', licenseType); 
+    formData.append('imageType', licenseType); 
 
     return lastValueFrom(this.http.post<any>(`${this.baseUrl}upload`, formData))
   }

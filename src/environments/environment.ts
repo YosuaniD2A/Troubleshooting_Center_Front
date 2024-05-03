@@ -6,7 +6,12 @@ export const environment = {
   production: false,
   googleMaps: {
     apiKey: 'AIzaSyCp5YY4xKFC2LVaHswvkxli66bLg7Sxly0'
-  }
+  },
+  SHIP_URL: 'https://ssapi.shipstation.com',
+  SHIP_URL_MARKASSHIPPED: 'https://ssapi.shipstation.com/orders/markasshipped',
+  SHIP_API_KEY: "d7fdcd4e64bb442582689e083d4ecfbd",
+  SHIP_API_SECRET: "400abb4e9b234e878cca4f9d046007ad",
+  tokenBase64: "ZDdmZGNkNGU2NGJiNDQyNTgyNjg5ZTA4M2Q0ZWNmYmQ6NDAwYWJiNGU5YjIzNGU4NzhjY2E0ZjlkMDQ2MDA3YWQ="
 };
 
 /*
