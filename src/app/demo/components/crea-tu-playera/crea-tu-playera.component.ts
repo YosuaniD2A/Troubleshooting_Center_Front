@@ -4,15 +4,16 @@ import { Subscription, interval } from 'rxjs';
 import { CreaTuPlayeraService } from '../../service/crea-tu-playera.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
+import { SwiftpodService } from '../../service/swift.service';
 
 const INTERVAL_DURATION = 2 * 60 * 60 * 1000; // 2 horas en milisegundos
 
 @Component({
-    templateUrl: './crea-tu-playera.component.html'
+    templateUrl: './crea-tu-playera.component.html',
 })
 export class CreaTuPlayeraComponent implements OnInit, OnDestroy {
-
-    ctpOrders: any[];
+    ctpOrders: any[] = [];
+    swiftpodOrders: any[] = [];
 
     isRotated = false;
 
@@ -22,13 +23,21 @@ export class CreaTuPlayeraComponent implements OnInit, OnDestroy {
 
     targetDate: Date;
 
-    constructor(public router: Router, private creaTuPlayerService: CreaTuPlayeraService, private http: HttpClient) { }
+    constructor(
+        public router: Router,
+        private creaTuPlayerService: CreaTuPlayeraService,
+        private swiftPodService: SwiftpodService,
+        private http: HttpClient
+    ) {}
 
     async ngOnInit() {
         this.startCountdown();
 
         await this.getCTPOrders();
+        await this.getSwiftPODOrders();        
+
         await this.updateStatus();
+        await this.updateSwiftPODStatus();
     }
 
     startCountdown(): void {
@@ -46,11 +55,28 @@ export class CreaTuPlayeraComponent implements OnInit, OnDestroy {
             } else {
                 // Calcula las horas, minutos y segundos restantes
                 const hoursRemaining = Math.floor(timeDiff / (1000 * 60 * 60));
-                const minutesRemaining = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
-                const secondsRemaining = Math.floor((timeDiff % (1000 * 60)) / 1000);
+                const minutesRemaining = Math.floor(
+                    (timeDiff % (1000 * 60 * 60)) / (1000 * 60)
+                );
+                const secondsRemaining = Math.floor(
+                    (timeDiff % (1000 * 60)) / 1000
+                );
+
+                const hoursString =
+                    hoursRemaining < 10
+                        ? `0${hoursRemaining}`
+                        : hoursRemaining.toString();
+                const minutesString =
+                    minutesRemaining < 10
+                        ? `0${minutesRemaining}`
+                        : minutesRemaining.toString();
+                const secondsString =
+                    secondsRemaining < 10
+                        ? `0${secondsRemaining}`
+                        : secondsRemaining.toString();
 
                 // Construye el mensaje con el contador regresivo
-                this.countdownMessage = `Próxima actualización en: ${hoursRemaining} horas, ${minutesRemaining} minutos y ${secondsRemaining} segundos.`;
+                this.countdownMessage = `${hoursString}:${minutesString}:${secondsString}.`;
             }
         });
     }
@@ -72,134 +98,298 @@ export class CreaTuPlayeraComponent implements OnInit, OnDestroy {
     }
 
     async getCTPOrders() {
-        this.isRotated = false;
+        // this.isRotated = false;
         const result = await this.creaTuPlayerService.getCTPOrders();
         if (result.data.length > 0) {
-            this.ctpOrders = result.data.map(order => {
+            this.ctpOrders = result.data.map((order) => {
                 const modifiedOrder = {
                     ...order,
                     date: order.date.split('T')[0],
-                    status_name: this.statusName(order.status.toString())
+                    status_name: this.statusName(order.status.toString()),
                 };
                 return modifiedOrder;
             });
-            this.rotateOnClick();
+            // this.isRotated = true;
+        }
+    }
+
+    async getSwiftPODOrders() {
+        const result = await this.swiftPodService.getSwiftPODOrder();
+        if (result.data.length > 0) {
+            this.swiftpodOrders = result.data.map((order) => {
+                const modifiedOrder = {
+                    ...order,
+                    date_status: order.date.split('T')[0],
+                    date_shipment: order.ship_date
+                        ? order.ship_date.split('T')[0]
+                        : '',
+                };
+                return modifiedOrder;
+            });
         }
     }
 
     async updateStatus() {
         if (this.ctpOrders.length > 0) {
-            const result = await Promise.all(this.ctpOrders.map(async (order) => {
-                const exist = await this.creaTuPlayerService.getKornitXOrders(order.order_id);
-                
-                if (exist.data.length > 0) {
-                    if (exist.data[0].status == order.status) {
-                        return { ...order }
-                    } else {
-                        let data: any = {
-                            status: parseInt(exist.data[0].status),
-                            carrier: exist.data[0].shipping_carrier
-                        };
+            const result = await Promise.all(
+                this.ctpOrders.map(async (order) => {
+                    const exist =
+                        await this.creaTuPlayerService.getKornitXOrders(
+                            order.order_id
+                        );
 
-                        if (exist.data[0].shipping_tracking !== "") {
-                            data.tracking_number = exist.data[0].shipping_tracking;
-                        }
-                        // Actualizar en la BD MySQL
-                        await this.creaTuPlayerService.updateCTPOrders(order.order_id, data);
-
-                        // Mark as Shipped de Shipstation para enviar el tracking de ML
-                        if (exist.data[0].status == 8) {
-                            const authorizationToken = environment.tokenBase64;
-                            const payload = {
-                                orderId: exist.data[0].order_id,
-                                carrierCode:  data.tracking_number !== undefined ? exist.data[0].shipping_carrier : order.carrier,
-                                shipDate: new Date().toISOString().split('T')[0],
-                                trackingNumber: data.tracking_number !== undefined ? data.tracking_number : order.tracking_number,
-                                notifyCustomer: true,
-                                notifySalesChannel: true
+                    if (exist.data.length > 0) {
+                        if (exist.data[0].status == order.status) {
+                            return { ...order };
+                        } else {
+                            let data: any = {
+                                status: parseInt(exist.data[0].status),
+                                carrier: exist.data[0].shipping_carrier,
                             };
 
-                            const headers = new Headers({
-                                'Authorization': `Basic ${authorizationToken}`,
-                                'Content-Type': 'application/json'
-                            });
+                            if (exist.data[0].shipping_tracking !== '') {
+                                data.tracking_number =
+                                    exist.data[0].shipping_tracking;
+                            }
+                            // Actualizar en la BD MySQL
+                            await this.creaTuPlayerService.updateCTPOrders(
+                                order.order_id,
+                                data
+                            );
 
-                            try {
-                                const response = await fetch(environment.SHIP_URL_MARKASSHIPPED, {
-                                    method: 'POST',
-                                    headers,
-                                    body: JSON.stringify(payload)
+                            // Mark as Shipped de Shipstation para enviar el tracking de ML
+                            if (exist.data[0].status == 8) {
+                                const authorizationToken =
+                                    environment.tokenBase64;
+                                const payload = {
+                                    orderId: exist.data[0].order_id,
+                                    carrierCode:
+                                        data.tracking_number !== undefined
+                                            ? exist.data[0].shipping_carrier
+                                            : order.carrier,
+                                    shipDate: new Date()
+                                        .toISOString()
+                                        .split('T')[0],
+                                    trackingNumber:
+                                        data.tracking_number !== undefined
+                                            ? data.tracking_number
+                                            : order.tracking_number,
+                                    notifyCustomer: true,
+                                    notifySalesChannel: true,
+                                };
+
+                                const headers = new Headers({
+                                    Authorization: `Basic ${authorizationToken}`,
+                                    'Content-Type': 'application/json',
                                 });
 
-                                if (!response.ok) {
-                                    const errorData = await response.json();
-                                    throw new Error(errorData.message);
+                                try {
+                                    const response = await fetch(
+                                        environment.SHIP_URL_MARKASSHIPPED,
+                                        {
+                                            method: 'POST',
+                                            headers,
+                                            body: JSON.stringify(payload),
+                                        }
+                                    );
+
+                                    if (!response.ok) {
+                                        const errorData = await response.json();
+                                        throw new Error(errorData.message);
+                                    }
+
+                                    const responseData = await response.json();
+                                    console.log(responseData);
+                                } catch (error) {
+                                    console.error('Error:', error);
+                                    throw error;
                                 }
-
-                                const responseData = await response.json();
-                                console.log(responseData);
-                            } catch (error) {
-                                console.error('Error:', error);
-                                throw error;
                             }
-                        }
 
-                        return {
-                            ...order,
-                            status: data.status,
-                            status_name: this.statusName(data.status.toString()),
-                            tracking_number: data.tracking_number !== undefined ? data.tracking_number : order.tracking_number,
-                            carrier: data.carrier,
-                            updated: true
+                            return {
+                                ...order,
+                                status: data.status,
+                                status_name: this.statusName(
+                                    data.status.toString()
+                                ),
+                                tracking_number:
+                                    data.tracking_number !== undefined
+                                        ? data.tracking_number
+                                        : order.tracking_number,
+                                carrier: data.carrier,
+                                updated: true,
+                            };
                         }
                     }
-                }
-                return { ...order }
-            }));
+                    return { ...order };
+                })
+            );
 
             this.ctpOrders = result;
         }
-
     }
 
-    rotateOnClick() {
-        this.isRotated = true;
+    async updateSwiftPODStatus() {
+        try {
+            if (this.swiftpodOrders.length > 0) {
+                const result = await Promise.all(
+                    this.swiftpodOrders.map(async (order) => {
+                        const exist =
+                            await this.swiftPodService.getSwiftPODOrdersStatus(
+                                order.site_order_id
+                            );
+
+                        if (exist.data.length > 0) {
+                            if (
+                                exist.data[0].status == order.status &&
+                                exist.data[0].status !== 'shipped'
+                            ) {
+                                return { ...order };
+                            } else {
+                                let data: any = {
+                                    date: exist.data[0].date_change
+                                        ? exist.data[0].date_change.split('T')[0]
+                                        : '',
+                                    status: exist.data[0].status,
+                                    carrier: exist.data[0].tracking_code
+                                        ? exist.data[0].tracking_code
+                                        : '',
+                                    tracking_code: exist.data[0].tracking_number
+                                        ? exist.data[0].tracking_number
+                                        : '',
+                                    tracking_url: exist.data[0].tracking_url
+                                        ? exist.data[0].tracking_url
+                                        : '',
+                                    ship_date: exist.data[0].date_tracking
+                                        ? exist.data[0].date_tracking.split('T')[0]
+                                        : '',
+                                };
+
+                                console.log({order, data});
+                                
+                                // Actualizar en la BD MySQL
+                                await this.swiftPodService.updateSwiftPODOrderStatus(
+                                    order.order_id,
+                                    data
+                                );
+
+                                // Mark as Shipped de Shipstation para enviar el tracking de ML
+                                // if (exist.data[0].status == 8) {
+                                //     const authorizationToken =
+                                //         environment.tokenBase64;
+                                //     const payload = {
+                                //         orderId: exist.data[0].order_id,
+                                //         carrierCode:
+                                //             data.tracking_number !== undefined
+                                //                 ? exist.data[0].shipping_carrier
+                                //                 : order.carrier,
+                                //         shipDate: new Date()
+                                //             .toISOString()
+                                //             .split('T')[0],
+                                //         trackingNumber:
+                                //             data.tracking_number !== undefined
+                                //                 ? data.tracking_number
+                                //                 : order.tracking_number,
+                                //         notifyCustomer: true,
+                                //         notifySalesChannel: true,
+                                //     };
+
+                                //     const headers = new Headers({
+                                //         Authorization: `Basic ${authorizationToken}`,
+                                //         'Content-Type': 'application/json',
+                                //     });
+
+                                //     try {
+                                //         const response = await fetch(
+                                //             environment.SHIP_URL_MARKASSHIPPED,
+                                //             {
+                                //                 method: 'POST',
+                                //                 headers,
+                                //                 body: JSON.stringify(payload),
+                                //             }
+                                //         );
+
+                                //         if (!response.ok) {
+                                //             const errorData = await response.json();
+                                //             throw new Error(errorData.message);
+                                //         }
+
+                                //         const responseData = await response.json();
+                                //         console.log(responseData);
+                                //     } catch (error) {
+                                //         console.error('Error:', error);
+                                //         throw error;
+                                //     }
+                                // }
+
+                                return {
+                                    ...order,
+                                    status: data.status,
+                                    tracking_code: data.tracking_code,
+                                    tracking_url: data.tracking_url,
+                                    carrier: data.carrier,
+                                    date_status: data.date,
+                                    date_shipment: data.ship_date,
+                                    updated: true,
+                                };
+                            }
+                        }
+                        return { ...order };
+                    })
+                );                
+                this.swiftpodOrders = result;
+            }
+        } catch (error) {
+            console.log(error);
+            
+        }
     }
 
     statusName(status: string): string {
         switch (status) {
-            case "0":
-                return "Unknown"
-            case "1":
-                return "Received"
-            case "2":
-                return "Unused"
-            case "4":
-                return "In Production"
-            case "8":
-                return "Dispatched"
-            case "32":
-                return "QC Query"
-            case "64":
-                return "Dispatched (Retailer Notified)"
-            case "128":
-                return "Cancelled"
-            case "256":
-                return "On Hold"
-            case "512":
-                return "Sent to Supplier"
-            case "513":
-                return "Received by Supplier"
-            case "515":
-                return "Sent to Shipper"
-            case "516":
-                return "Received by Shipper"
-            case "600":
-                return "Consolidating"
+            case '0':
+                return 'Unknown';
+            case '1':
+                return 'Received';
+            case '2':
+                return 'Unused';
+            case '4':
+                return 'In Production';
+            case '8':
+                return 'Dispatched';
+            case '32':
+                return 'QC Query';
+            case '64':
+                return 'Dispatched (Retailer Notified)';
+            case '128':
+                return 'Cancelled';
+            case '256':
+                return 'On Hold';
+            case '512':
+                return 'Sent to Supplier';
+            case '513':
+                return 'Received by Supplier';
+            case '515':
+                return 'Sent to Shipper';
+            case '516':
+                return 'Received by Shipper';
+            case '600':
+                return 'Consolidating';
 
             default:
-                return "";
+                return '';
         }
+    }
+
+    formatDate(date: string): string {
+        let resultDate: string = '';
+        if (date !== '') {
+            const datePart1 = date.split('T')[0];
+            const datePart2 = date.split('T')[1].split('.')[0];
+
+            resultDate = datePart1 + ' ' + datePart2;
+        }
+        return resultDate;
     }
 
     ngOnDestroy() {
@@ -208,5 +398,4 @@ export class CreaTuPlayeraComponent implements OnInit, OnDestroy {
             this.countdownSubscription.unsubscribe();
         }
     }
-
 }

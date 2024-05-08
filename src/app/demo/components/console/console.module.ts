@@ -10,6 +10,9 @@ import { DialogModule } from 'primeng/dialog';
 import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { DropdownModule } from 'primeng/dropdown';
+import { ToastModule } from 'primeng/toast';
+import { InputSwitchModule } from 'primeng/inputswitch';
+import { ReplaceRaw } from '../../pipes/replace-raw.pipe';
 
 
 @NgModule({
@@ -22,9 +25,11 @@ import { DropdownModule } from 'primeng/dropdown';
         ButtonModule,
         DialogModule,
         InputTextModule,
-        DropdownModule
+        DropdownModule,
+        ToastModule,
+        InputSwitchModule
         
     ],
-    declarations: [ConsoleComponent, EditOrderComponent]
+    declarations: [ConsoleComponent, EditOrderComponent, ReplaceRaw]
 })
 export class ConsoleModule { }

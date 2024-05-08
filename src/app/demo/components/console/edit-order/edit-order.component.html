@@ -28,8 +28,8 @@
                     <div class="flex gap-2 flex-column align-items-center">
                         <span>Front</span>
                         <div class="flex gap-1 justify-content-center">
-                            <div class="frame2"><img [src]="item.front_art_url" width="50px" alt=""></div>
-                            <div class="frame2"><img [src]="item.front_mockup_url" width="50px" alt=""></div>
+                            <div class="frame2"><img [src]="item.front_art_url | replaceRaw " width="50px" alt=""></div>
+                            <div class="frame2"><img [src]="item.front_mockup_url | replaceRaw " width="50px" alt=""></div>
                         </div>
                     </div>
                 </td>
@@ -58,26 +58,29 @@
                         style="font-size: 1rem"></i>{{order?.phone}}</p>
             </div>
         </div>
-        <div class="col-5" *ngIf="order.pod_service !== 'swiftpo'">
+        <div class="col-5" *ngIf="enableShipping(order?.pod_service, order?.site_name)">
             <h5>Shipping Label</h5>
             <div class="grid pl-2 my-2">
                 <div class="col-12 p-1 flex flex-column gap-2">
-                    <input pInputText id="url" [(ngModel)]="shippingUrl" placeholder="Shipping URL" />
+                    <input pInputText id="url" [(ngModel)]="shippingUrl" (blur)="onTextChange($event, 'shippingUrl')"
+                        placeholder="Shipping URL" />
                 </div>
                 <div class="col-6 p-1 flex flex-column gap-2">
-                    <p-dropdown [options]="carriers" [(ngModel)]="selectedCarrier" optionLabel="name" [showClear]="true" placeholder="Select a carrier"></p-dropdown>
+                    <p-dropdown [options]="carriers" [(ngModel)]="selectedCarrier" optionLabel="name" [showClear]="true"
+                        placeholder="Select a carrier"></p-dropdown>
                 </div>
                 <div class="col-6 p-1 flex flex-column gap-2">
-                    <input pInputText id="trackingCode" [(ngModel)]="trackingCode" placeholder="Tracking Code"/>
+                    <input pInputText id="trackingCode" [(ngModel)]="trackingCode" placeholder="Tracking Code" />
                 </div>
             </div>
             <div>
                 <button pButton pRipple label="Save" class="p-button-primary" (click)="saveShippingLabel()"
-                            icon="pi pi-save" size="small"></button>
+                    icon="pi pi-save" size="small"></button>
             </div>
         </div>
     </div>
 </div>
+<p-toast position="bottom-center" key="bc"></p-toast>
 <p-dialog header="Header" [(visible)]="visible" [modal]="true" [style]="{ width: '70rem' }"
     [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }">
     <ng-template pTemplate="header">
@@ -87,11 +90,11 @@
         </div>
     </ng-template>
     <div class="formgrid grid">
-        <div class="field col flex flex-column gap-3">
+        <div class="field col-6 flex flex-column gap-3">
             <span class="font-bold text-lg mb-2">Front</span>
             <div class="flex gap-2 align-items-start">
                 <div class="frame">
-                    <img [src]="artURLFront" alt="">
+                    <img [src]="artURLFront | replaceRaw " alt="">
                 </div>
                 <div class="w-full">
                     <label for="artURLFront">Art URL</label>
@@ -102,7 +105,7 @@
             </div>
             <div class="flex gap-2 align-items-start">
                 <div class="frame">
-                    <img [src]="mockupURLFront" alt="">
+                    <img [src]="mockupURLFront | replaceRaw " alt="">
                 </div>
                 <div class="w-full">
                     <label for="mockupURLFront">Mockup URL</label>
@@ -112,11 +115,11 @@
                 </div>
             </div>
         </div>
-        <div class="field col flex flex-column gap-3">
+        <div class="field col-6 flex flex-column gap-3">
             <span class="font-bold text-lg mb-2">Back</span>
             <div class="flex gap-2 align-items-start">
                 <div class="frame">
-                    <img [src]="artURLBack" alt="">
+                    <img [src]="artURLBack | replaceRaw " alt="">
                 </div>
                 <div class="w-full">
                     <label for="artURLBack">Art URL</label>
@@ -133,6 +136,33 @@
                     <label for="mockupURLBack">Mockup URL</label>
                     <input id="mockupURLBack" type="text" [(ngModel)]="mockupURLBack"
                         (blur)="onTextChange($event, 'mockupURLBack')"
+                        class="mt-2 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full">
+                </div>
+            </div>
+        </div>
+        <div class="field col-6 flex flex-column gap-3">
+            <span class="font-bold text-lg mb-2">Inner Neck</span>
+            <div class="flex gap-2 align-items-start">
+                <div class="frame">
+                    <img [src]="artInnerNeck | replaceRaw" alt="">
+                </div>
+                <div class="w-full">
+                    <label for="innerNeck">Art URL</label>
+                    <input id="innerNeck" type="text" [(ngModel)]="artInnerNeck" (blur)="onTextChange($event, 'innerNeck')"
+                        class="mt-2 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full">
+                    <div class="mt-2"><p-inputSwitch [(ngModel)]="checkedInnerNeck" (onChange)="handleChange()" /></div>
+                </div>
+            </div>
+        </div>
+        <div class="field col-6 flex flex-column gap-3">
+            <span class="font-bold text-lg mb-2">Outer Neck</span>
+            <div class="flex gap-2 align-items-start">
+                <div class="frame">
+                    <img [src]="artOuterNeck | replaceRaw" alt="">
+                </div>
+                <div class="w-full">
+                    <label for="outerNeck">Art URL</label>
+                    <input id="outerNeck" type="text" [(ngModel)]="artOuterNeck" (blur)="onTextChange($event, 'outerNeck')"
                         class="mt-2 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full">
                 </div>
             </div>

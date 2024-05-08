@@ -36,21 +36,22 @@
                     <div class="flex gap-2 flex-column align-items-center">
                         <span>Front</span>
                         <div class="flex gap-1 justify-content-center" *ngFor="let item of order.items">
-                            <div class="frame"><img [src]="item.front_art_url" width="50px" alt=""></div>
-                            <div class="frame"><img [src]="item.front_mockup_url" width="50px" alt=""></div>
+                            <div class="frame"><img [src]="item.front_art_url | replaceRaw" width="50px" alt=""></div>
+                            <div class="frame"><img [src]="item.front_mockup_url | replaceRaw" width="50px" alt=""></div>
                         </div>
                     </div>
                 </td>
                 <td>
                     <div class="flex flex-column gap-2 justify-content-center">
                         <button pButton pRipple [routerLink]="['/console/edit-order']" [queryParams]="{ site_order_id: order.site_order_id}" label="Edit" class="p-button-warning" icon="pi pi-pencil" size="small" [raised]="true"></button>
-                        <button pButton pRipple label="Send" class="p-button-info" icon="pi pi-send" size="small" [raised]="true"></button>
+                        <button pButton pRipple label="Send" *ngIf="order.pod_service !== 'swiftpod'" [disabled]="!statusFlagsImages(order) || !statusFlagsShipping(order)" class="p-button-info" icon="pi pi-send" size="small" [raised]="true"></button>
+                        <button pButton pRipple (click)="sendOrder(order)" label="Send" *ngIf="order.pod_service == 'swiftpod'" [disabled]="!statusFlagsImages(order)" class="p-button-info" icon="pi pi-send" size="small" [raised]="true"></button>
                     </div>
                 </td>
                 <td>
                     <div class="flex flex-column gap-2 align-items-center">
                         <span class="white-space-nowrap" [ngClass]="statusFlagsImages(order) ? 'span-success' : 'span-danger'">Image URLs</span>
-                        <span class="white-space-nowrap" [ngClass]="statusFlagsShipping(order) ? 'span-success' : 'span-danger'" *ngIf="order.pod_service !== 'swiftpod'">Shipping label</span>
+                        <span class="white-space-nowrap" [ngClass]="statusFlagsShipping(order) ? 'span-success' : 'span-danger'" *ngIf="enableFlagShipping(order.pod_service, order.site_name)">Shipping label</span>
                     </div>
                 </td>
             </tr>

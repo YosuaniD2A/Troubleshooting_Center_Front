@@ -22,4 +22,40 @@ export class SwiftpodService {
     saveMockup(data): Promise<any> {
         return lastValueFrom(this.http.post<any>(`${this.baseUrl}saveMockup`, { data }))
     }
+
+    saveArtNeck(data): Promise<any> {
+        return lastValueFrom(this.http.post<any>(`${this.baseUrl}saveArtNeck`, { data }))
+    }
+
+    deleteArtNeck(art): Promise<any> {
+        return lastValueFrom(this.http.delete<any>(`${this.baseUrl}deleteArtNeck/${art}`))
+    }
+
+    saveShippingLabel(data): Promise<any> {
+        return lastValueFrom(this.http.post<any>(`${this.baseUrl}saveShippingLabel`, { data }))
+    }
+
+    //------------------------------------------------------------------------
+
+    sendSwiftPODOrder(data): Promise<any> {
+        return lastValueFrom(this.http.post<any>(`${this.baseUrl}sendOrderToSwift`, { data }))
+    }
+    saveSwiftPODOrder(data): Promise<any> {
+        return lastValueFrom(this.http.post<any>(`${this.baseUrl}saveSwiftPODOrder`, { data }))
+    }
+
+    getSwiftPODOrder(): Promise<any> {
+        return lastValueFrom(this.http.get<any>(`${this.baseUrl}getSwiftPODOrder`))
+    }
+
+    getSwiftPODOrdersStatus(order_id): Promise<any> {
+        return lastValueFrom(this.http.get<any>(`${this.baseUrl}getSwiftPODOrdersStatus/${order_id}`))
+    }
+
+    updateSwiftPODOrderStatus(order_id: string, data: any): Promise<any>{
+        return lastValueFrom(this.http.put<any>(`${this.baseUrl}updateSwiftPODOrderStatus/${order_id}`, data))
+      }
+    
+
+
 }

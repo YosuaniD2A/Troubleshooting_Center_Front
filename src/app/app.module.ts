@@ -15,6 +15,7 @@ import { DateFromStringPipe } from './demo/pipes/date-from-string.pipe';
 import { FormsModule } from '@angular/forms';
 //import { AgmCoreModule } from '@agm/core';
 import { environment } from 'src/environments/environment';
+import { ReplaceRaw } from './demo/pipes/replace-raw.pipe';
 
 @NgModule({
     declarations: [
