@@ -75,34 +75,6 @@ export class ConsoleComponent implements OnInit {
         } 
     }
 
-    async sendOrder(order: any){
-        try {
-            if(order.pod_service == 'swiftpod'){
-                const buildedSwiftPODOrder = this.buildSwiftPODOrder(order);
-                const { response } = await this.swiftpodService.sendSwiftPODOrder(buildedSwiftPODOrder);
-                console.log(response);
-
-                if(response.status){
-                    const swiftpodOrder = {
-                        site_order_id: order.site_order_id,
-                        order_id: order.order_id,
-                        swift_id: response.data.id,
-                        site_name: order.site_name,
-                        date: this.formatDate(order.order_date),
-                        status: 'new_order'
-                    };
-
-                    // Insertar datos en la tabla swiftpod_orders 
-                    const result = await this.swiftpodService.saveSwiftPODOrder(swiftpodOrder);
-                    this.loadData();
-                }
-            }  
-        } catch (error) {
-            console.log(error)
-        }
-        
-    }
-
     // Build order to SwiftPOD
     buildSwiftPODOrder(order: any): any{        
         const line_items = order.items.map(item => {
@@ -128,7 +100,7 @@ export class ConsoleComponent implements OnInit {
 
         const bodyData = {
             order_id: order.site_order_id,
-            test_order: true,
+            test_order: false,
             order_status: "new_order",
             line_items,
             address: {
@@ -158,5 +130,33 @@ export class ConsoleComponent implements OnInit {
         };
 
         return bodyData;
+    }
+
+    async sendOrder(order: any){
+        try {
+            if(order.pod_service == 'swiftpod'){
+                const buildedSwiftPODOrder = this.buildSwiftPODOrder(order);
+                const { response } = await this.swiftpodService.sendSwiftPODOrder(buildedSwiftPODOrder);
+                console.log(response);
+
+                if(response.status){
+                    const swiftpodOrder = {
+                        site_order_id: order.site_order_id,
+                        order_id: order.order_id,
+                        swift_id: response.data.id,
+                        site_name: order.site_name,
+                        date: this.formatDate(order.order_date),
+                        status: 'new_order'
+                    };
+
+                    // Insertar datos en la tabla swiftpod_orders 
+                    const result = await this.swiftpodService.saveSwiftPODOrder(swiftpodOrder);
+                    this.loadData();
+                }
+            }  
+        } catch (error) {
+            console.log(error)
+        }
+        
     }
 }

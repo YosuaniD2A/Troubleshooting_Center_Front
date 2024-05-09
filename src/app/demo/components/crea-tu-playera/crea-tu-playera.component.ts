@@ -34,7 +34,7 @@ export class CreaTuPlayeraComponent implements OnInit, OnDestroy {
         this.startCountdown();
 
         await this.getCTPOrders();
-        await this.getSwiftPODOrders();        
+        await this.getSwiftPODOrders();
 
         await this.updateStatus();
         await this.updateSwiftPODStatus();
@@ -248,7 +248,9 @@ export class CreaTuPlayeraComponent implements OnInit, OnDestroy {
                             } else {
                                 let data: any = {
                                     date: exist.data[0].date_change
-                                        ? exist.data[0].date_change.split('T')[0]
+                                        ? exist.data[0].date_change.split(
+                                              'T'
+                                          )[0]
                                         : '',
                                     status: exist.data[0].status,
                                     carrier: exist.data[0].tracking_code
@@ -261,12 +263,20 @@ export class CreaTuPlayeraComponent implements OnInit, OnDestroy {
                                         ? exist.data[0].tracking_url
                                         : '',
                                     ship_date: exist.data[0].date_tracking
-                                        ? exist.data[0].date_tracking.split('T')[0]
+                                        ? exist.data[0].date_tracking.split(
+                                              'T'
+                                          )[0]
                                         : '',
                                 };
 
-                                console.log({order, data});
-                                
+                                console.log({ data });
+                                // Eliminar propiedades con valores vacíos
+                                Object.entries(data).forEach(([key, value]) => {
+                                    if (value === '') {
+                                        delete data[key];
+                                    }
+                                });
+
                                 // Actualizar en la BD MySQL
                                 await this.swiftPodService.updateSwiftPODOrderStatus(
                                     order.order_id,
@@ -274,74 +284,72 @@ export class CreaTuPlayeraComponent implements OnInit, OnDestroy {
                                 );
 
                                 // Mark as Shipped de Shipstation para enviar el tracking de ML
-                                // if (exist.data[0].status == 8) {
-                                //     const authorizationToken =
-                                //         environment.tokenBase64;
-                                //     const payload = {
-                                //         orderId: exist.data[0].order_id,
-                                //         carrierCode:
-                                //             data.tracking_number !== undefined
-                                //                 ? exist.data[0].shipping_carrier
-                                //                 : order.carrier,
-                                //         shipDate: new Date()
-                                //             .toISOString()
-                                //             .split('T')[0],
-                                //         trackingNumber:
-                                //             data.tracking_number !== undefined
-                                //                 ? data.tracking_number
-                                //                 : order.tracking_number,
-                                //         notifyCustomer: true,
-                                //         notifySalesChannel: true,
-                                //     };
+                                if (
+                                    exist.data[0].tracking_status == 'delivered' || exist.data[0].tracking_number !== ''
+                                ) {
+                                    const authorizationToken =
+                                        environment.tokenBase64;
+                                    const payload = {
+                                        orderId: parseInt(order.order_id),
+                                        carrierCode:
+                                            exist.data[0].tracking_code,
+                                        shipDate: new Date()
+                                            .toISOString()
+                                            .split('T')[0],
+                                        trackingNumber:
+                                            exist.data[0].tracking_number,
+                                        notifyCustomer: true,
+                                        notifySalesChannel: true,
+                                    };
+                                    
+                                    const headers = new Headers({
+                                        Authorization: `Basic ${authorizationToken}`,
+                                        'Content-Type': 'application/json',
+                                    });
 
-                                //     const headers = new Headers({
-                                //         Authorization: `Basic ${authorizationToken}`,
-                                //         'Content-Type': 'application/json',
-                                //     });
+                                    const response = await fetch(
+                                        environment.SHIP_URL_MARKASSHIPPED,
+                                        {
+                                            method: 'POST',
+                                            headers,
+                                            body: JSON.stringify(payload),
+                                        }
+                                    );
 
-                                //     try {
-                                //         const response = await fetch(
-                                //             environment.SHIP_URL_MARKASSHIPPED,
-                                //             {
-                                //                 method: 'POST',
-                                //                 headers,
-                                //                 body: JSON.stringify(payload),
-                                //             }
-                                //         );
+                                    if (!response.ok) {
+                                        const errorData = await response.json();
+                                        throw new Error(errorData.message);
+                                    }
 
-                                //         if (!response.ok) {
-                                //             const errorData = await response.json();
-                                //             throw new Error(errorData.message);
-                                //         }
-
-                                //         const responseData = await response.json();
-                                //         console.log(responseData);
-                                //     } catch (error) {
-                                //         console.error('Error:', error);
-                                //         throw error;
-                                //     }
-                                // }
+                                    const responseData = await response.json();
+                                    console.log(responseData);
+                                }
 
                                 return {
                                     ...order,
-                                    status: data.status,
-                                    tracking_code: data.tracking_code,
-                                    tracking_url: data.tracking_url,
-                                    carrier: data.carrier,
-                                    date_status: data.date,
-                                    date_shipment: data.ship_date,
+                                    status: data.status ? data.status : '',
+                                    tracking_code: data.tracking_code
+                                        ? data.tracking_code
+                                        : '',
+                                    tracking_url: data.tracking_url
+                                        ? data.tracking_url
+                                        : '',
+                                    carrier: data.carrier ? data.carrier : '',
+                                    date_status: data.date ? data.date : '',
+                                    date_shipment: data.ship_date
+                                        ? data.ship_date
+                                        : '',
                                     updated: true,
                                 };
                             }
                         }
                         return { ...order };
                     })
-                );                
+                );
                 this.swiftpodOrders = result;
             }
         } catch (error) {
             console.log(error);
-            
         }
     }
 

@@ -79,8 +79,7 @@ export class EditOrderComponent implements OnInit {
         this.mockupURLBack = this.selectedItem.back_mockup_url;
         this.artInnerNeck = this.selectedItem.inner_neck_art_url;
         this.artOuterNeck = this.selectedItem.outer_neck_art_url;
-
-        //this.selectNeckImage(this.selectedItem.design);   //Revisar si este afecta    
+   
     }
 
     onTextChange(event: any, field: string): void {
@@ -194,8 +193,17 @@ export class EditOrderComponent implements OnInit {
             const product = design.slice(-5);
 
             const storeProductImageMap = {
-                SS: {
+                SH: {
                     WOTSA: 'url_de_imagen_para_WOTSA_de_SS',
+                    METSA: 'url_de_imagen_para_METSA_de_SS',
+                    MEHOA: 'url_de_imagen_para_MEHOA_de_SS',
+                    WOHOA: 'url_de_imagen_para_WOHOA_de_SS',
+                    WOCTT: 'url_de_imagen_para_WOCTT_de_SS',
+                    WOSWA: 'https://www.dropbox.com/scl/fi/mmyicljwdc50izord3xf6/GDA384MACTS.png?rlkey=qaoijpb06ez0qani9wr9zv6qg&st=gewx12ff&dl=0',
+                    // Puedes agregar más productos aquí según sea necesario
+                },
+                DB: {
+                    WOTSA: 'https://www.dropbox.com/scl/fi/mmyicljwdc50izord3xf6/GDA384MACTS.png?rlkey=qaoijpb06ez0qani9wr9zv6qg&st=gewx12ff&dl=0',
                     METSA: 'url_de_imagen_para_METSA_de_SS',
                     MEHOA: 'url_de_imagen_para_MEHOA_de_SS',
                     WOHOA: 'url_de_imagen_para_WOHOA_de_SS',
