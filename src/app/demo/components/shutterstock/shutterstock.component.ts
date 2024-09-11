@@ -150,7 +150,7 @@ export class ShutterstockComponent implements OnInit, OnDestroy  {
 
     async getReport(){
         this.isRotated = false;
-        this.report = await this.shutterstockService.getReportData(this.get30DaysAgoDate());
+        // this.report = await this.shutterstockService.getReportData(this.get30DaysAgoDate());
         this.rotateOnClick();
     }
 

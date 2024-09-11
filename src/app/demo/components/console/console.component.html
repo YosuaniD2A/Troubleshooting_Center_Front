@@ -1,16 +1,20 @@
+<!-- <div class="card px-6 py-6"> -->
+<p-toolbar styleClass="p-6 mb-4">
+    <ng-template pTemplate="left">
+        <h1 class="mb-0 mr-2">Console Admin</h1>
+    </ng-template>
+    <ng-template pTemplate="right">
+        <div>
+            <button pButton icon="pi pi-file" label="Download SKUs as .txt" (click)="downloadSKUsAsTxt()"></button>
+        </div>
+    </ng-template>
+</p-toolbar>
+<!-- </div> -->
 <div class="card px-6 py-6">
-    <h1 class="mb-0 mr-2">Console Admin</h1>
-</div>
-<div class="card px-6 py-6">
-    <p-table
-        [value]="incomingOrders"
-        [paginator]="true"
-        [rows]="10"
-        [showCurrentPageReport]="true"
+    <p-table [value]="incomingOrders" [paginator]="true" [rows]="50" [showCurrentPageReport]="true"
         [tableStyle]="{ 'min-width': '50rem' }"
         currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
-        [rowsPerPageOptions]="[5, 10, 20]"
-    >
+        [rowsPerPageOptions]="[5, 10, 20, 50, 100]">
         <ng-template pTemplate="header">
             <tr>
                 <th style="width:25%">Site Order ID</th>
@@ -34,24 +38,42 @@
                 <td>{{ order.pod_service }}</td>
                 <td>
                     <div class="flex gap-2 flex-column align-items-center">
-                        <span>Front</span>
+                        <div class="flex justify-content-evenly">
+                            <span>Front</span>
+                        </div>
                         <div class="flex gap-1 justify-content-center" *ngFor="let item of order.items">
                             <div class="frame"><img [src]="item.front_art_url | replaceRaw" width="50px" alt=""></div>
-                            <div class="frame"><img [src]="item.front_mockup_url | replaceRaw" width="50px" alt=""></div>
+                            <div class="frame"><img [src]="item.front_mockup_url | replaceRaw" width="50px" alt="">
+                            </div>
+
+                            <div class="frame" *ngIf="item.back_art_url !== ''"><img
+                                    [src]="item.back_art_url | replaceRaw" width="50px" alt=""></div>
+                            <div class="frame" *ngIf="item.back_mockup_url !== ''"><img
+                                    [src]="item.back_mockup_url | replaceRaw" width="50px" alt=""></div>
                         </div>
                     </div>
                 </td>
                 <td>
                     <div class="flex flex-column gap-2 justify-content-center">
-                        <button pButton pRipple [routerLink]="['/console/edit-order']" [queryParams]="{ site_order_id: order.site_order_id}" label="Edit" class="p-button-warning" icon="pi pi-pencil" size="small" [raised]="true"></button>
-                        <button pButton pRipple label="Send" *ngIf="order.pod_service !== 'swiftpod'" [disabled]="!statusFlagsImages(order) || !statusFlagsShipping(order)" class="p-button-info" icon="pi pi-send" size="small" [raised]="true"></button>
-                        <button pButton pRipple (click)="sendOrder(order)" label="Send" *ngIf="order.pod_service == 'swiftpod'" [disabled]="!statusFlagsImages(order)" class="p-button-info" icon="pi pi-send" size="small" [raised]="true"></button>
+                        <button pButton pRipple [routerLink]="['/console/edit-order']"
+                            [queryParams]="{ site_order_id: order.site_order_id}" label="Edit" class="p-button-warning"
+                            icon="pi pi-pencil" size="small" [raised]="true"></button>
+                        <button pButton pRipple label="Send" *ngIf="order.pod_service !== 'swiftpod'"
+                            [disabled]="!statusFlagsImages(order) || !statusFlagsShipping(order)"
+                            (click)="sendOrder(order)" class="p-button-info" icon="pi pi-send" size="small"
+                            [raised]="true"></button>
+                        <button pButton pRipple label="Send" *ngIf="order.pod_service == 'swiftpod'"
+                            [disabled]="!statusFlagsImages(order)" (click)="sendOrder(order)" class="p-button-info"
+                            icon="pi pi-send" size="small" [raised]="true"></button>
                     </div>
                 </td>
                 <td>
                     <div class="flex flex-column gap-2 align-items-center">
-                        <span class="white-space-nowrap" [ngClass]="statusFlagsImages(order) ? 'span-success' : 'span-danger'">Image URLs</span>
-                        <span class="white-space-nowrap" [ngClass]="statusFlagsShipping(order) ? 'span-success' : 'span-danger'" *ngIf="enableFlagShipping(order.pod_service, order.site_name)">Shipping label</span>
+                        <span class="white-space-nowrap"
+                            [ngClass]="statusFlagsImages(order) ? 'span-success' : 'span-danger'">Image URLs</span>
+                        <span class="white-space-nowrap"
+                            [ngClass]="statusFlagsShipping(order) ? 'span-success' : 'span-danger'"
+                            *ngIf="enableFlagShipping(order.pod_service, order.site_name)">Shipping label</span>
                     </div>
                 </td>
             </tr>
@@ -63,4 +85,5 @@
             <p-button type="button" icon="pi pi-cloud" styleClass="p-button-text"></p-button>
         </ng-template> -->
     </p-table>
+    <p-toast position="bottom-center" key="bc"></p-toast>
 </div>

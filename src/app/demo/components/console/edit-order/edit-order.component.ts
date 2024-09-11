@@ -16,9 +16,12 @@ export class EditOrderComponent implements OnInit {
     selectedItem: any;
     visible: boolean = false;
 
+    checkedPocket: boolean = false;
+
     //Front
     artURLFront: string = '';
     mockupURLFront: string = '';
+
     //Back
     artURLBack: string = '';
     mockupURLBack: string = '';
@@ -79,11 +82,22 @@ export class EditOrderComponent implements OnInit {
         this.mockupURLBack = this.selectedItem.back_mockup_url;
         this.artInnerNeck = this.selectedItem.inner_neck_art_url;
         this.artOuterNeck = this.selectedItem.outer_neck_art_url;
+
+        if(this.selectedItem.front_print_area == 'pocket')
+            this.checkedPocket = true;
    
     }
 
     onTextChange(event: any, field: string): void {
         const img_url: string = event.target.value;
+        if(!img_url.includes(this.order.site_order_id)){
+            this.messageService.add({
+                key: 'bc',
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Verifique la URL de Shipping',
+            });
+        }
 
         switch (field) {
             case 'artURLFront':
@@ -115,6 +129,8 @@ export class EditOrderComponent implements OnInit {
     enableShipping(pod: string, site_name: string):boolean{
         switch(pod){
             case 'swiftpod':
+                return false;
+            case 'printbar':
                 return false;
             case 'crea_tu_playera':
                 if(site_name === 'Amazon Mexico' || site_name === 'Walmart'){
@@ -193,22 +209,23 @@ export class EditOrderComponent implements OnInit {
             const product = design.slice(-5);
 
             const storeProductImageMap = {
-                SH: {
-                    WOTSA: 'url_de_imagen_para_WOTSA_de_SS',
-                    METSA: 'url_de_imagen_para_METSA_de_SS',
-                    MEHOA: 'url_de_imagen_para_MEHOA_de_SS',
-                    WOHOA: 'url_de_imagen_para_WOHOA_de_SS',
-                    WOCTT: 'url_de_imagen_para_WOCTT_de_SS',
-                    WOSWA: 'https://www.dropbox.com/scl/fi/mmyicljwdc50izord3xf6/GDA384MACTS.png?rlkey=qaoijpb06ez0qani9wr9zv6qg&st=gewx12ff&dl=0',
+                GP: {
+                    METTA: 'https://www.dropbox.com/scl/fi/5wm09c2qcilu25wimdc3h/ETIQUETA-PIPELINE.png?rlkey=6moh9xohn3es7w72p7n2mrqci&st=swftwj9f&dl=0',
+                    WOTSA: 'url_de_imagen_para_WOTSA_de_GP',
+                    METSA: 'url_de_imagen_para_METSA_de_GP',
+                    MEHOA: 'url_de_imagen_para_MEHOA_de_GP',
+                    WOHOA: 'url_de_imagen_para_WOHOA_de_GP',
+                    WOCTT: 'url_de_imagen_para_WOCTT_de_GP',
+                    WOSWA: 'url_de_imagen_para_WOCTT_de_GP',
                     // Puedes agregar más productos aquí según sea necesario
                 },
                 DB: {
-                    WOTSA: 'https://www.dropbox.com/scl/fi/mmyicljwdc50izord3xf6/GDA384MACTS.png?rlkey=qaoijpb06ez0qani9wr9zv6qg&st=gewx12ff&dl=0',
+                    WOTSA: 'url_de_imagen_para_WOCTT_de_SS',
                     METSA: 'url_de_imagen_para_METSA_de_SS',
                     MEHOA: 'url_de_imagen_para_MEHOA_de_SS',
                     WOHOA: 'url_de_imagen_para_WOHOA_de_SS',
                     WOCTT: 'url_de_imagen_para_WOCTT_de_SS',
-                    WOSWA: 'https://www.dropbox.com/scl/fi/mmyicljwdc50izord3xf6/GDA384MACTS.png?rlkey=qaoijpb06ez0qani9wr9zv6qg&st=gewx12ff&dl=0',
+                    WOSWA: 'url_de_imagen_para_WOCTT_de_SS',
                     // Puedes agregar más productos aquí según sea necesario
                 },
                 SR: {
@@ -256,6 +273,7 @@ export class EditOrderComponent implements OnInit {
                 const data = {
                     sku: this.selectedItem.sku,
                     url: this.mockupURLFront,
+                    region: this.checkedPocket ? 'pocket' : '',
                     type: 'front',
                 };
                 const result = await this.swiftpodService.saveMockup(data);
@@ -264,6 +282,7 @@ export class EditOrderComponent implements OnInit {
                 const data = {
                     sku: this.selectedItem.sku,
                     url: this.mockupURLBack,
+                    region: '',
                     type: 'back',
                 };
                 const result = await this.swiftpodService.saveMockup(data);
@@ -292,6 +311,8 @@ export class EditOrderComponent implements OnInit {
 
             this.loadData();
             this.visible = false;
+            this.checkedPocket = false;
+
         } catch (error) {
             console.log(error);
         }

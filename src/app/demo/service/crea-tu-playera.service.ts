@@ -11,6 +11,10 @@ export class CreaTuPlayeraService {
 
   constructor(private http: HttpClient) { }
 
+  getIncomingOrdersCTP(site_order_id): Promise<any>{
+    return lastValueFrom(this.http.get<any>(`${this.baseUrl}getIncomingOrdersCTP/${site_order_id}`))
+  }
+
   getCTPOrders(): Promise<any>{
     return lastValueFrom(this.http.get<any>(`${this.baseUrl}getCTPOrdersStatus`))
   }
@@ -23,5 +27,17 @@ export class CreaTuPlayeraService {
     return lastValueFrom(this.http.put<any>(`${this.baseUrl}updateCTPOrderStatus/${order_id}`, data))
   }
 
+  sendCTPOrder(data): Promise<any> {
+    return lastValueFrom(this.http.post<any>(`${this.baseUrl}sendOrderToCTP`, data))
+
+  }
+  
+  saveCTPOrder(data): Promise<any> {
+    return lastValueFrom(this.http.post<any>(`${this.baseUrl}saveCTPOrder`, data))
+  }
+
+  setMongoCTPOrder(data): Promise<any> {
+    return lastValueFrom(this.http.post<any>(`${this.baseUrl}setMongoCTPOrder`, data))
+  }
 
 }

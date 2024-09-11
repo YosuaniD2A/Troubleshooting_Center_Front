@@ -14,11 +14,11 @@ $gutter: 1rem; //for primeflex grid system
 @import "assets/demo/styles/code.scss";
 
 
-.mark-selector{
+.mark-selector {
     min-width: 17rem;
 }
 
-.report-message{
+.report-message {
     padding: 20px;
     width: 100;
     // height: 40px;
@@ -29,7 +29,7 @@ $gutter: 1rem; //for primeflex grid system
     color: #696cff;
 }
 
-.refresh-buttom{
+.refresh-buttom {
     cursor: pointer;
     padding: 5px 8px 8px;
     border-radius: 100%;
@@ -37,12 +37,63 @@ $gutter: 1rem; //for primeflex grid system
     transition: background ease-in-out 0.3s;
 
 
-    &:hover{
-        background: #e9e9ff;        
+    &:hover {
+        background: #e9e9ff;
     }
 }
 
-.p-dropdown{
+.button_cancel {
+    background-color: transparent;
+    border-radius: 100%;
+    border: 1px solid #6366F1;
+    ;
+    color: #6366F1;
+    ;
+
+    &:enabled:hover {
+        background-color: #9394ee;
+        ;
+        border-color: #9394ee;
+    }
+}
+
+.sensor {
+    position: relative;
+    border-radius: 100%;
+    padding: 8px;
+    // background-color: rgb(48, 160, 48);
+
+    &::before {
+        content: '';
+        position: absolute;
+        left: -7px;
+        top: -7px;
+        width: 30px;
+        height: 30px;
+        border-radius: 100%;
+        // background: rgb(48, 160, 48);
+        animation: ping 0.8s ease-in-out infinite both;
+    }
+}
+
+.sensor.online {
+    background: rgb(48, 160, 48);
+
+    &::before {
+        background: rgb(48, 160, 48);
+    }
+}
+
+.sensor.offline {
+    background: rgb(199, 21, 21);
+
+    &::before {
+        background: rgb(199, 21, 21);
+    }
+}
+
+
+.p-dropdown {
     width: 100% !important;
 }
 
@@ -54,7 +105,33 @@ $gutter: 1rem; //for primeflex grid system
     0% {
         transform: rotate(0deg);
     }
+
     100% {
         transform: rotate(360deg);
+    }
+}
+
+.ping {
+    -webkit-animation: ping 0.8s ease-in-out infinite both;
+    animation: ping 0.8s ease-in-out infinite both;
+}
+
+@keyframes ping {
+    0% {
+        -webkit-transform: scale(0.2);
+        transform: scale(0.2);
+        opacity: 0.8;
+    }
+
+    80% {
+        -webkit-transform: scale(1.2);
+        transform: scale(1.2);
+        opacity: 0;
+    }
+
+    100% {
+        -webkit-transform: scale(2.2);
+        transform: scale(2.2);
+        opacity: 0;
     }
 }

@@ -11,7 +11,16 @@ export const environment = {
   SHIP_URL_MARKASSHIPPED: 'https://ssapi.shipstation.com/orders/markasshipped',
   SHIP_API_KEY: "d7fdcd4e64bb442582689e083d4ecfbd",
   SHIP_API_SECRET: "400abb4e9b234e878cca4f9d046007ad",
-  tokenBase64: "ZDdmZGNkNGU2NGJiNDQyNTgyNjg5ZTA4M2Q0ZWNmYmQ6NDAwYWJiNGU5YjIzNGU4NzhjY2E0ZjlkMDQ2MDA3YWQ="
+  tokenBase64: "ZDdmZGNkNGU2NGJiNDQyNTgyNjg5ZTA4M2Q0ZWNmYmQ6NDAwYWJiNGU5YjIzNGU4NzhjY2E0ZjlkMDQ2MDA3YWQ=",
+
+  //Crea tu playera keys
+  apiKey_1: "1562E79E6A69FFCBD6FD0F2E367",
+  companyRefId_1: "631310",
+
+  apiKey_2: "077E576B6D76247087F5BBE3D4B",
+  companyRefId_2: "814688",
+
+  callbackBaseURL: "https://d2america-integrator.up.railway.app/v1/orders/updateStatus/"
 };
 
 /*

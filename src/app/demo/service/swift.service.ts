@@ -48,13 +48,17 @@ export class SwiftpodService {
         return lastValueFrom(this.http.get<any>(`${this.baseUrl}getSwiftPODOrder`))
     }
 
-    getSwiftPODOrdersStatus(order_id): Promise<any> {
-        return lastValueFrom(this.http.get<any>(`${this.baseUrl}getSwiftPODOrdersStatus/${order_id}`))
+    getSwiftPODOrdersStatus(swift_id): Promise<any> {
+        return lastValueFrom(this.http.get<any>(`${this.baseUrl}getSwiftPODOrdersStatus/${swift_id}`))
     }
 
     updateSwiftPODOrderStatus(order_id: string, data: any): Promise<any>{
         return lastValueFrom(this.http.put<any>(`${this.baseUrl}updateSwiftPODOrderStatus/${order_id}`, data))
-      }
+    }
+
+    getOrdersWithoutUpdate(): Promise<any> {
+        return lastValueFrom(this.http.get<any>(`${this.baseUrl}getOrdersWithoutUpdate`))
+    }
     
 
 

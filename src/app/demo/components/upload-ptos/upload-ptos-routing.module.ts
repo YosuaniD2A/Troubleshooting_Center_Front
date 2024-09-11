@@ -1,11 +1,11 @@
 import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { SwiftpodComponent } from './swiftpod.component';
+import { UploadPtosComponent } from './upload-ptos.component';
 
 @NgModule({
     imports: [RouterModule.forChild([
-        { path: '', component: SwiftpodComponent }
+        { path: '', component: UploadPtosComponent }
     ])],
     exports: [RouterModule]
 })
-export class SwiftpodRoutingModule { }
+export class UploadPtosRoutingModule { }

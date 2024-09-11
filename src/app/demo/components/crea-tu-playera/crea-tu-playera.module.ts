@@ -4,6 +4,8 @@ import { CreaTuPlayeraRoutingModule } from './crea-tu-playera-routing.module';
 import { CreaTuPlayeraComponent } from './crea-tu-playera.component';
 import { ToolbarModule } from 'primeng/toolbar';
 import { TableModule } from 'primeng/table';
+import { ButtonModule } from 'primeng/button';
+import { ToastModule } from 'primeng/toast';
 
 
 @NgModule({
@@ -11,7 +13,9 @@ import { TableModule } from 'primeng/table';
         CommonModule,
         CreaTuPlayeraRoutingModule,
         ToolbarModule,
-        TableModule
+        TableModule,
+        ButtonModule,
+        ToastModule
     ],
     declarations: [CreaTuPlayeraComponent]
 })

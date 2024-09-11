@@ -13,6 +13,7 @@ import { DropdownModule } from 'primeng/dropdown';
 import { ToastModule } from 'primeng/toast';
 import { InputSwitchModule } from 'primeng/inputswitch';
 import { ReplaceRaw } from '../../pipes/replace-raw.pipe';
+import { CheckboxModule } from 'primeng/checkbox';
 
 
 @NgModule({
@@ -27,7 +28,8 @@ import { ReplaceRaw } from '../../pipes/replace-raw.pipe';
         InputTextModule,
         DropdownModule,
         ToastModule,
-        InputSwitchModule
+        InputSwitchModule,
+        CheckboxModule
         
     ],
     declarations: [ConsoleComponent, EditOrderComponent, ReplaceRaw]

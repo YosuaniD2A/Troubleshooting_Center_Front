@@ -23,13 +23,14 @@
                 <td>{{ item.sku }}</td>
                 <td>{{ item.size }}</td>
                 <td>{{ item.color }}</td>
-                <td>{{ item.quantity }}</td>
+                <td><h1 class="text-center">{{ item.quantity }}</h1></td>
                 <td>
                     <div class="flex gap-2 flex-column align-items-center">
                         <span>Front</span>
                         <div class="flex gap-1 justify-content-center">
                             <div class="frame2"><img [src]="item.front_art_url | replaceRaw " width="50px" alt=""></div>
-                            <div class="frame2"><img [src]="item.front_mockup_url | replaceRaw " width="50px" alt=""></div>
+                            <div class="frame2"><img [src]="item.front_mockup_url | replaceRaw " width="50px" alt="">
+                            </div>
                         </div>
                     </div>
                 </td>
@@ -111,7 +112,8 @@
                     <label for="mockupURLFront">Mockup URL</label>
                     <input id="mockupURLFront" type="text" [(ngModel)]="mockupURLFront"
                         (blur)="onTextChange($event, 'mockupURLFront')"
-                        class="mt-2 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full">
+                        class="my-2 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full">
+                    <p-checkbox [(ngModel)]="checkedPocket" [binary]="true" inputId="binary" label="In pocket area" />
                 </div>
             </div>
         </div>
@@ -148,7 +150,8 @@
                 </div>
                 <div class="w-full">
                     <label for="innerNeck">Art URL</label>
-                    <input id="innerNeck" type="text" [(ngModel)]="artInnerNeck" (blur)="onTextChange($event, 'innerNeck')"
+                    <input id="innerNeck" type="text" [(ngModel)]="artInnerNeck"
+                        (blur)="onTextChange($event, 'innerNeck')"
                         class="mt-2 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full">
                     <div class="mt-2"><p-inputSwitch [(ngModel)]="checkedInnerNeck" (onChange)="handleChange()" /></div>
                 </div>
@@ -162,7 +165,8 @@
                 </div>
                 <div class="w-full">
                     <label for="outerNeck">Art URL</label>
-                    <input id="outerNeck" type="text" [(ngModel)]="artOuterNeck" (blur)="onTextChange($event, 'outerNeck')"
+                    <input id="outerNeck" type="text" [(ngModel)]="artOuterNeck"
+                        (blur)="onTextChange($event, 'outerNeck')"
                         class="mt-2 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full">
                 </div>
             </div>

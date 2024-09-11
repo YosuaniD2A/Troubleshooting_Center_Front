@@ -26,11 +26,11 @@ export class AppMenuComponent implements OnInit {
                     { label: 'Console', icon: 'pi pi-fw pi-tablet', routerLink: ['/console'] },
                     { label: 'Shutterstock License & Download', icon: 'pi pi-fw pi-download', routerLink: ['/shutterstock'] },
                     { label: 'Orders status', icon: 'pi pi-fw pi-cloud-upload', routerLink: ['/crea-tu-playera'] },
-                    // { label: 'SwiftPOD Ship-update', icon: 'pi pi-fw pi-cloud-upload', routerLink: ['/swiftpod'] },
                     { label: 'Sales Reports by Periods', icon: 'pi pi-fw pi-chart-bar', routerLink: ['/sales-reports'] },
                     { label: 'Change Broken Images', icon: 'pi pi-fw pi-images', routerLink: ['/broken-images'] },                  
                     { label: 'Scalablepress - Whithout Design_Id', icon: 'pi pi-fw pi-question', routerLink: ['/scalablepress'] },
-                    { label: 'Correct Shipping Addresses', icon: 'pi pi-fw pi-map', routerLink: ['/shipping-address'] }               
+                    { label: 'Correct Shipping Addresses', icon: 'pi pi-fw pi-map', routerLink: ['/shipping-address'] },
+                    { label: 'Upload Files', icon: 'pi pi-fw pi-upload', routerLink: ['/upload-ptos'] }               
                 ]
             },
             // {

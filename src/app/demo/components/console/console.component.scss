@@ -37,3 +37,11 @@
         max-width: 100%;
     }
 }
+
+.cursor_deny{
+    cursor: not-allowed;
+}
+
+.cursor_allowed{
+    cursor: pointer;
+}
