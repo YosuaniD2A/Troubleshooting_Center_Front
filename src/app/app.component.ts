@@ -25,7 +25,11 @@ export class AppComponent implements OnInit {
     ngOnInit() {
         this.primengConfig.ripple = true;
 
-        setInterval(() => {
+        setInterval( async() => {
+            await this.getCTPOrders();
+            await this.getTPBOrders();
+            await this.getSwiftPODOrders();
+
             this.orderUpdate.startPeriodicUpdates(
                 this.ctpOrders,
                 this.creaTuPlayerService,
@@ -35,9 +39,7 @@ export class AppComponent implements OnInit {
                 this.thePrintbarService
             );
             console.log('Se ejecuto desde App');
-            
         }, 900000); // Ejecutar cada 15 minuto (ajusta el tiempo según tus necesidades)
-        
     }
 
     async getCTPOrders() {

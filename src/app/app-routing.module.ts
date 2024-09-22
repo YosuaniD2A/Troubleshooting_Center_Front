@@ -16,6 +16,7 @@ import { uploadGuard } from './demo/guards/upload.guard';
                     { path: 'crea-tu-playera', loadChildren: () => import('./demo/components/crea-tu-playera/crea-tu-playera.module').then(m => m.CreaTuPlayeraModule) },
                     { path: 'broken-images', loadChildren: () => import('./demo/components/broken-images/broken-images.module').then(m => m.BrokenImagesModule) },
                     { path: 'upload-ptos', loadChildren: () => import('./demo/components/upload-ptos/upload-ptos.module').then(m => m.UploadPtosModule) },
+                    { path: 'upload-aws-s3', loadChildren: () => import('./demo/components/upload-aws-s3/upload-aws-s3.module').then(m => m.UploadAWSS3Module) },
                     { path: 'shipping-address', loadChildren: () => import('./demo/components/shipping-address/shipping-address.module').then(m => m.ShippingAddressModule) },
                     { path: 'sales-reports', loadChildren: () => import('./demo/components/sales-reports/sales-reports.module').then(m => m.SalesReportsModule) },
                     { path: 'scalablepress', loadChildren: () => import('./demo/components/scalablepress/scalablepress.module').then(m => m.ScalablepressModule) },

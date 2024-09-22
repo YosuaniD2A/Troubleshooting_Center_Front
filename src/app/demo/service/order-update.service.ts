@@ -20,7 +20,7 @@ export class OrderUpdateService {
 
     async updateStatus(ctpOrders,creaTuPlayerService): Promise<any> {
         try {
-            if (ctpOrders.length > 0) {
+            if (ctpOrders && ctpOrders.length > 0) {
                 const result = await Promise.all(
                     ctpOrders.map(async (order) => {
                         const exist =
@@ -246,7 +246,7 @@ export class OrderUpdateService {
                 );
                 return result;
             }
-            return swiftpodOrders;
+            return [];
         } catch (error) {
             console.log(error);
         }
@@ -254,7 +254,7 @@ export class OrderUpdateService {
 
     async updateTPBStatus(tpbOrders, thePrintbarService): Promise<any> {
         try {
-            if (tpbOrders.length > 0) {
+            if (tpbOrders && tpbOrders.length > 0) {
                 const result = await Promise.all(
                     tpbOrders.map(async (order) => {
                         const exist =
@@ -364,7 +364,7 @@ export class OrderUpdateService {
 
                 return result;
             }
-            return tpbOrders;
+            return [];
         } catch (error) {
             console.log(error);
         }

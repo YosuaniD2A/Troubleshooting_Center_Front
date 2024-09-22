@@ -26,7 +26,8 @@ export class UploadPtosComponent
     selectedPod: any = null;
     pods: any[] = [
         { name: 'Swift POD', value: 'swiftpod', key: 'SPOD' },
-        { name: 'Crea tu playera', value: 'crea tu playera', key: 'CTP' }
+        { name: 'Crea tu playera', value: 'crea tu playera', key: 'CTP' },
+        { name: 'Printbar', value: 'printbar', key: 'TPB' }
     ];
 
     selectedImageType: ImagesType | null = null;

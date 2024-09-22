@@ -11,10 +11,10 @@
 </p-toolbar>
 <!-- </div> -->
 <div class="card px-6 py-6">
-    <p-table [value]="incomingOrders" [paginator]="true" [rows]="50" [showCurrentPageReport]="true"
+    <p-table [value]="incomingOrders" [paginator]="true" [rows]="100" [showCurrentPageReport]="true"
         [tableStyle]="{ 'min-width': '50rem' }"
         currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
-        [rowsPerPageOptions]="[5, 10, 20, 50, 100]">
+        [rowsPerPageOptions]="[5, 10, 20, 50, 100, 150, 200]">
         <ng-template pTemplate="header">
             <tr>
                 <th style="width:25%">Site Order ID</th>

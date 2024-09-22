@@ -92,6 +92,30 @@ $gutter: 1rem; //for primeflex grid system
     }
 }
 
+.aws-color{
+    background-color: #FF9900;
+    border: 1px solid #FF9900;
+    color: #FFF;
+
+    &:hover{
+        background-color: #000000 !important;
+        border: 1px solid #787878 !important;
+        color: #FF9900 !important;
+    }
+}
+
+.min-h-300{
+    min-height: 300px;
+}
+
+.max-h-500{
+    max-height: 500px;
+}
+
+.container-left{
+    overflow-x: scroll;
+    overflow-y: scroll;
+}
 
 .p-dropdown {
     width: 100% !important;

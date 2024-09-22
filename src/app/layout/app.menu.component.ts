@@ -30,7 +30,8 @@ export class AppMenuComponent implements OnInit {
                     { label: 'Change Broken Images', icon: 'pi pi-fw pi-images', routerLink: ['/broken-images'] },                  
                     { label: 'Scalablepress - Whithout Design_Id', icon: 'pi pi-fw pi-question', routerLink: ['/scalablepress'] },
                     { label: 'Correct Shipping Addresses', icon: 'pi pi-fw pi-map', routerLink: ['/shipping-address'] },
-                    { label: 'Upload Files', icon: 'pi pi-fw pi-upload', routerLink: ['/upload-ptos'] }               
+                    { label: 'Upload Files', icon: 'pi pi-fw pi-upload', routerLink: ['/upload-ptos'] },
+                    { label: 'AWS Upload Images', icon: 'pi pi-fw pi-amazon', routerLink: ['/upload-aws-s3'] }                
                 ]
             },
             // {
