@@ -32,7 +32,7 @@ export class ConsoleComponent implements OnInit {
             const orders = await this.swiftpodService.getIncomingOrder();
             this.incomingOrders = orders.response;
             this.skuList = this.getUniqueSKUs(this.incomingOrders);
-            console.log(this.skuList);
+            console.log(this.incomingOrders);
 
             const ordersTPB =
                 await this.thePrintbarService.getIncomingOrdersTPB();
@@ -127,16 +127,16 @@ export class ConsoleComponent implements OnInit {
             const preview_files = [];
 
             if (item.front_art_url !== '') {
-                if (item.front_print_area == 'pocket') {
-                    print_files.push({ key: 'front', url: item.front_art_url });
+                if (item.front_print_area == 'poster') {
+                    print_files.push({ key: 'poster', url: item.front_art_url });
                 } else {
                     print_files.push({ key: 'front', url: item.front_art_url });
                 }
             }
             if (item.front_mockup_url !== '') {
-                if (item.front_print_area == 'pocket') {
+                if (item.front_print_area == 'poster') {
                     preview_files.push({
-                        key: 'front',
+                        key: 'poster',
                         url: item.front_mockup_url,
                     });
                 } else {
@@ -185,7 +185,7 @@ export class ConsoleComponent implements OnInit {
                 force_verified_status: true,
             },
             return_address: {
-                name: 'Fernando Flores',
+                name: 'D2America dba - SmartPrintsInk',
                 email: 'hello@smartprintsink.com',
                 company: '',
                 phone: '(+52) 686 125 6181',
@@ -311,7 +311,7 @@ export class ConsoleComponent implements OnInit {
 
                 const { response } =
                     await this.swiftpodService.sendSwiftPODOrder(
-                        buildedSwiftPODOrder
+                        buildedSwiftPODOrder, order.site_name
                     );
                 console.log(response);
 

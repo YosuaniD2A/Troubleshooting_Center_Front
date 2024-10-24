@@ -23,7 +23,9 @@
                 <td>{{ item.sku }}</td>
                 <td>{{ item.size }}</td>
                 <td>{{ item.color }}</td>
-                <td><h1 class="text-center">{{ item.quantity }}</h1></td>
+                <td>
+                    <h1 class="text-center">{{ item.quantity }}</h1>
+                </td>
                 <td>
                     <div class="flex gap-2 flex-column align-items-center">
                         <span>Front</span>
@@ -101,7 +103,8 @@
                     <label for="artURLFront">Art URL</label>
                     <input id="artURLFront" type="text" [(ngModel)]="artURLFront"
                         (blur)="onTextChange($event, 'artURLFront')"
-                        class="mt-2 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full">
+                        class="my-2 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full">
+                    
                 </div>
             </div>
             <div class="flex gap-2 align-items-start">
@@ -113,7 +116,8 @@
                     <input id="mockupURLFront" type="text" [(ngModel)]="mockupURLFront"
                         (blur)="onTextChange($event, 'mockupURLFront')"
                         class="my-2 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full">
-                    <p-checkbox [(ngModel)]="checkedPocket" [binary]="true" inputId="binary" label="In pocket area" />
+                        <p-checkbox [(ngModel)]="checkedPoster" [binary]="true" inputId="binary" label="Poster" />
+                    <!-- <p-checkbox [(ngModel)]="checkedPocket" [binary]="true" inputId="binary" label="In pocket area" /> -->
                 </div>
             </div>
         </div>

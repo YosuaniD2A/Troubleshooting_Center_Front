@@ -50,9 +50,7 @@ export class CreaTuPlayeraComponent implements OnInit, OnDestroy {
     async ngOnInit() {
         this.startCountdown();
 
-        await this.getCTPOrders();
-        await this.getTPBOrders();
-        await this.getSwiftPODOrders();
+        await this.loadOrders();
 
         await this.getOrdersWithoutUpdate();
 
@@ -73,6 +71,8 @@ export class CreaTuPlayeraComponent implements OnInit, OnDestroy {
             const timeDiff = this.targetDate.getTime() - Date.now();
 
             if (timeDiff <= 0) {
+                //Recargar ordenes
+                this.loadOrders();
                 // Actualizar las ordenes
                 this.updateStatus();
                 this.updateSwiftPODStatus();
@@ -118,6 +118,12 @@ export class CreaTuPlayeraComponent implements OnInit, OnDestroy {
     }
 
     // -------------------- Get Zone --------------------------------------
+
+    async loadOrders(){
+        await this.getCTPOrders();
+        await this.getTPBOrders();
+        await this.getSwiftPODOrders();
+    }
 
     async getCTPOrders() {
         const result = await this.creaTuPlayerService.getCTPOrders();
@@ -543,6 +549,8 @@ export class CreaTuPlayeraComponent implements OnInit, OnDestroy {
     // }
 
     // ---------------- Helpers -------------------------------------------------
+
+    //-----------------------------------------------------------------------------
 
     async processOrdersWithoutUpdate() {
         this.processing = true;

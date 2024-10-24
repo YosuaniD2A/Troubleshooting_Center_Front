@@ -7,6 +7,10 @@ export const environment = {
   googleMaps: {
     apiKey: 'AIzaSyCp5YY4xKFC2LVaHswvkxli66bLg7Sxly0'
   },
+  //Baselinker
+  BASELINKER_API_URL: "https://api.baselinker.com/connector.php",
+  BASELINKER_KEY: "8001422-8012947-18CSSMTMVMDQK5LD1KGWG1WTU7OIXM5SKTDACWP14H1N8QUFZVFIU164P9EIVLV2",
+  //Shipstation
   SHIP_URL: 'https://ssapi.shipstation.com',
   SHIP_URL_MARKASSHIPPED: 'https://ssapi.shipstation.com/orders/markasshipped',
   SHIP_API_KEY: "d7fdcd4e64bb442582689e083d4ecfbd",

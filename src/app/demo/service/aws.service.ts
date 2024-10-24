@@ -10,14 +10,20 @@ export class AWSService {
 
     constructor(private http: HttpClient) {}
 
-
     upload(files: File[]): Promise<any> {
         const formData = new FormData();
         files.forEach((file, index) => {
             formData.append('files', file, file.name);
         });
 
-        return lastValueFrom(this.http.post<any>(`${this.baseUrl}uploadImageToAWS`, formData));
+        return lastValueFrom(
+            this.http.post<any>(`${this.baseUrl}uploadImageToAWS`, formData)
+        );
+    }
 
+    saveUrls(data): Promise<any> {
+        return lastValueFrom(
+            this.http.post<any>(`${this.baseUrl}saveUrls`, data)
+        );
     }
 }

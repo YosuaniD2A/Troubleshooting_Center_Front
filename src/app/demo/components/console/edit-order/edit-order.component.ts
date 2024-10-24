@@ -17,6 +17,7 @@ export class EditOrderComponent implements OnInit {
     visible: boolean = false;
 
     checkedPocket: boolean = false;
+    checkedPoster: boolean = false;
 
     //Front
     artURLFront: string = '';
@@ -85,6 +86,9 @@ export class EditOrderComponent implements OnInit {
 
         if(this.selectedItem.front_print_area == 'pocket')
             this.checkedPocket = true;
+
+        if(this.selectedItem.front_print_area == 'poster')
+            this.checkedPoster = true;
    
     }
 
@@ -254,7 +258,7 @@ export class EditOrderComponent implements OnInit {
                     art: this.selectedItem.design,
                     url: this.artURLFront,
                     pod: this.selectedItem.pod_service,
-                    type: 'front',
+                    type: this.checkedPoster ? 'poster' : 'front',
                 };
                 const result = await this.swiftpodService.saveArt(data);
                 console.log(result);
@@ -273,8 +277,8 @@ export class EditOrderComponent implements OnInit {
                 const data = {
                     sku: this.selectedItem.sku,
                     url: this.mockupURLFront,
-                    region: this.checkedPocket ? 'pocket' : '',
-                    type: 'front',
+                    region: this.checkedPoster ? 'poster' : '',
+                    type: this.checkedPoster ? 'poster' : 'front',
                 };
                 const result = await this.swiftpodService.saveMockup(data);
             }

@@ -37,8 +37,8 @@ export class SwiftpodService {
 
     //------------------------------------------------------------------------
 
-    sendSwiftPODOrder(data): Promise<any> {
-        return lastValueFrom(this.http.post<any>(`${this.baseUrl}sendOrderToSwift`, { data }))
+    sendSwiftPODOrder(data, siteName): Promise<any> {
+        return lastValueFrom(this.http.post<any>(`${this.baseUrl}sendOrderToSwift/${siteName}`, { data }))
     }
     saveSwiftPODOrder(data): Promise<any> {
         return lastValueFrom(this.http.post<any>(`${this.baseUrl}saveSwiftPODOrder`, { data }))

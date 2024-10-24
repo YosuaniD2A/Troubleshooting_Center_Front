@@ -6,7 +6,7 @@
     </div>
 </p-toolbar>
 <div class="flex gap-3 px-3 py-3">
-    <div class="card col-12 md:col-4 px-6 py-6 ">
+    <div class="card mb-0 col-12 md:col-4 px-6 py-6 ">
         <p-toast />
         <p-fileUpload #uploader [disabled]="false" name="files" customUpload="true" (uploadHandler)="upload($event)"
             [method]="'post'" [multiple]="true" accept=".jpg,.jpeg" maxFileSize="8000000"
@@ -49,7 +49,7 @@
             </ng-template>
         </p-fileUpload>
     </div>
-    <div class="flex-grow-1 card col-12 md:col-8 px-6 py-6">
+    <div class="card mb-0 flex-grow-1 col-12 md:col-8 px-6 py-6">
         <p-toolbar styleClass="">
             <ng-template pTemplate="left">
                 <div class="my-1 flex gap-4 align-items-center">

@@ -17,7 +17,7 @@ export class OrderUpdateService {
 
     constructor() {}
 
-
+    //----------------------- Actualizando en Shipstation ----------------------------------------------
     async updateStatus(ctpOrders,creaTuPlayerService): Promise<any> {
         try {
             if (ctpOrders && ctpOrders.length > 0) {
@@ -52,8 +52,6 @@ export class OrderUpdateService {
                                     exist.data[0].status == 8 ||
                                     exist.data[0].status == 520
                                 ) {
-                                    // const authorizationToken =
-                                    //     environment.tokenBase64;
                                     const payload = {
                                         orderId: exist.data[0].order_id,
                                         carrierCode:
@@ -370,6 +368,369 @@ export class OrderUpdateService {
         }
     }
 
+    //----------------------- Actualizando en baselinker -----------------------------------------------
+    async updateStatus_2(ctpOrders,creaTuPlayerService): Promise<any> {
+        try {
+            if (ctpOrders && ctpOrders.length > 0) {
+                const result = await Promise.all(
+                    ctpOrders.map(async (order) => {
+                        const exist =
+                            await creaTuPlayerService.getKornitXOrders(
+                                order.order_id
+                            );
+
+                        if (exist.data.length > 0) {
+                            if (exist.data[0].status == order.status) {
+                                return { ...order };
+                            } else {
+                                let data: any = {
+                                    status: parseInt(exist.data[0].status),
+                                    carrier: exist.data[0].shipping_carrier,
+                                };
+
+                                if (exist.data[0].shipping_tracking !== '') {
+                                    data.tracking_number =
+                                        exist.data[0].shipping_tracking;
+                                }
+                                // Actualizar en la BD MySQL
+                                await creaTuPlayerService.updateCTPOrders(
+                                    order.order_id,
+                                    data
+                                );
+
+                                // Mark as Shipped en Baselinker para enviar el tracking number
+                                if (exist.data[0].status == 8 || exist.data[0].status == 520) {
+                                    // Actualizar estatus en la tabla Orders
+
+                                    const methodParams = {
+                                        order_id: exist.data[0].order_id,
+                                        courier_code: data.tracking_number !== undefined
+                                            ? exist.data[0].shipping_carrier
+                                            : order.carrier,
+                                        package_number: data.tracking_number !== undefined
+                                            ? data.tracking_number
+                                            : order.tracking_number,
+                                        pickup_date: Math.floor(new Date().getTime() / 1000), // Unix timestamp
+                                        return_shipment: false,
+                                    };
+                                
+                                    const apiParams = {
+                                        method: "createPackageManual",
+                                        parameters: JSON.stringify(methodParams),
+                                    };
+                                
+                                    try {
+                                        const response = await fetch(environment.BASELINKER_API_URL, {
+                                            method: 'POST',
+                                            headers: {
+                                                'X-BLToken': environment.BASELINKER_KEY,
+                                                'Content-Type': 'application/x-www-form-urlencoded',
+                                            },
+                                            body: new URLSearchParams(apiParams).toString(),
+                                        });
+                                
+                                        if (!response.ok) {
+                                            const errorData = await response.json();
+                                            throw new Error(errorData.message);
+                                        }
+                                
+                                        const responseData = await response.json();
+                                        console.log(responseData);
+                                    } catch (error) {
+                                        console.error('Error:', error);
+                                        throw error;
+                                    }
+                                }
+                                
+
+                                return {
+                                    ...order,
+                                    status: data.status,
+                                    status_name: this.statusName(
+                                        data.status.toString()
+                                    ),
+                                    tracking_number:
+                                        data.tracking_number !== undefined
+                                            ? data.tracking_number
+                                            : order.tracking_number,
+                                    carrier: data.carrier,
+                                    updated: true,
+                                };
+                            }
+                        }
+                        return { ...order };
+                    })
+                );
+
+                return result;
+            }
+            return [];
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    async updateSwiftPODStatus_2(swiftpodOrders, swiftPodService): Promise<any> {
+        try {
+            if (swiftpodOrders && swiftpodOrders.length > 0) {
+                const result = await Promise.all(
+                    swiftpodOrders.map(async (order) => {
+                        const exist =
+                            await swiftPodService.getSwiftPODOrdersStatus(
+                                order.swift_id
+                            );
+
+                        if (exist.data.length > 0) {
+                            if (
+                                exist.data[0].status == order.status &&
+                                (exist.data[0].tracking_number == null ||
+                                    exist.data[0].tracking_number ==
+                                        undefined ||
+                                    exist.data[0].tracking_number == '')
+                            ) {
+                                return { ...order };
+                            } else {
+                                console.log(
+                                    `Updating order ${order.site_order_id}`
+                                );
+                                let data: any = {
+                                    date: exist.data[0].date_change
+                                        ? exist.data[0].date_change.split(
+                                              'T'
+                                          )[0]
+                                        : '',
+                                    status: exist.data[0].status,
+                                    carrier: exist.data[0].tracking_code
+                                        ? exist.data[0].tracking_code
+                                        : '',
+                                    tracking_code: exist.data[0].tracking_number
+                                        ? exist.data[0].tracking_number
+                                        : '',
+                                    tracking_url: exist.data[0].tracking_url
+                                        ? exist.data[0].tracking_url
+                                        : '',
+                                    ship_date: exist.data[0].date_tracking
+                                        ? exist.data[0].date_tracking.split(
+                                              'T'
+                                          )[0]
+                                        : '',
+                                };
+
+                                // Eliminar propiedades con valores vacíos
+                                Object.entries(data).forEach(([key, value]) => {
+                                    if (value === '') {
+                                        delete data[key];
+                                    }
+                                });
+
+                                // Actualizar en la BD MySQL
+                                await swiftPodService.updateSwiftPODOrderStatus(
+                                    order.swift_id,
+                                    data
+                                );
+
+                                // Mark as Shipped en Baselinker para enviar el tracking number
+                                if (
+                                    exist.data[0].status == 'shipped' &&
+                                    exist.data[0].tracking_number !== null &&
+                                    exist.data[0].tracking_number !==
+                                        undefined &&
+                                    exist.data[0].tracking_number !== ''
+                                ) {
+                                    // Actualizar estatus en la tabla Orders
+
+                                    const methodParams = {
+                                        order_id: parseInt(order.order_id),
+                                        courier_code: exist.data[0].tracking_code,
+                                        package_number: exist.data[0].tracking_number,
+                                        pickup_date: Math.floor(new Date().getTime() / 1000), // Unix timestamp
+                                        return_shipment: true,
+                                    };
+
+                                    const apiParams = {
+                                        method: "setOrderShipment",
+                                        parameters: JSON.stringify(methodParams),
+                                    };
+
+                                    try {
+                                        const response = await fetch(environment.BASELINKER_API_URL, {
+                                            method: 'POST',
+                                            headers: {
+                                                'X-BLToken': environment.BASELINKER_KEY,
+                                                'Content-Type': 'application/x-www-form-urlencoded',
+                                            },
+                                            body: new URLSearchParams(apiParams).toString(),
+                                        });
+                                
+                                        if (!response.ok) {
+                                            const errorData = await response.json();
+                                            throw new Error(errorData.message);
+                                        }
+                                
+                                        const responseData = await response.json();
+                                        console.log(responseData);
+                                    } catch (error) {
+                                        console.error('Error:', error);
+                                        throw error;
+                                    }
+                                }
+
+                                return {
+                                    ...order,
+                                    status: data.status ? data.status : '',
+                                    tracking_code: data.tracking_code
+                                        ? data.tracking_code
+                                        : '',
+                                    tracking_url: data.tracking_url
+                                        ? data.tracking_url
+                                        : '',
+                                    carrier: data.carrier ? data.carrier : '',
+                                    date_status: data.date ? data.date : '',
+                                    date_shipment: data.ship_date
+                                        ? data.ship_date
+                                        : '',
+                                    updated: true,
+                                };
+                            }
+                        }
+                        return { ...order };
+                    })
+                );
+                return result;
+            }
+            return [];
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    async updateTPBStatus_2(tpbOrders, thePrintbarService): Promise<any> {
+        try {
+            if (tpbOrders && tpbOrders.length > 0) {
+                const result = await Promise.all(
+                    tpbOrders.map(async (order) => {
+                        const exist =
+                            await thePrintbarService.getOrderFromThePrintbar(
+                                order.order_number
+                            );
+
+                        if (exist.response) {
+                            const orderFromTPB = exist.response;
+                            const lastEvent = orderFromTPB.events.at(-1);
+                            console.log(order);
+
+                            if (order.tpb_signal !== lastEvent.action) {
+                                console.log(
+                                    `Updating order ${order.order_number}`
+                                );
+
+                                // Actualizar MySQl DB
+                                const dataToUpdate = {
+                                    signal: lastEvent.action,
+                                    order_number: orderFromTPB.id,
+                                    reference_id: orderFromTPB.referenceId,
+                                };
+                                await thePrintbarService.updateOrderUnshipped(
+                                    dataToUpdate
+                                );
+
+                                // Actualizar MongoDB collection
+                                await thePrintbarService.setMongoTPBOrder(
+                                    orderFromTPB
+                                );
+
+                                // Mark as Shipped en Baselinker para enviar el tracking number
+                                if (lastEvent.action === 'shipped') {
+                                    // Actualizar estatus en la tabla Orders
+
+                                    const methodParams = {
+                                        order_id: parseInt(order.order_id),
+                                        courier_code: lastEvent.carrier,
+                                        package_number: lastEvent.trackingNumber,
+                                        pickup_date: Math.floor(new Date().getTime() / 1000), // Unix timestamp
+                                        return_shipment: true,
+                                    };
+                                
+                                    const apiParams = {
+                                        method: "setOrderShipment",
+                                        parameters: JSON.stringify(methodParams),
+                                    };
+
+                                    try {
+                                        const response = await fetch(environment.BASELINKER_API_URL, {
+                                            method: 'POST',
+                                            headers: {
+                                                'X-BLToken': environment.BASELINKER_KEY,
+                                                'Content-Type': 'application/x-www-form-urlencoded',
+                                            },
+                                            body: new URLSearchParams(apiParams).toString(),
+                                        });
+                                
+                                        if (!response.ok) {
+                                            const errorData = await response.json();
+                                            throw new Error(errorData.message);
+                                        }
+                                
+                                        const responseData = await response.json();
+                                        console.log(responseData);
+                                    } catch (error) {
+                                        console.error('Error:', error);
+                                        throw error;
+                                    }
+
+                                    // Actualizar MySQl DB el Shipment
+                                    const shipmentDataToUpdate = {
+                                        signal: lastEvent.action,
+                                        order_number: orderFromTPB.id,
+                                        reference_id: orderFromTPB.referenceId,
+                                        carrier: lastEvent.carrier,
+                                        tracking_number:
+                                            lastEvent.trackingNumber,
+                                        ship_date: this.formatDate(
+                                            lastEvent.time
+                                        ),
+                                        tracking_url: lastEvent.trackingUrl,
+                                    };
+                                    const respShipUpdate =
+                                        await thePrintbarService.updateOrderShipment(
+                                            shipmentDataToUpdate
+                                        );
+                                }
+
+                                return {
+                                    ...order,
+                                    tpb_status: 'success',
+                                    tpb_signal: lastEvent.action
+                                        ? lastEvent.action
+                                        : '',
+                                    tracking_code: lastEvent.trackingNumber
+                                        ? lastEvent.trackingNumber
+                                        : '',
+                                    tracking_url: lastEvent.trackingUrl
+                                        ? lastEvent.trackingUrl
+                                        : '',
+                                    carrier: lastEvent.carrier
+                                        ? lastEvent.carrier
+                                        : '',
+                                    updated: true,
+                                };
+                            } else {
+                                return { ...order };
+                            }
+                        }
+                        return { ...order };
+                    })
+                );
+
+                return result;
+            }
+            return [];
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    //---------------------------------- Generales -----------------------------------------------------
     statusName(status: string): string {
         switch (status) {
             case '0':

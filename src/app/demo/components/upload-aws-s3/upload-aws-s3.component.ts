@@ -51,33 +51,124 @@ export class UploadAWSS3Component implements OnInit, OnDestroy {
         console.log(this.files);
     }
 
+    // async upload(event) {
+    //     try {
+    //         this.uploading = true;
+    //         this.uploaded = false;
+
+    //         this.startCountdown(this.files.length * 2);
+
+    //         // Iniciado el proceso de carga de AWS
+    //         const result = await this.awsService.upload(event.files);
+    //         this.filesUploaded = result.data.map((item) => {
+    //             return {
+    //                 mockup: this.extractPartOfFileName(item.img_key),
+    //                 img_url: item.img_url,
+    //             };
+    //         });
+
+    //         //Guardar todos los datos en la BD
+    //         await Promise.all(
+    //             this.filesUploaded.map((file) => this.awsService.saveUrls(file))
+    //         );
+
+    //         //Exportar en formato XLXS automaticamente
+    //         this.exportExcel(this.filesUploaded);
+    //         console.log(this.filesUploaded);
+
+    //         this.messageService.add({
+    //             severity: 'success',
+    //             summary: 'Success',
+    //             detail: 'File Uploaded',
+    //             life: 3000,
+    //         });
+
+    //         this.uploader.clear();
+    //         this.uploading = false;
+    //         this.uploaded = true;
+    //     } catch (error) {
+    //         this.uploading = false;
+    //         this.messageService.add({
+    //             severity: 'error',
+    //             summary: 'Error',
+    //             detail: error.message,
+    //             life: 3000,
+    //         });
+    //     }
+    // }
     async upload(event) {
         try {
             this.uploading = true;
             this.uploaded = false;
 
-            this.startCountdown(this.files.length * 2);
+            const files = event.files;
+            const batchSize = 100; // Tamaño del lote (puedes ajustarlo según tus necesidades)
+            const delayBetweenBatches = 10000; // Retraso entre lotes en milisegundos (10 segundos)
+            this.startCountdown(files.length * 2);
 
-            // Iniciado el proceso de carga de AWS
-            const result = await this.awsService.upload(event.files);
-            this.filesUploaded = result.data.map((item) => {
-                return {
-                    mockup: this.extractPartOfFileName(item.img_key),
-                    img_url: item.img_url,
-                };
-            });
+            const sizes = ["00S", "00M", "00L", "0XL", "2XL", "3XL", "4XL", "5XL"];
 
-            //Guardar todos los datos en la BD
+            // Función para introducir un retraso
+            const delay = (ms) =>
+                new Promise((resolve) => setTimeout(resolve, ms));
 
+            // Dividir archivos en lotes y subirlos con un retraso entre cada lote
+            const uploadBatches = async () => {
+                for (let i = 0; i < files.length; i += batchSize) {
+                    const batch = files.slice(i, i + batchSize);
 
-            //Exportar en formato XLXS automaticamente
-            this.exportExcel(this.filesUploaded);
-            console.log(this.filesUploaded);
+                    // Enviar el lote actual
+                    const result = await this.awsService.upload(batch);
+
+                    // Procesar los resultados del lote actual
+                    const uploadedFiles = result.data.flatMap((item) => {
+                        // Usamos extractMockupBase para obtener el mockup base sin la talla
+                        const mockupBase = this.extractMockupBase(item.img_key);
+                        
+                        // Generar variantes para todas las tallas
+                        return sizes.map((size) => ({
+                            mockup: `${mockupBase}${size}`,
+                            img_url: item.img_url,
+                        }));
+                    });
+                    // const uploadedFiles = result.data.map((item) => {
+                    //     return {
+                    //         mockup: this.extractPartOfFileName(item.img_key),
+                    //         img_url: item.img_url,
+                    //     };
+                    // });
+
+                    // Guardar los datos en la BD
+                    await Promise.all(
+                        uploadedFiles.map((data) =>
+                            this.awsService.saveUrls(data)
+                        )
+                    );
+
+                    // Unir archivos subidos de diferentes lotes
+                    this.filesUploaded = [
+                        ...(this.filesUploaded || []),
+                        ...uploadedFiles,
+                    ];
+
+                    // Agregar retraso antes del siguiente lote
+                    await delay(delayBetweenBatches);
+                }
+            };
+
+            // Iniciar el proceso de carga por lotes
+            await uploadBatches();
+
+            const groupedList = this.groupByMockup(this.filesUploaded);
+
+            // Exportar en formato XLXS automáticamente después de la carga completa
+            this.exportExcel(groupedList);
+            console.log(groupedList);
 
             this.messageService.add({
                 severity: 'success',
                 summary: 'Success',
-                detail: 'File Uploaded',
+                detail: 'Files uploaded successfully',
                 life: 3000,
             });
 
@@ -93,6 +184,18 @@ export class UploadAWSS3Component implements OnInit, OnDestroy {
                 life: 3000,
             });
         }
+    }
+
+    extractMockupBase(fileName) {
+        // Usamos una expresión regular para capturar todo entre el guion "-" y la talla
+        const regex = /-(.+?)(\d{2}[SMLX]{1,3})__/;  // Captura el patrón de la talla
+        const match = fileName.match(regex);
+    
+        if (match && match[1]) {
+            return match[1]; // Devuelve la parte antes de la talla
+        }
+    
+        return ''; // Devuelve un string vacío si no hay coincidencia
     }
 
     extractPartOfFileName(fileName) {
@@ -133,6 +236,21 @@ export class UploadAWSS3Component implements OnInit, OnDestroy {
             data,
             fileName + '_export_' + new Date().getTime() + EXCEL_EXTENSION
         );
+    }
+
+    groupByMockup(files) {
+        const result = files.reduce((acc, file) => {
+            if (!acc[file.mockup]) {
+                acc[file.mockup] = { mockup: file.mockup };
+            }
+
+            const mockupCount = Object.keys(acc[file.mockup]).length;
+            acc[file.mockup][`img_url${mockupCount}`] = file.img_url;
+
+            return acc;
+        }, {});
+
+        return Object.values(result);
     }
 
     formatBytes(bytes: number): string {

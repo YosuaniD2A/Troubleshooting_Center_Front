@@ -24,7 +24,7 @@ export class AppMenuComponent implements OnInit {
                 label: 'Dashboard',
                 items: [
                     { label: 'Console', icon: 'pi pi-fw pi-tablet', routerLink: ['/console'] },
-                    { label: 'Shutterstock License & Download', icon: 'pi pi-fw pi-download', routerLink: ['/shutterstock'] },
+                    // { label: 'Shutterstock License & Download', icon: 'pi pi-fw pi-download', routerLink: ['/shutterstock'] },
                     { label: 'Orders status', icon: 'pi pi-fw pi-cloud-upload', routerLink: ['/crea-tu-playera'] },
                     { label: 'Sales Reports by Periods', icon: 'pi pi-fw pi-chart-bar', routerLink: ['/sales-reports'] },
                     { label: 'Change Broken Images', icon: 'pi pi-fw pi-images', routerLink: ['/broken-images'] },                  
