@@ -157,7 +157,9 @@
                     <input id="innerNeck" type="text" [(ngModel)]="artInnerNeck"
                         (blur)="onTextChange($event, 'innerNeck')"
                         class="mt-2 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full">
-                    <div class="mt-2"><p-inputSwitch [(ngModel)]="checkedInnerNeck" (onChange)="handleChange()" /></div>
+                    <div class="mt-2 flex gap-2"><p-inputSwitch [(ngModel)]="checkedInnerNeck" (onChange)="handleChange()" />
+                    <p>Automatic assignment</p>
+                    </div>
                 </div>
             </div>
         </div>

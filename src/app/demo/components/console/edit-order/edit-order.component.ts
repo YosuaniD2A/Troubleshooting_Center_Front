@@ -215,15 +215,17 @@ export class EditOrderComponent implements OnInit {
             const storeProductImageMap = {
                 GP: {
                     METTA: 'https://www.dropbox.com/scl/fi/5wm09c2qcilu25wimdc3h/ETIQUETA-PIPELINE.png?rlkey=6moh9xohn3es7w72p7n2mrqci&st=swftwj9f&dl=0',
-                    WOTSA: 'url_de_imagen_para_WOTSA_de_GP',
                     METSA: 'url_de_imagen_para_METSA_de_GP',
+                    MELGA: 'url_de_imagen_para_METSA_de_GP',
                     MEHOA: 'url_de_imagen_para_MEHOA_de_GP',
+                    MESWA: 'url_de_imagen_para_MESWA_de_GP',
+                    WOTSA: 'url_de_imagen_para_WOTSA_de_GP',
                     WOHOA: 'url_de_imagen_para_WOHOA_de_GP',
                     WOCTT: 'url_de_imagen_para_WOCTT_de_GP',
-                    WOSWA: 'url_de_imagen_para_WOCTT_de_GP',
+                    WOSWA: 'url_de_imagen_para_WOSWA_de_GP',
                     // Puedes agregar más productos aquí según sea necesario
                 },
-                DB: {
+                SS: {
                     WOTSA: 'url_de_imagen_para_WOCTT_de_SS',
                     METSA: 'url_de_imagen_para_METSA_de_SS',
                     MEHOA: 'url_de_imagen_para_MEHOA_de_SS',

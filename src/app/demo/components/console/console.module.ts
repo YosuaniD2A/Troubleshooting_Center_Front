@@ -30,7 +30,6 @@ import { CheckboxModule } from 'primeng/checkbox';
         ToastModule,
         InputSwitchModule,
         CheckboxModule
-        
     ],
     declarations: [ConsoleComponent, EditOrderComponent, ReplaceRaw]
 })

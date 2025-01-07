@@ -1,0 +1,37 @@
+import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { lastValueFrom } from 'rxjs';
+
+@Injectable({
+    providedIn: 'root'
+})
+export class ListingGeneratorService {
+    baseUrl: string = 'http://localhost:3005/listingGenerator/';
+
+    constructor(private http: HttpClient) { }
+
+
+    getPtosList(): Promise<any> {
+        return lastValueFrom(this.http.get<any>(`${this.baseUrl}getPtosList`))
+    }
+    
+    getPTO(pto): Promise<any> {
+        return lastValueFrom(this.http.get<any>(`${this.baseUrl}getPTO/${pto}`))
+    }
+
+    getMockups(pto): Promise<any> {
+        return lastValueFrom(this.http.get<any>(`${this.baseUrl}getMockups/${pto}`))
+    }
+
+    getMockupURLs(data): Promise<any> {
+        return lastValueFrom(this.http.post<any>(`${this.baseUrl}getMockupURLs`, { mockups: data }))
+    }
+
+    saveMockupDetails(data): Promise<any> {
+        return lastValueFrom(this.http.post<any>(`${this.baseUrl}saveMockupDetails`, { mockupData: data }))
+    }
+
+    getPriceRelationship(data): Promise<any> {
+        return lastValueFrom(this.http.post<any>(`${this.baseUrl}getPriceRelationship`, { mockupData: data }))
+    }
+}

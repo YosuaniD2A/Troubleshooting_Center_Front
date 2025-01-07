@@ -119,7 +119,7 @@ export class CreaTuPlayeraComponent implements OnInit, OnDestroy {
 
     // -------------------- Get Zone --------------------------------------
 
-    async loadOrders(){
+    async loadOrders() {
         await this.getCTPOrders();
         await this.getTPBOrders();
         await this.getSwiftPODOrders();
@@ -177,21 +177,27 @@ export class CreaTuPlayeraComponent implements OnInit, OnDestroy {
     //---------------- Update zone ----------------------------------------------
 
     async updateStatus() {
-        this.ctpOrders = await this.orderUpdate.updateStatus(this.ctpOrders,this.creaTuPlayerService);
+        this.ctpOrders = await this.orderUpdate.updateStatus(
+            this.ctpOrders,
+            this.creaTuPlayerService
+        );
         console.log(this.ctpOrders);
-
     }
 
     async updateSwiftPODStatus() {
-        this.swiftpodOrders = await this.orderUpdate.updateSwiftPODStatus(this.swiftpodOrders,this.swiftPodService);
+        this.swiftpodOrders = await this.orderUpdate.updateSwiftPODStatus(
+            this.swiftpodOrders,
+            this.swiftPodService
+        );
         console.log(this.swiftpodOrders);
-        
     }
 
     async updateTPBStatus() {
-        this.tpbOrders = await this.orderUpdate.updateTPBStatus(this.tpbOrders,this.thePrintbarService);
+        this.tpbOrders = await this.orderUpdate.updateTPBStatus(
+            this.tpbOrders,
+            this.thePrintbarService
+        );
         console.log(this.tpbOrders);
-
     }
 
     // async updateStatus() {
@@ -555,59 +561,29 @@ export class CreaTuPlayeraComponent implements OnInit, OnDestroy {
     async processOrdersWithoutUpdate() {
         this.processing = true;
         try {
-            const processed = await Promise.all(
-                this.ordersWithoutUpdate.map(async (order) => {
-                    const authorizationToken = environment.tokenBase64;
-                    const payload = {
-                        orderId: parseInt(order.order_id),
-                        carrierCode: order.carrier,
-                        shipDate: new Date().toISOString().split('T')[0],
-                        trackingNumber: order.tracking_code,
-                        notifyCustomer: true,
-                        notifySalesChannel: true,
-                    };
-
-                    const headers = new Headers({
-                        Authorization: `Basic ${authorizationToken}`,
-                        'Content-Type': 'application/json',
-                    });
-
-                    const response = await fetch(
-                        environment.SHIP_URL_MARKASSHIPPED,
-                        {
-                            method: 'POST',
-                            headers,
-                            body: JSON.stringify(payload),
-                        }
-                    );
-
-                    if (!response.ok) {
-                        const errorData = await response.json();
-                        throw new Error(errorData.message);
-                    }
-
-                    return await response.json();
-                })
-            );
+            console.log(this.ordersWithoutUpdate);
+            
+            const processed = await this.creaTuPlayerService.processOrdersWithoutUpdate(this.ordersWithoutUpdate);
             console.log(processed);
-            this.processing = false;
             this.messageService.add({
                 severity: 'success',
-                summary: 'Success Message',
-                detail: 'Ordenes actualizadas en Shipstation',
+                summary: 'Orders updated on Shipstation',
+                detail: `${processed.success}`,
                 key: 'br',
                 life: 3000,
             });
+            
         } catch (error) {
             this.messageService.add({
                 severity: 'error',
                 summary: 'Error Message',
-                detail: `${error}`,
+                detail: `${error.error}`,
                 key: 'br',
                 life: 3000,
             });
             console.log(error);
         }
+        this.processing = false;
     }
 
     countOrdersBySite(): void {

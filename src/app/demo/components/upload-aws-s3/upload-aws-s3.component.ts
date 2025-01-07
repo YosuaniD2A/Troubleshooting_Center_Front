@@ -56,30 +56,80 @@ export class UploadAWSS3Component implements OnInit, OnDestroy {
     //         this.uploading = true;
     //         this.uploaded = false;
 
-    //         this.startCountdown(this.files.length * 2);
+    //         const files = event.files;
+    //         const batchSize = 100; // Tamaño del lote (puedes ajustarlo según tus necesidades)
+    //         const delayBetweenBatches = 10000; // Retraso entre lotes en milisegundos (10 segundos)
+    //         this.startCountdown(files.length * 2);
 
-    //         // Iniciado el proceso de carga de AWS
-    //         const result = await this.awsService.upload(event.files);
-    //         this.filesUploaded = result.data.map((item) => {
-    //             return {
-    //                 mockup: this.extractPartOfFileName(item.img_key),
-    //                 img_url: item.img_url,
-    //             };
-    //         });
+    //         const sizes = ["00S", "00M", "00L", "0XL", "2XL", "3XL", "4XL", "5XL"];
 
-    //         //Guardar todos los datos en la BD
-    //         await Promise.all(
-    //             this.filesUploaded.map((file) => this.awsService.saveUrls(file))
-    //         );
+    //         const sizesToddler = ["02T", "03T", "04T", "05T"];
 
-    //         //Exportar en formato XLXS automaticamente
-    //         this.exportExcel(this.filesUploaded);
-    //         console.log(this.filesUploaded);
+    //         const sizesYouth = ["0XS", "00S", "00M", "00L", "0XL"];
+
+    //         const sizesBaby = ["0NB", "06M", "12M", "18M", "24M"];
+
+    //         // Función para introducir un retraso
+    //         const delay = (ms) =>
+    //             new Promise((resolve) => setTimeout(resolve, ms));
+
+    //         // Dividir archivos en lotes y subirlos con un retraso entre cada lote
+    //         const uploadBatches = async () => {
+    //             for (let i = 0; i < files.length; i += batchSize) {
+    //                 const batch = files.slice(i, i + batchSize);
+
+    //                 // Enviar el lote actual
+    //                 const result = await this.awsService.upload(batch);
+
+    //                 // Procesar los resultados del lote actual
+    //                 const uploadedFiles = result.data.flatMap((item) => {
+    //                     // Usamos extractMockupBase para obtener el mockup base sin la talla
+    //                     const mockupBase = this.extractMockupBase(item.img_key);
+                        
+    //                     // Generar variantes para todas las tallas
+    //                     return sizes.map((size) => ({
+    //                         mockup: `${mockupBase}${size}`,
+    //                         img_url: item.img_url,
+    //                     }));
+    //                 });
+    //                 // const uploadedFiles = result.data.map((item) => {
+    //                 //     return {
+    //                 //         mockup: this.extractPartOfFileName(item.img_key),
+    //                 //         img_url: item.img_url,
+    //                 //     };
+    //                 // });
+
+    //                 // Guardar los datos en la BD
+    //                 await Promise.all(
+    //                     uploadedFiles.map((data) =>
+    //                         this.awsService.saveUrls(data)
+    //                     )
+    //                 );
+
+    //                 // Unir archivos subidos de diferentes lotes
+    //                 this.filesUploaded = [
+    //                     ...(this.filesUploaded || []),
+    //                     ...uploadedFiles,
+    //                 ];
+
+    //                 // Agregar retraso antes del siguiente lote
+    //                 await delay(delayBetweenBatches);
+    //             }
+    //         };
+
+    //         // Iniciar el proceso de carga por lotes
+    //         await uploadBatches();
+
+    //         const groupedList = this.groupByMockup(this.filesUploaded);
+
+    //         // Exportar en formato XLXS automáticamente después de la carga completa
+    //         this.exportExcel(groupedList);
+    //         console.log(groupedList);
 
     //         this.messageService.add({
     //             severity: 'success',
     //             summary: 'Success',
-    //             detail: 'File Uploaded',
+    //             detail: 'Files uploaded successfully',
     //             life: 3000,
     //         });
 
@@ -96,82 +146,74 @@ export class UploadAWSS3Component implements OnInit, OnDestroy {
     //         });
     //     }
     // }
+
     async upload(event) {
         try {
             this.uploading = true;
             this.uploaded = false;
-
+    
             const files = event.files;
-            const batchSize = 100; // Tamaño del lote (puedes ajustarlo según tus necesidades)
-            const delayBetweenBatches = 10000; // Retraso entre lotes en milisegundos (10 segundos)
+            const batchSize = 100;
+            const delayBetweenBatches = 10000;
             this.startCountdown(files.length * 2);
-
-            const sizes = ["00S", "00M", "00L", "0XL", "2XL", "3XL", "4XL", "5XL"];
-
-            // Función para introducir un retraso
-            const delay = (ms) =>
-                new Promise((resolve) => setTimeout(resolve, ms));
-
-            // Dividir archivos en lotes y subirlos con un retraso entre cada lote
+    
+            const sizesAdult = ["00S", "00M", "00L", "0XL", "2XL", "3XL", "4XL", "5XL"];
+            const sizesToddler = ["02T", "03T", "04T", "05T"];
+            const sizesYouth = ["0XS", "00S", "00M", "00L", "0XL"];
+            const sizesBaby = ["0NB", "06M", "12M", "18M", "24M"];
+    
+            const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+    
             const uploadBatches = async () => {
                 for (let i = 0; i < files.length; i += batchSize) {
                     const batch = files.slice(i, i + batchSize);
-
-                    // Enviar el lote actual
                     const result = await this.awsService.upload(batch);
-
-                    // Procesar los resultados del lote actual
+    
                     const uploadedFiles = result.data.flatMap((item) => {
-                        // Usamos extractMockupBase para obtener el mockup base sin la talla
                         const mockupBase = this.extractMockupBase(item.img_key);
-                        
-                        // Generar variantes para todas las tallas
+    
+                        // Detectar tipo de talla según el mockup
+                        const sizes = mockupBase.includes("YO") 
+                            ? sizesYouth 
+                            : mockupBase.includes("TO") 
+                            ? sizesToddler 
+                            : mockupBase.includes("BB") 
+                            ? sizesBaby 
+                            : sizesAdult;
+    
                         return sizes.map((size) => ({
                             mockup: `${mockupBase}${size}`,
                             img_url: item.img_url,
                         }));
                     });
-                    // const uploadedFiles = result.data.map((item) => {
-                    //     return {
-                    //         mockup: this.extractPartOfFileName(item.img_key),
-                    //         img_url: item.img_url,
-                    //     };
-                    // });
-
-                    // Guardar los datos en la BD
+    
                     await Promise.all(
                         uploadedFiles.map((data) =>
                             this.awsService.saveUrls(data)
                         )
                     );
-
-                    // Unir archivos subidos de diferentes lotes
+    
                     this.filesUploaded = [
                         ...(this.filesUploaded || []),
                         ...uploadedFiles,
                     ];
-
-                    // Agregar retraso antes del siguiente lote
+    
                     await delay(delayBetweenBatches);
                 }
             };
-
-            // Iniciar el proceso de carga por lotes
+    
             await uploadBatches();
-
+    
             const groupedList = this.groupByMockup(this.filesUploaded);
-
-            // Exportar en formato XLXS automáticamente después de la carga completa
             this.exportExcel(groupedList);
-            console.log(groupedList);
-
+    
             this.messageService.add({
                 severity: 'success',
                 summary: 'Success',
                 detail: 'Files uploaded successfully',
                 life: 3000,
             });
-
+    
             this.uploader.clear();
             this.uploading = false;
             this.uploaded = true;
@@ -185,17 +227,23 @@ export class UploadAWSS3Component implements OnInit, OnDestroy {
             });
         }
     }
+    
 
-    extractMockupBase(fileName) {
-        // Usamos una expresión regular para capturar todo entre el guion "-" y la talla
-        const regex = /-(.+?)(\d{2}[SMLX]{1,3})__/;  // Captura el patrón de la talla
-        const match = fileName.match(regex);
+    extractMockupBase(fileName: string) {
+        const fileNamePart = fileName.substring(fileName.lastIndexOf('/') + 1);
+
+        // Dividir el nombre en dos partes alrededor del primer guion '-'
+        const dashIndex = fileNamePart.indexOf('-');
+        const underscoreIndex = fileNamePart.indexOf('__');
     
-        if (match && match[1]) {
-            return match[1]; // Devuelve la parte antes de la talla
+        // Si se encuentran tanto el guion como el '__', extraer la base del mockup
+        if (dashIndex !== -1 && underscoreIndex !== -1) {
+            // Obtener la parte entre el guion y '__', eliminando los últimos tres caracteres
+            const mockupBase = fileNamePart.substring(dashIndex + 1, underscoreIndex - 3);
+            return mockupBase;
         }
-    
-        return ''; // Devuelve un string vacío si no hay coincidencia
+
+        return '';
     }
 
     extractPartOfFileName(fileName) {

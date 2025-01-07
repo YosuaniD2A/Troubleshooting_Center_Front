@@ -20,11 +20,12 @@ import { uploadGuard } from './demo/guards/upload.guard';
                     { path: 'shipping-address', loadChildren: () => import('./demo/components/shipping-address/shipping-address.module').then(m => m.ShippingAddressModule) },
                     { path: 'sales-reports', loadChildren: () => import('./demo/components/sales-reports/sales-reports.module').then(m => m.SalesReportsModule) },
                     { path: 'scalablepress', loadChildren: () => import('./demo/components/scalablepress/scalablepress.module').then(m => m.ScalablepressModule) },
+                    { path: 'listing-generator', loadChildren: () => import('./demo/components/listing-generator/listing-generator.module').then(m => m.ListingGeneratorModule) },
                     { path: 'uikit', loadChildren: () => import('./demo/components/uikit/uikit.module').then(m => m.UIkitModule) },
                     { path: 'utilities', loadChildren: () => import('./demo/components/utilities/utilities.module').then(m => m.UtilitiesModule) },
                     { path: 'documentation', loadChildren: () => import('./demo/components/documentation/documentation.module').then(m => m.DocumentationModule) },
                     { path: 'blocks', loadChildren: () => import('./demo/components/primeblocks/primeblocks.module').then(m => m.PrimeBlocksModule) },
-                    { path: 'pages', loadChildren: () => import('./demo/components/pages/pages.module').then(m => m.PagesModule) }
+                    { path: 'pages', loadChildren: () => import('./demo/components/pages/pages.module').then(m => m.PagesModule) },
                 ]
             },
             { path: 'auth', loadChildren: () => import('./demo/components/auth/auth.module').then(m => m.AuthModule) },

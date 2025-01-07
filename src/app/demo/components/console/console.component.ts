@@ -11,10 +11,16 @@ import { ThePrintbarService } from '../../service/the-printbar.service';
     providers: [MessageService],
 })
 export class ConsoleComponent implements OnInit {
+    showSpinnerInitial: boolean = false;
+    progressMessageInitial: string = 'Cargando ordenes...';
+
     incomingOrders: any[];
     incomingOrdersCTP: any[];
     incomingOrdersTPB: any[];
     skuList: string[] = [];
+
+    showSpinner: boolean = false;
+    progressMessage: string = '';
 
     constructor(
         private swiftpodService: SwiftpodService,
@@ -24,11 +30,14 @@ export class ConsoleComponent implements OnInit {
     ) {}
 
     async ngOnInit(): Promise<void> {
+        this.showSpinnerInitial = true;
         await this.loadData();
+        this.showSpinnerInitial = false;
     }
 
     async loadData() {
         try {
+            
             const orders = await this.swiftpodService.getIncomingOrder();
             this.incomingOrders = orders.response;
             this.skuList = this.getUniqueSKUs(this.incomingOrders);
@@ -37,8 +46,19 @@ export class ConsoleComponent implements OnInit {
             const ordersTPB =
                 await this.thePrintbarService.getIncomingOrdersTPB();
             this.incomingOrdersTPB = ordersTPB.response[0];
+
+            
         } catch (error) {
             console.log(error);
+            this.showSpinnerInitial = false;
+            this.messageService.add({
+                key: 'bc',
+                severity: 'error',
+                summary: 'Error',
+                // detail: `Enlazados ${successMockCount}/${totalMockups} mockups y ${successArtCount}/${totalArts} arts`,
+                detail: `${error.error.error}`,
+                life: 5000,
+            });
         }
     }
 
@@ -127,8 +147,11 @@ export class ConsoleComponent implements OnInit {
             const preview_files = [];
 
             if (item.front_art_url !== '') {
-                if (item.front_print_area == 'poster') {
-                    print_files.push({ key: 'poster', url: item.front_art_url });
+                if (item.front_print_area == 'poster' || item.sku.includes("UNSPP")) {
+                    print_files.push({
+                        key: 'poster',
+                        url: item.front_art_url,
+                    });
                 } else {
                     print_files.push({ key: 'front', url: item.front_art_url });
                 }
@@ -177,7 +200,7 @@ export class ConsoleComponent implements OnInit {
                 name: incomingOrderSwift.ship_to,
                 phone: incomingOrderSwift.phone,
                 street1: incomingOrderSwift.address_1,
-                street2: '',
+                street2: incomingOrderSwift.address_2 ? incomingOrderSwift.address_2 : '',
                 city: incomingOrderSwift.city,
                 state: incomingOrderSwift.region,
                 country: incomingOrderSwift.country,
@@ -311,7 +334,8 @@ export class ConsoleComponent implements OnInit {
 
                 const { response } =
                     await this.swiftpodService.sendSwiftPODOrder(
-                        buildedSwiftPODOrder, order.site_name
+                        buildedSwiftPODOrder,
+                        order.site_name
                     );
                 console.log(response);
 
@@ -480,7 +504,9 @@ export class ConsoleComponent implements OnInit {
 
         data.forEach((obj) => {
             obj.items.forEach((item) => {
-                skuSet.add(item.sku);
+                if (!item.front_art_url || !item.front_mockup_url) {
+                    skuSet.add(item.sku);
+                }
             });
         });
 
@@ -497,5 +523,91 @@ export class ConsoleComponent implements OnInit {
         a.download = 'Unique_SKUs.txt';
         a.click();
         window.URL.revokeObjectURL(url);
+    }
+
+    async linkMockupAndArt() {
+        let successMockCount = 0; // Contador de mockups enlazados con éxito
+        let successArtCount = 0;
+        let notFoundCount = 0; // Contador de mockups no encontrados
+        const totalMockups = this.incomingOrders.flatMap((order) =>
+            order.items.filter((item: any) => !item.front_mockup_url)
+        ).length;
+        const totalArts = this.incomingOrders.flatMap((order) =>
+            order.items.filter((item: any) => !item.front_art_url)
+        ).length;
+
+        try {
+            this.showSpinner = true; // Mostrar el modal
+            this.progressMessage = 'Enlazando mockups...';
+
+            // Crear todas las promesas
+            const tasksMockups = this.incomingOrders.flatMap((order) =>
+                order.items
+                    .filter((item: any) => !item.front_mockup_url)
+                    .map(async (item: any) => {
+                        const skuBase = item.sku.slice(0, -3);
+                        const formattedSize = item.size.padStart(3, '0');
+
+                        try {
+                            const response =
+                                await this.swiftpodService.getLinkMockup(
+                                    skuBase,
+                                    formattedSize
+                                );
+
+                            if (response.status === 200) {
+                                // item.front_mockup_url = response.mockup_url; // Actualizar la URL
+                                successMockCount++;
+                            } else if (response.status === 404) {
+                                notFoundCount++;
+                            }
+                        } catch (error) {
+                            notFoundCount++;
+                        }
+                    })
+            );
+
+            // Ejecutar todas las promesas en paralelo
+            await Promise.all(tasksMockups);
+
+            this.progressMessage = 'Enlazando arts...';
+            const tasksArts = this.incomingOrders.flatMap((order) =>
+                order.items
+                    .filter((item: any) => !item.front_art_url)
+                    .map(async (item: any) => {
+                        try {
+                            const response =
+                                await this.swiftpodService.getLinkArt(item.design, item.pod_service);
+
+                            if (response.status === 200) {
+                                // item.front_mockup_url = response.mockup_url; // Actualizar la URL
+                                successArtCount++;
+                            } else if (response.status === 404) {
+                                notFoundCount++;
+                            }
+                        } catch (error) {
+                            notFoundCount++;
+                        }
+                    })
+            );
+
+            // Ejecutar todas las promesas en paralelo
+            await Promise.all(tasksArts);
+            // Mostrar el resultado final
+            this.messageService.add({
+                key: 'bc',
+                severity: 'info',
+                summary: 'Proceso finalizado',
+                // detail: `Enlazados ${successMockCount}/${totalMockups} mockups y ${successArtCount}/${totalArts} arts`,
+                detail: `Proceso finalizado, mockups y arts enlazados`,
+                life: 5000,
+            });
+
+            this.loadData();
+        } catch (error) {
+            console.error('Error procesando las órdenes:', error);
+        } finally {
+            this.showSpinner = false; // Ocultar el modal
+        }
     }
 }

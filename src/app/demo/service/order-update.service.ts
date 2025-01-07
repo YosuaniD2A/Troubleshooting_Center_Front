@@ -3,22 +3,22 @@ import { environment } from 'src/environments/environment';
 import { CreaTuPlayeraService } from './crea-tu-playera.service';
 import { ThePrintbarService } from './the-printbar.service';
 import { SwiftpodService } from './swift.service';
+import { CoppelService } from './coppel.service';
 
 @Injectable({
     providedIn: 'root',
 })
 export class OrderUpdateService {
-    
     authorizationToken = environment.tokenBase64;
     headers = new Headers({
         Authorization: `Basic ${this.authorizationToken}`,
         'Content-Type': 'application/json',
     });
 
-    constructor() {}
+    constructor(private coppelService: CoppelService) {}
 
     //----------------------- Actualizando en Shipstation ----------------------------------------------
-    async updateStatus(ctpOrders,creaTuPlayerService): Promise<any> {
+    async updateStatus(ctpOrders, creaTuPlayerService): Promise<any> {
         try {
             if (ctpOrders && ctpOrders.length > 0) {
                 const result = await Promise.all(
@@ -91,6 +91,26 @@ export class OrderUpdateService {
                                     } catch (error) {
                                         console.error('Error:', error);
                                         throw error;
+                                    }
+
+                                    // Validar si esa orden es de Coppel (ver si order.site_name = Coppel && estructura del site_order_id - Opcional)
+                                    if (
+                                        order.site_name.toLowerCase() ===
+                                        'coppel'
+                                    ) {
+                                        const pattern = /^\d{9}-[A-Z]$/;
+                                        if (pattern.test(order.site_order_id)) {
+                                            try {
+                                                const resp =
+                                                    await this.coppelService.markAsShippedCoppel(
+                                                        order.site_order_id
+                                                    );
+                                                console.log(resp);
+                                            } catch (error) {
+                                                console.error('Error:', error);
+                                                throw error;
+                                            }
+                                        }
                                     }
                                 }
 
@@ -369,7 +389,7 @@ export class OrderUpdateService {
     }
 
     //----------------------- Actualizando en baselinker -----------------------------------------------
-    async updateStatus_2(ctpOrders,creaTuPlayerService): Promise<any> {
+    async updateStatus_2(ctpOrders, creaTuPlayerService): Promise<any> {
         try {
             if (ctpOrders && ctpOrders.length > 0) {
                 const result = await Promise.all(
@@ -399,49 +419,65 @@ export class OrderUpdateService {
                                 );
 
                                 // Mark as Shipped en Baselinker para enviar el tracking number
-                                if (exist.data[0].status == 8 || exist.data[0].status == 520) {
+                                if (
+                                    exist.data[0].status == 8 ||
+                                    exist.data[0].status == 520
+                                ) {
                                     // Actualizar estatus en la tabla Orders
 
                                     const methodParams = {
                                         order_id: exist.data[0].order_id,
-                                        courier_code: data.tracking_number !== undefined
-                                            ? exist.data[0].shipping_carrier
-                                            : order.carrier,
-                                        package_number: data.tracking_number !== undefined
-                                            ? data.tracking_number
-                                            : order.tracking_number,
-                                        pickup_date: Math.floor(new Date().getTime() / 1000), // Unix timestamp
+                                        courier_code:
+                                            data.tracking_number !== undefined
+                                                ? exist.data[0].shipping_carrier
+                                                : order.carrier,
+                                        package_number:
+                                            data.tracking_number !== undefined
+                                                ? data.tracking_number
+                                                : order.tracking_number,
+                                        pickup_date: Math.floor(
+                                            new Date().getTime() / 1000
+                                        ), // Unix timestamp
                                         return_shipment: false,
                                     };
-                                
+
                                     const apiParams = {
-                                        method: "createPackageManual",
-                                        parameters: JSON.stringify(methodParams),
+                                        method: 'createPackageManual',
+                                        parameters:
+                                            JSON.stringify(methodParams),
                                     };
-                                
+
                                     try {
-                                        const response = await fetch(environment.BASELINKER_API_URL, {
-                                            method: 'POST',
-                                            headers: {
-                                                'X-BLToken': environment.BASELINKER_KEY,
-                                                'Content-Type': 'application/x-www-form-urlencoded',
-                                            },
-                                            body: new URLSearchParams(apiParams).toString(),
-                                        });
-                                
+                                        const response = await fetch(
+                                            environment.BASELINKER_API_URL,
+                                            {
+                                                method: 'POST',
+                                                headers: {
+                                                    'X-BLToken':
+                                                        environment.BASELINKER_KEY,
+                                                    'Content-Type':
+                                                        'application/x-www-form-urlencoded',
+                                                },
+                                                body: new URLSearchParams(
+                                                    apiParams
+                                                ).toString(),
+                                            }
+                                        );
+
                                         if (!response.ok) {
-                                            const errorData = await response.json();
+                                            const errorData =
+                                                await response.json();
                                             throw new Error(errorData.message);
                                         }
-                                
-                                        const responseData = await response.json();
+
+                                        const responseData =
+                                            await response.json();
                                         console.log(responseData);
                                     } catch (error) {
                                         console.error('Error:', error);
                                         throw error;
                                     }
                                 }
-                                
 
                                 return {
                                     ...order,
@@ -470,7 +506,10 @@ export class OrderUpdateService {
         }
     }
 
-    async updateSwiftPODStatus_2(swiftpodOrders, swiftPodService): Promise<any> {
+    async updateSwiftPODStatus_2(
+        swiftpodOrders,
+        swiftPodService
+    ): Promise<any> {
         try {
             if (swiftpodOrders && swiftpodOrders.length > 0) {
                 const result = await Promise.all(
@@ -541,33 +580,47 @@ export class OrderUpdateService {
 
                                     const methodParams = {
                                         order_id: parseInt(order.order_id),
-                                        courier_code: exist.data[0].tracking_code,
-                                        package_number: exist.data[0].tracking_number,
-                                        pickup_date: Math.floor(new Date().getTime() / 1000), // Unix timestamp
+                                        courier_code:
+                                            exist.data[0].tracking_code,
+                                        package_number:
+                                            exist.data[0].tracking_number,
+                                        pickup_date: Math.floor(
+                                            new Date().getTime() / 1000
+                                        ), // Unix timestamp
                                         return_shipment: true,
                                     };
 
                                     const apiParams = {
-                                        method: "setOrderShipment",
-                                        parameters: JSON.stringify(methodParams),
+                                        method: 'setOrderShipment',
+                                        parameters:
+                                            JSON.stringify(methodParams),
                                     };
 
                                     try {
-                                        const response = await fetch(environment.BASELINKER_API_URL, {
-                                            method: 'POST',
-                                            headers: {
-                                                'X-BLToken': environment.BASELINKER_KEY,
-                                                'Content-Type': 'application/x-www-form-urlencoded',
-                                            },
-                                            body: new URLSearchParams(apiParams).toString(),
-                                        });
-                                
+                                        const response = await fetch(
+                                            environment.BASELINKER_API_URL,
+                                            {
+                                                method: 'POST',
+                                                headers: {
+                                                    'X-BLToken':
+                                                        environment.BASELINKER_KEY,
+                                                    'Content-Type':
+                                                        'application/x-www-form-urlencoded',
+                                                },
+                                                body: new URLSearchParams(
+                                                    apiParams
+                                                ).toString(),
+                                            }
+                                        );
+
                                         if (!response.ok) {
-                                            const errorData = await response.json();
+                                            const errorData =
+                                                await response.json();
                                             throw new Error(errorData.message);
                                         }
-                                
-                                        const responseData = await response.json();
+
+                                        const responseData =
+                                            await response.json();
                                         console.log(responseData);
                                     } catch (error) {
                                         console.error('Error:', error);
@@ -646,32 +699,45 @@ export class OrderUpdateService {
                                     const methodParams = {
                                         order_id: parseInt(order.order_id),
                                         courier_code: lastEvent.carrier,
-                                        package_number: lastEvent.trackingNumber,
-                                        pickup_date: Math.floor(new Date().getTime() / 1000), // Unix timestamp
+                                        package_number:
+                                            lastEvent.trackingNumber,
+                                        pickup_date: Math.floor(
+                                            new Date().getTime() / 1000
+                                        ), // Unix timestamp
                                         return_shipment: true,
                                     };
-                                
+
                                     const apiParams = {
-                                        method: "setOrderShipment",
-                                        parameters: JSON.stringify(methodParams),
+                                        method: 'setOrderShipment',
+                                        parameters:
+                                            JSON.stringify(methodParams),
                                     };
 
                                     try {
-                                        const response = await fetch(environment.BASELINKER_API_URL, {
-                                            method: 'POST',
-                                            headers: {
-                                                'X-BLToken': environment.BASELINKER_KEY,
-                                                'Content-Type': 'application/x-www-form-urlencoded',
-                                            },
-                                            body: new URLSearchParams(apiParams).toString(),
-                                        });
-                                
+                                        const response = await fetch(
+                                            environment.BASELINKER_API_URL,
+                                            {
+                                                method: 'POST',
+                                                headers: {
+                                                    'X-BLToken':
+                                                        environment.BASELINKER_KEY,
+                                                    'Content-Type':
+                                                        'application/x-www-form-urlencoded',
+                                                },
+                                                body: new URLSearchParams(
+                                                    apiParams
+                                                ).toString(),
+                                            }
+                                        );
+
                                         if (!response.ok) {
-                                            const errorData = await response.json();
+                                            const errorData =
+                                                await response.json();
                                             throw new Error(errorData.message);
                                         }
-                                
-                                        const responseData = await response.json();
+
+                                        const responseData =
+                                            await response.json();
                                         console.log(responseData);
                                     } catch (error) {
                                         console.error('Error:', error);
@@ -781,12 +847,12 @@ export class OrderUpdateService {
     startPeriodicUpdates(
         ctpOrders,
         creaTuPlayerService,
-        swiftpodOrders, 
+        swiftpodOrders,
         swiftPodService,
         tpbOrders,
         thePrintbarService
     ) {
-        this.updateStatus(ctpOrders,creaTuPlayerService);
+        this.updateStatus(ctpOrders, creaTuPlayerService);
         this.updateSwiftPODStatus(swiftpodOrders, swiftPodService);
         this.updateTPBStatus(tpbOrders, thePrintbarService);
     }

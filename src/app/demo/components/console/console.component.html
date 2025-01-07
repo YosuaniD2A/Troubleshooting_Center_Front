@@ -4,14 +4,18 @@
         <h1 class="mb-0 mr-2">Console Admin</h1>
     </ng-template>
     <ng-template pTemplate="right">
-        <div>
-            <button pButton icon="pi pi-file" label="Download SKUs as .txt" (click)="downloadSKUsAsTxt()"></button>
+        <div class="flex gap-2">
+            <button pButton icon="pi pi-link" label="Link Art & Mockup" (click)="linkMockupAndArt()"></button>
+            <div class="btn-download">
+                <button pButton icon="pi pi-download" label="SKUs"
+                    (click)="downloadSKUsAsTxt()"></button>
+            </div>
         </div>
     </ng-template>
 </p-toolbar>
 <!-- </div> -->
 <div class="card px-6 py-6">
-    <p-table [value]="incomingOrders" [paginator]="true" [rows]="100" [showCurrentPageReport]="true"
+    <p-table [value]="incomingOrders" [paginator]="true" [rows]="200" [showCurrentPageReport]="true"
         [tableStyle]="{ 'min-width': '50rem' }"
         currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
         [rowsPerPageOptions]="[5, 10, 20, 50, 100, 150, 200]">
@@ -87,3 +91,15 @@
     </p-table>
     <p-toast position="bottom-center" key="bc"></p-toast>
 </div>
+<p-dialog [(visible)]="showSpinner" modal="true" [closable]="false" header="Procesando">
+    <div class="flex align-items-center justify-content-center gap-2">
+        <i class="pi pi-spin pi-spinner" style="font-size: 2em"></i>
+        <span>{{ progressMessage }}</span>
+    </div>
+</p-dialog>
+<p-dialog [(visible)]="showSpinnerInitial" modal="true" [closable]="false" header="Cargando">
+    <div class="flex align-items-center justify-content-center gap-2">
+        <i class="pi pi-spin pi-spinner" style="font-size: 2em"></i>
+        <span>{{ progressMessageInitial }}</span>
+    </div>
+</p-dialog>

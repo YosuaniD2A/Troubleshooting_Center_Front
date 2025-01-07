@@ -15,6 +15,14 @@ export class SwiftpodService {
         return lastValueFrom(this.http.get<any>(`${this.baseUrl}getIncomingOrders`))
     }
 
+    getLinkMockup(skuBase, size): Promise<any> {
+        return lastValueFrom(this.http.post<any>(`${this.baseUrl}linkMockup`, { skuBase, size }))
+    }
+
+    getLinkArt(design, pod): Promise<any> {
+        return lastValueFrom(this.http.post<any>(`${this.baseUrl}linkArt`, { design, pod }))
+    }
+
     saveArt(data): Promise<any> {
         return lastValueFrom(this.http.post<any>(`${this.baseUrl}saveArt`, { data }))
     }

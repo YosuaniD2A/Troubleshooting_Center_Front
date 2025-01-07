@@ -40,4 +40,8 @@ export class CreaTuPlayeraService {
     return lastValueFrom(this.http.post<any>(`${this.baseUrl}setMongoCTPOrder`, data))
   }
 
+  processOrdersWithoutUpdate(data): Promise<any> {
+    return lastValueFrom(this.http.post<any>(`${this.baseUrl}processOrdersWithoutUpdate`, data))
+  }
+
 }
