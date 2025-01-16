@@ -56,6 +56,10 @@ export class SwiftpodService {
         return lastValueFrom(this.http.get<any>(`${this.baseUrl}getSwiftPODOrder`))
     }
 
+    getSwiftPODBrand(design): Promise<any> {
+        return lastValueFrom(this.http.get<any>(`${this.baseUrl}getSwiftpodBrand/${design}`))
+    }
+
     getSwiftPODOrdersStatus(swift_id): Promise<any> {
         return lastValueFrom(this.http.get<any>(`${this.baseUrl}getSwiftPODOrdersStatus/${swift_id}`))
     }

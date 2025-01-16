@@ -1,0 +1,190 @@
+{
+    "data": [
+        {
+            "marketplace": "Amazon",
+            "groups": [
+                {
+                    "label": "Men",
+                    "value": "men",
+                    "items": [
+                        {
+                            "label": "T-Shirts",
+                            "value": "tshirts",
+                            "path": "Clothing, Tees & Shirts > T-Shirts"
+                        },
+                        {
+                            "label": "Tank Tops",
+                            "value": "tank tops",
+                            "path": "Clothing, Shoes & Accessories > Men > Clothing > Tops"
+                        },
+                        {
+                            "label": "Hoodie",
+                            "value": "hoddie",
+                            "path": "Clothing, Shoes & Accessories > Men > Clothing > Activewear > Hoodies & Sweatshirts > Hoodies"
+                        },
+                        {
+                            "label": "Sweatshirt",
+                            "value": "sweatshirt",
+                            "path": "Clothing, Sports & Outdoors > Team Sports > Soccer > Clothing > Men > Sweatshirts"
+                        },
+                        {
+                            "label": "Long Sleeve",
+                            "value": "long sleeve",
+                            "path": "Clothing, Shoes & Accessories > Men > Clothing > Tops, Tees & Shirts > T-Shirts"
+                        }
+                    ]
+                },
+                {
+                    "label": "Women",
+                    "value": "women",
+                    "items": [
+                        {
+                            "label": "T-Shirts",
+                            "value": "tshirts",
+                            "path": "Clothing, Tees & Blouses > T-Shirts"
+                        },
+                        {
+                            "label": "Racerback",
+                            "value": "racerback",
+                            "path": "Clothing, Shoes & Accessories > Women > Clothing > Tops, Tees & Blouses > Tank Tops & Camis"
+                        },
+                        {
+                            "label": "Hoodie",
+                            "value": "hoddie",
+                            "path": "Clothing, Shoes & Accessories > Women > Clothing > Activewear > Hoodies & Sweatshirts > Hoodies"
+                        },
+                        {
+                            "label": "Sweatshirt",
+                            "value": "sweatshirt",
+                            "path": "Clothing, Sports & Outdoors > Team Sports > Soccer > Clothing > Women > Sweatshirts"
+                        },
+                        {
+                            "label": "Long Sleeve",
+                            "value": "long sleeve",
+                            "path": "Clothing, Shoes & Accessories > Women > Clothing > Tops, Tees & Blouses > T-Shirts"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "marketplace": "Ebay",
+            "groups": [
+                {
+                    "label": "Men",
+                    "value": "men",
+                    "items": [
+                        {
+                            "label": "Tshirts, Crop and Tank tops",
+                            "value": "tshirts crop and tank tops",
+                            "path": "Clothing, Shoes & Accessories > Men > Men's Clothing > Shirts > T-Shirts"
+                        },
+                        {
+                            "label": "Hoodies",
+                            "value": "hoddies",
+                            "path": "Clothing, Shoes & Accessories > Men > Men's Clothing > Activewear > Hoodies & Sweatshirts"
+                        },
+                        {
+                            "label": "Sweatshirts",
+                            "value": "sweatshirts",
+                            "path": "Clothing, Shoes & Accessories > Men > Men's Clothing > Activewear > Hoodies & Sweatshirts"
+                        },
+                        {
+                            "label": "Long Sleeves",
+                            "value": "long sleeves",
+                            "path": "Clothing, Shoes & Accessories > Men > Men's Clothing > Activewear > Hoodies & Sweatshirts"
+                        }
+                    ]
+                },
+                {
+                    "label": "Women",
+                    "value": "women",
+                    "items": [
+                        {
+                            "label": "T-Shirts",
+                            "value": "tshirts",
+                            "path": "Clothing, Shoes & Accessories > Women > Women's Clothing > Tops"
+                        },
+                        {
+                            "label": "Hoodie",
+                            "value": "hoddie",
+                            "path": "Clothing, Shoes & Accessories > Women > Women's Clothing > Activewear > Hoodies & Sweatshirts"
+                        },
+                        {
+                            "label": "Sweatshirt",
+                            "value": "sweatshirt",
+                            "path": "Clothing, Shoes & Accessories > Women > Women's Clothing > Activewear > Hoodies & Sweatshirts"
+                        },
+                        {
+                            "label": "Long Sleeve",
+                            "value": "long sleeve",
+                            "path": "Clothing, Shoes & Accessories > Women > Women's Clothing > Activewear > Hoodies & Sweatshirts"
+                        }
+                    ]
+                },
+                {
+                    "label": "Toodler",
+                    "value": "toodler",
+                    "items": [
+                        {
+                            "label": "T-Shirts",
+                            "value": "tshirts",
+                            "path": "Clothing, Shoes & Accessories > Baby > Baby & Toddler Clothing > Tops & T-Shirts"
+                        },
+                        {
+                            "label": "Hoodie",
+                            "value": "hoddie",
+                            "path": "Clothing, Shoes & Accessories > Baby > Baby & Toddler Clothing > Outerwear"
+                        },
+                        {
+                            "label": "Sweatshirt",
+                            "value": "sweatshirt",
+                            "path": "Clothing, Shoes & Accessories > Baby > Baby & Toddler Clothing > Outerwear"
+                        },
+                        {
+                            "label": "Long Sleeve",
+                            "value": "long sleeve",
+                            "path": "Clothing, Shoes & Accessories > Baby > Baby & Toddler Clothing > Outerwear"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "marketplace": "Walmart",
+            "groups": [
+                {
+                    "label": "General",
+                    "value": "general",
+                    "items": [
+                        {
+                            "label": "Tshirts",
+                            "value": "tshirts",
+                            "path": "T -Shirts"
+                        },
+                        {
+                            "label": "Hoodies",
+                            "value": "hoddies",
+                            "path": "Sweatshirts & Hoodies"
+                        },
+                        {
+                            "label": "Sweatshirts",
+                            "value": "sweatshirts",
+                            "path": "Sweatshirts & Hoodies"
+                        },
+                        {
+                            "label": "Long Sleeves",
+                            "value": "long sleeves",
+                            "path": "Blouses and Tops"
+                        },
+                        {
+                            "label": "Tank Top & Racerback",
+                            "value": "tank top and racerback",
+                            "path": "Tank Tops"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

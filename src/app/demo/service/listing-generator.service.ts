@@ -23,15 +23,27 @@ export class ListingGeneratorService {
         return lastValueFrom(this.http.get<any>(`${this.baseUrl}getMockups/${pto}`))
     }
 
+    getColors(): Promise<any> {
+        return lastValueFrom(this.http.get<any>(`${this.baseUrl}getColors`))
+    }
+
+    getLastMPN(): Promise<any> {
+        return lastValueFrom(this.http.get<any>(`${this.baseUrl}getLastMPN`))
+    }
+
     getMockupURLs(data): Promise<any> {
         return lastValueFrom(this.http.post<any>(`${this.baseUrl}getMockupURLs`, { mockups: data }))
     }
 
-    saveMockupDetails(data): Promise<any> {
-        return lastValueFrom(this.http.post<any>(`${this.baseUrl}saveMockupDetails`, { mockupData: data }))
+    saveMockupDetails(data, pto): Promise<any> {
+        return lastValueFrom(this.http.post<any>(`${this.baseUrl}saveMockupDetails/${pto}`, { mockupData: data }))
     }
 
     getPriceRelationship(data): Promise<any> {
         return lastValueFrom(this.http.post<any>(`${this.baseUrl}getPriceRelationship`, { mockupData: data }))
+    }
+
+    updatePTOs(data): Promise<any> {
+        return lastValueFrom(this.http.post<any>(`${this.baseUrl}updatePTOs`, { pto: data }))
     }
 }

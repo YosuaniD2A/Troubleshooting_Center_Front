@@ -1,0 +1,357 @@
+{
+    "Amazon": {
+        "groups": [
+            {
+                "label": "Men",
+                "value": "men",
+                "items": [
+                    {
+                        "label": "T-Shirts",
+                        "value": "tshirts",
+                        "path": "Clothing, Tees & Shirts > T-Shirts"
+                    },
+                    {
+                        "label": "Tank Tops",
+                        "value": "tank tops",
+                        "path": "Clothing, Shoes & Accessories > Men > Clothing > Tops"
+                    },
+                    {
+                        "label": "Hoodie",
+                        "value": "hoddie",
+                        "path": "Clothing, Shoes & Accessories > Men > Clothing > Activewear > Hoodies & Sweatshirts > Hoodies"
+                    },
+                    {
+                        "label": "Sweatshirt",
+                        "value": "sweatshirt",
+                        "path": "Clothing, Sports & Outdoors > Team Sports > Soccer > Clothing > Men > Sweatshirts"
+                    },
+                    {
+                        "label": "Long Sleeve",
+                        "value": "long sleeve",
+                        "path": "Clothing, Shoes & Accessories > Men > Clothing > Tops, Tees & Shirts > T-Shirts"
+                    }
+                ]
+            },
+            {
+                "label": "Women",
+                "value": "women",
+                "items": [
+                    {
+                        "label": "T-Shirts",
+                        "value": "tshirts",
+                        "path": "Clothing, Tees & Blouses > T-Shirts"
+                    },
+                    {
+                        "label": "Racerback",
+                        "value": "racerback",
+                        "path": "Clothing, Shoes & Accessories > Women > Clothing > Tops, Tees & Blouses > Tank Tops & Camis"
+                    },
+                    {
+                        "label": "Hoodie",
+                        "value": "hoddie",
+                        "path": "Clothing, Shoes & Accessories > Women > Clothing > Activewear > Hoodies & Sweatshirts > Hoodies"
+                    },
+                    {
+                        "label": "Sweatshirt",
+                        "value": "sweatshirt",
+                        "path": "Clothing, Sports & Outdoors > Team Sports > Soccer > Clothing > Women > Sweatshirts"
+                    },
+                    {
+                        "label": "Long Sleeve",
+                        "value": "long sleeve",
+                        "path": "Clothing, Shoes & Accessories > Women > Clothing > Tops, Tees & Blouses > T-Shirts"
+                    }
+                ]
+            }
+        ]
+    },
+    "Ebay": {
+        "groups": [
+            {
+                "label": "Men",
+                "value": "men",
+                "items": [
+                    {
+                        "label": "Tshirts, Crop and Tank tops",
+                        "value": "tshirts crop and tank tops",
+                        "path": "Clothing, Shoes & Accessories > Men > Men's Clothing > Shirts > T-Shirts"
+                    },
+                    {
+                        "label": "Hoodie, Sweatshirt & Long Sleeve",
+                        "value": "hoddies",
+                        "path": "Clothing, Shoes & Accessories > Men > Men's Clothing > Activewear > Hoodies & Sweatshirts"
+                    }
+                ]
+            },
+            {
+                "label": "Women",
+                "value": "women",
+                "items": [
+                    {
+                        "label": "T-Shirts",
+                        "value": "tshirts",
+                        "path": "Clothing, Shoes & Accessories > Women > Women's Clothing > Tops"
+                    },
+                    {
+                        "label": "Hoodie, Sweatshirt & Long Sleeve",
+                        "value": "hoddie",
+                        "path": "Clothing, Shoes & Accessories > Women > Women's Clothing > Activewear > Hoodies & Sweatshirts"
+                    }
+                ]
+            },
+            {
+                "label": "Toodler",
+                "value": "toodler",
+                "items": [
+                    {
+                        "label": "T-Shirts",
+                        "value": "tshirts",
+                        "path": "Clothing, Shoes & Accessories > Baby > Baby & Toddler Clothing > Tops & T-Shirts"
+                    },
+                    {
+                        "label": "Hoodie, Sweatshirt & Long Sleeve",
+                        "value": "hoddie",
+                        "path": "Clothing, Shoes & Accessories > Baby > Baby & Toddler Clothing > Outerwear"
+                    }
+                ]
+            }
+        ]
+    },
+    "Walmart": {
+        "groups": [
+            {
+                "label": "General",
+                "value": "general",
+                "items": [
+                    {
+                        "label": "Tshirts",
+                        "value": "tshirts",
+                        "path": "T-Shirts"
+                    },
+                    {
+                        "label": "Hoodies & Sweatshirts",
+                        "value": "hoddies",
+                        "path": "Sweatshirts & Hoodies"
+                    },
+                    {
+                        "label": "Long Sleeves",
+                        "value": "long sleeves",
+                        "path": "Blouses and Tops"
+                    },
+                    {
+                        "label": "Tank Top & Racerback",
+                        "value": "tank top and racerback",
+                        "path": "Tank Tops"
+                    }
+                ]
+            }
+        ]
+    },
+    "Pipeline": {
+        "groups": [
+            {
+                "label": "Banzai",
+                "value": "general",
+                "items": [
+                    {
+                        "label": "T-Shirts",
+                        "value": "t-shirt",
+                        "path": "Men, Banzai > T-Shirts - Banzai"
+                    },
+                    {
+                        "label": "Logo collection",
+                        "value": "logo collection",
+                        "path": "Men, Banzai > Pipeline Banzai Logo Collection"
+                    },
+                    {
+                        "label": "Sweatshirts",
+                        "value": "sweatshirts",
+                        "path": "Men, Banzai > Sweatshirts - Banzai"
+                    },
+                    {
+                        "label": "Hoodies",
+                        "value": "hoodies",
+                        "path": "Men, Banzai > Hoodies - Banzai"
+                    },
+                    {
+                        "label": "Long Sleeve",
+                        "value": "long sleeve",
+                        "path": "Men, Banzai > Long Sleeve T-shirts - Banzai"
+                    },
+                    {
+                        "label": "Tank Top",
+                        "value": "tank top",
+                        "path": "Men, Banzai > Tank Tops - Banzai"
+                    }
+                ]
+            },
+            {
+                "label": "Classic",
+                "value": "general",
+                "items": [
+                    {
+                        "label": "T-Shirts",
+                        "value": "t-shirt",
+                        "path": "Men, Classic > T-Shirts - Classic"
+                    },
+                    {
+                        "label": "Logo collection",
+                        "value": "logo collection",
+                        "path": "Men, Classic > Pipeline Classic Logo Collection"
+                    },
+                    {
+                        "label": "Sweatshirts",
+                        "value": "sweatshirts",
+                        "path": "Men, Classic > Sweatshirts - Classic"
+                    },
+                    {
+                        "label": "Long Sleeve",
+                        "value": "long sleeve",
+                        "path": "Men, Classic > Long Sleeve T-shirts - Classic"
+                    },
+                    {
+                        "label": "Tank Top",
+                        "value": "tank top",
+                        "path": "Men, Classic > Tank Tops - Classic"
+                    }
+                ]
+            },
+            {
+                "label": "Pro",
+                "value": "general",
+                "items": [
+                    {
+                        "label": "T-Shirts",
+                        "value": "t-shirt",
+                        "path": "Men, Pro > T-Shirts - Pro"
+                    },
+                    {
+                        "label": "Logo collection",
+                        "value": "logo collection",
+                        "path": "Men, Pro > Pipeline Pro Logo Collection"
+                    },
+                    {
+                        "label": "Sweatshirts",
+                        "value": "sweatshirts",
+                        "path": "Men, Pro > Sweatshirts - Pro"
+                    },
+                    {
+                        "label": "Hoodies",
+                        "value": "hoodies",
+                        "path": "Men, Pro > Hoodies - Pro"
+                    }
+                ]
+            },
+            {
+                "label": "Waveflower",
+                "value": "general",
+                "items": [
+                    {
+                        "label": "T-Shirts",
+                        "value": "t-shirt",
+                        "path": "Women, Waveflower > T-Shirts - Waveflower"
+                    },
+                    {
+                        "label": "Logo collection",
+                        "value": "logo collection",
+                        "path": "Women, Waveflower > Pipeline Waveflower Logo Collection"
+                    },
+                    {
+                        "label": "Long Sleeves",
+                        "value": "long Sleeves",
+                        "path": "Women, Waveflower > Long Sleeves - Waveflower"
+                    },
+                    {
+                        "label": "Sweatshirts",
+                        "value": "sweatshirts",
+                        "path": "Women, Waveflower > Sweatshirts - Waveflower"
+                    },
+                    {
+                        "label": "Hoodies",
+                        "value": "hoodies",
+                        "path": "Women, Waveflower > Hoodies - Waveflower"
+                    },
+                    {
+                        "label": "Racerbacks",
+                        "value": "racerbacks",
+                        "path": "Women, Waveflower > Racerbacks - Waveflower"
+                    },
+                    {
+                        "label": "Crop Tops",
+                        "value": "crop tops",
+                        "path": "Women, Waveflower > Crop Tops - Waveflower"
+                    }
+                ]
+            },
+            {
+                "label": "Boys",
+                "value": "general",
+                "items": [
+                    {
+                        "label": "T-Shirts",
+                        "value": "t-shirt",
+                        "path": "Boys, Boys > T-Shirts"
+                    },
+                    {
+                        "label": "Sweatshirts",
+                        "value": "sweatshirts",
+                        "path": "Boys, Boys > Sweatshirts"
+                    },
+                    {
+                        "label": "Hoodies",
+                        "value": "hoodies",
+                        "path": "Boys, Boys > Hoodies"
+                    }
+                ]
+            },
+            {
+                "label": "Girls",
+                "value": "general",
+                "items": [
+                    {
+                        "label": "T-Shirts",
+                        "value": "t-shirt",
+                        "path": "Girls, Girls > T-Shirts"
+                    },
+                    {
+                        "label": "Sweatshirts",
+                        "value": "sweatshirts",
+                        "path": "Girls, Girls > Sweatshirts"
+                    },
+                    {
+                        "label": "Hoodies",
+                        "value": "hoodies",
+                        "path": "Girls, Girls > Hoodies"
+                    }
+                ]
+            },
+            {
+                "label": "Toddlers",
+                "value": "general",
+                "items": [
+                    {
+                        "label": "T-Shirts",
+                        "value": "t-shirt",
+                        "path": "Toddlers, Toddlers > T-Shirts"
+                    },
+                    {
+                        "label": "Long Sleeves",
+                        "value": "long Sleeves",
+                        "path": "Toddlers, Toddlers > Long sleeves"
+                    }
+                ]
+            },
+            {
+                "label": "Infants",
+                "value": "general",
+                "items": [
+                    {
+                        "label": "Onesies",
+                        "value": "onesies",
+                        "path": "Infants, Infants > Onesies"
+                    }
+                ]
+            }
+        ]
+    }
+}

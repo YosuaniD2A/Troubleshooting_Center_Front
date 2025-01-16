@@ -18,6 +18,8 @@ import { TableModule } from 'primeng/table';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputTextareaModule } from 'primeng/inputtextarea';
 import { MultiSelectModule } from 'primeng/multiselect';
+import { MessagesModule } from 'primeng/messages';
+import { DropdownModule } from 'primeng/dropdown';
 
 @NgModule({
   declarations: [ListingGeneratorComponent],
@@ -37,7 +39,9 @@ import { MultiSelectModule } from 'primeng/multiselect';
     TableModule,
     InputTextModule,
     InputTextareaModule,
-    MultiSelectModule
+    MultiSelectModule,
+    MessagesModule,
+    DropdownModule
   ]
 })
 export class ListingGeneratorModule { }
