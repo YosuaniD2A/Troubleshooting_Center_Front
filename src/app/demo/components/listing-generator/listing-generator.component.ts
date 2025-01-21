@@ -85,6 +85,7 @@ export class ListingGeneratorComponent implements OnInit {
     linkFeature3: boolean = false;
     linkAmazonDepart: boolean = false;
     linkStatus: { [market: string]: boolean } = {};
+    faireCategorie: string;
     designCategories: { [design: string]: { [marketplace: string]: any[] } } =
         {};
 
@@ -107,7 +108,7 @@ export class ListingGeneratorComponent implements OnInit {
         private messageService: MessageService,
         private listingGeneratorService: ListingGeneratorService,
         private marketplaceCategoriesService: MarketplaceScategoriesService
-    ) {}
+    ) { }
 
     async ngOnInit(): Promise<void> {
         this.loadSettings();
@@ -146,27 +147,29 @@ export class ListingGeneratorComponent implements OnInit {
 
         if (marketplaceFields.includes(field.toLowerCase())) {
             this.linkStatus[field] = !this.linkStatus[field];
+            console.log(this.linkStatus);
+
         } else {
             // No es un marketplace
             switch (field.toLowerCase()) {
                 case 'keywords':
                     this.linkKeywords = !this.linkKeywords;
-                    break;
+                    return;
                 case 'description':
                     this.linkDescription = !this.linkDescription;
-                    break;
+                    return;
                 case 'feature1':
                     this.linkFeature1 = !this.linkFeature1;
-                    break;
+                    return;
                 case 'feature2':
                     this.linkFeature2 = !this.linkFeature2;
-                    break;
+                    return;
                 case 'feature3':
                     this.linkFeature3 = !this.linkFeature3;
-                    break;
+                    return;
 
                 default:
-                    break;
+                    return;
             }
         }
     }
@@ -330,6 +333,7 @@ export class ListingGeneratorComponent implements OnInit {
     }
 
     validateDesigns(designs: Design[]): string[] {
+        this.issues = [];
         const seenTitles: { [key: string]: boolean } = {};
 
         designs.forEach((design) => {
@@ -344,28 +348,31 @@ export class ListingGeneratorComponent implements OnInit {
             if (!design.styles) emptyFields.push('styles');
             if (!design.title) emptyFields.push('title');
             if (!design.theme) emptyFields.push('theme');
-            if (!design.amazonDepart) emptyFields.push('amazon department');
+            if (this.selectedMarketplace.includes('Amazon')) {
+                if (!design.amazonDepart) emptyFields.push('amazon department');
+            }
             if (!design.feature1) emptyFields.push('feature 1');
             if (!design.feature2) emptyFields.push('feature 2');
             if (!design.feature3) emptyFields.push('feature 3');
 
             // Validar categorías
-            Object.entries(design.categories).forEach(
-                ([market, categories]) => {
-                    if (
-                        this.selectedMarketplace.includes(market) &&
-                        categories.length === 0
-                    ) {
-                        emptyFields.push(`categories.${market}`);
-                    }
+            Object.entries(design.categories).forEach(([market, categories]) => {
+                if (!categories) {
+                    emptyFields.push(`categories.${market}`);
                 }
-            );
+                if (
+                    this.selectedMarketplace.includes(market) &&
+                    categories && // Verificar que categories no es undefined
+                    categories.length === 0
+                ) {
+                    emptyFields.push(`categories.${market}`);
+                }
+            });
 
             // Si hay campos vacíos, agregar al reporte
             if (emptyFields.length > 0) {
                 this.issues.push(
-                    `Design "${
-                        design.design
+                    `Design "${design.design
                     }" has empty fields: ${emptyFields.join(', ')}`
                 );
             }
@@ -632,27 +639,61 @@ export class ListingGeneratorComponent implements OnInit {
                 parents_data
             );
 
+            const wb: XLSX.WorkBook = XLSX.utils.book_new();
+
             if (this.selectedMarketplace.includes('Ebay')) {
-                this.generateEbayTemplate(masterList);
+                const wsEbay = this.generateEbayTemplate(masterList);
+                XLSX.utils.book_append_sheet(wb, wsEbay, 'Ebay Template');
             }
             if (this.selectedMarketplace.includes('Walmart')) {
-                this.generateWalmartTemplate(masterList);
+                const wsWalmart = this.generateWalmartTemplate(masterList);
+                XLSX.utils.book_append_sheet(wb, wsWalmart, 'Walmart Template');
             }
             if (this.selectedMarketplace.includes('Amazon')) {
-                this.generateAmazonTemplate(masterList);
+                const wsAmazon = this.generateAmazonTemplate(masterList);
+                XLSX.utils.book_append_sheet(wb, wsAmazon, 'Amazon Template');
             }
             if (this.selectedMarketplace.includes('Pipeline')) {
-                this.generatePipelineTemplate(masterList);
-            }
-            if (this.selectedMarketplace.includes('Etsy')) {
-                this.generateEtsyTemplate(masterList);
+                const wsPipeline = this.generatePipelineTemplate(masterList);
+                XLSX.utils.book_append_sheet(wb, wsPipeline, 'Pipeline Template');
             }
             if (this.selectedMarketplace.includes('Shopify')) {
-                this.generateShopifyTemplate(masterList);
+                const wsShopify = this.generateShopifyTemplate(masterList);
+                XLSX.utils.book_append_sheet(wb, wsShopify, 'Shopify Template');
             }
             if (this.selectedMarketplace.includes('Faire')) {
-                this.generateFaireTemplate(masterList);
+                const wsFaire = this.generateFaireTemplate(masterList);
+                XLSX.utils.book_append_sheet(wb, wsFaire, 'Faire Template');
             }
+
+            // Guardar el archivo Excel combinado
+            const excelBuffer: any = XLSX.write(wb, {
+                bookType: 'xlsx',
+                type: 'array',
+            });
+            const dataBlob: Blob = new Blob([excelBuffer], {
+                type: 'application/octet-stream',
+            });
+            saveAs(dataBlob, 'Marketplaces_Templates.xlsx');
+
+            // if (this.selectedMarketplace.includes('Ebay')) {
+            //     this.generateEbayTemplate(masterList);
+            // }
+            // if (this.selectedMarketplace.includes('Walmart')) {
+            //     this.generateWalmartTemplate(masterList);
+            // }
+            // if (this.selectedMarketplace.includes('Amazon')) {
+            //     this.generateAmazonTemplate(masterList);
+            // }
+            // if (this.selectedMarketplace.includes('Pipeline')) {
+            //     this.generatePipelineTemplate(masterList);
+            // }
+            // if (this.selectedMarketplace.includes('Shopify')) {
+            //     this.generateShopifyTemplate(masterList);
+            // }
+            // if (this.selectedMarketplace.includes('Faire')) {
+            //     this.generateFaireTemplate(masterList);
+            // }
 
             this.resetParams();
             this.loadData();
@@ -706,7 +747,7 @@ export class ListingGeneratorComponent implements OnInit {
                                 image1: size.urls[0] ? size.urls[0] : '',
                                 image2: size.urls[1] ? size.urls[1] : '',
                                 image3: size.urls[2] ? size.urls[2] : '',
-                                image4: size.urls[3] ? size.urls[3] : '',
+                                image4: this.assignFourthImage(classification, design.styles),
                             }))
                         );
                     } else {
@@ -730,8 +771,8 @@ export class ListingGeneratorComponent implements OnInit {
                                         marketplace,
                                         Array.isArray(categoryArray)
                                             ? Array.from(
-                                                  new Set(categoryArray)
-                                              ).join(', ')
+                                                new Set(categoryArray)
+                                            ).join(', ')
                                             : '',
                                     ]
                                 )
@@ -746,7 +787,7 @@ export class ListingGeneratorComponent implements OnInit {
                                 image1: size.urls[0] ? size.urls[0] : '',
                                 image2: size.urls[1] ? size.urls[1] : '',
                                 image3: size.urls[2] ? size.urls[2] : '',
-                                image4: size.urls[3] ? size.urls[3] : '',
+                                image4: this.assignFourthImage(classification, design.styles),
                             })),
                         };
                     }
@@ -756,6 +797,50 @@ export class ListingGeneratorComponent implements OnInit {
 
         // Convertir `masterList` en un array
         return Object.values(masterList);
+    }
+
+    assignFourthImage(classification, style) {
+        const urls = {
+            ME: {
+                "T-shirt": "https://d3d71ba2asa5oz.cloudfront.net/12044225/images/new-tshirt-wotsa__100.jpg",
+                "Long Sleeve": "https://cdn.shopify.com/s/files/1/0067/6148/0228/files/long_20sleeve_e8db1e36-36cf-48c8-8a26-ab99b33402dc.png?v=1715388229",
+                "Tank Top": "https://www.dropbox.com/scl/fi/uimc3ug3np15vdzv40o5m/TANK-TOP.png?rlkey=15lh8qucsvrb2460u08lfkuez&st=bkoxhvq7&raw=1",
+                Sweatshirt: "https://d3d71ba2asa5oz.cloudfront.net/12043248/images/unisex%20sweatshirt.png",
+                Hoodie: "https://cdn.shopify.com/s/files/1/0067/6148/0228/products/hoodies_100_c758a436-974a-4b8f-800e-c026fc76a1a3.jpg?v=1677346373",
+            },
+            WO: {
+                "T-shirt": "https://d3d71ba2asa5oz.cloudfront.net/12044225/images/new-tshirt-wotsa__100.jpg",
+                "Crop Tee": "https://d3d71ba2asa5oz.cloudfront.net/12042359/images/au%20crop%20tee.jpg",
+                "Crop Top": "https://d3d71ba2asa5oz.cloudfront.net/12042359/images/au%20crop%20tee.jpg",
+                "Long Sleeve": "https://cdn.shopify.com/s/files/1/0067/6148/0228/files/long_20sleeve_e8db1e36-36cf-48c8-8a26-ab99b33402dc.png?v=1715388229",
+                "Racerback Tank": "https://ptos-url.s3.us-east-1.amazonaws.com/women+racerback.png",
+                Sweatshirt: "https://d3d71ba2asa5oz.cloudfront.net/12043248/images/unisex%20sweatshirt.png",
+                Hoodie: "https://cdn.shopify.com/s/files/1/0067/6148/0228/products/hoodies_100_c758a436-974a-4b8f-800e-c026fc76a1a3.jpg?v=1677346373",
+            },
+            YO: {
+                "T-shirt": "https://ptos-url.s3.us-east-1.amazonaws.com/YOUTH+tshirt.png",
+                "Long Sleeve": "",
+                Sweatshirt: "",
+                Hoodie: "https://ptos-url.s3.us-east-1.amazonaws.com/YOUTH+HOODIE.png"
+            },
+            TO: {
+                "T-shirt": "https://ptos-url.s3.us-east-1.amazonaws.com/1737480551577-Size%20Chart%20for%20TOTSA.jpg",
+                "Long Sleeve": "https://ptos-url.s3.us-east-1.amazonaws.com/toddler+longsleeve.png",
+                Sweatshirt: "",
+                Hoodie: "https://ptos-url.s3.us-east-1.amazonaws.com/toddler+hoodie.png"
+            },
+            BB: {
+                "T-shirt": "https://ptos-url.s3.us-east-1.amazonaws.com/1736849347455-BABY%20tshirt.jpeg",
+                Bodysuit: "https://ptos-url.s3.us-east-1.amazonaws.com/1736488751364-bodysuite.jpeg"
+            }
+        };
+
+        // Validar si la clasificación y el estilo existen en el objeto de URLs
+        if (urls[classification] && urls[classification][style]) {
+            return urls[classification][style];
+        } else {
+            return "";
+        }
     }
 
     generateEbayTemplate(masterList: any[]) {
@@ -840,7 +925,6 @@ export class ListingGeneratorComponent implements OnInit {
         // Datos de las filas (padres e hijos)
         const data: any[][] = [];
         masterList.forEach((parent) => {
-            // Fila para el padre
             data.push([
                 parent.parent_sku, //sku
                 '', //parent_sku
@@ -878,8 +962,6 @@ export class ListingGeneratorComponent implements OnInit {
                 parent.childrens[0].image4, //product_image_4
                 '', //delete
             ]);
-
-            // Filas para los hijos
             parent.childrens.forEach((child: any) => {
                 data.push([
                     child.full_sku, //sku',
@@ -937,19 +1019,20 @@ export class ListingGeneratorComponent implements OnInit {
             },
         ];
 
-        // Crear libro de trabajo
-        const wb: XLSX.WorkBook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, 'Ebay Template');
+        return ws;
+        // // Crear libro de trabajo
+        // const wb: XLSX.WorkBook = XLSX.utils.book_new();
+        // XLSX.utils.book_append_sheet(wb, ws, 'Ebay Template');
 
-        // Guardar el archivo
-        const excelBuffer: any = XLSX.write(wb, {
-            bookType: 'xlsx',
-            type: 'array',
-        });
-        const dataBlob: Blob = new Blob([excelBuffer], {
-            type: 'application/octet-stream',
-        });
-        saveAs(dataBlob, 'Ebay_template.xlsx');
+        // // Guardar el archivo
+        // const excelBuffer: any = XLSX.write(wb, {
+        //     bookType: 'xlsx',
+        //     type: 'array',
+        // });
+        // const dataBlob: Blob = new Blob([excelBuffer], {
+        //     type: 'application/octet-stream',
+        // });
+        // saveAs(dataBlob, 'Ebay_template.xlsx');
     }
     generateWalmartTemplate(masterList: any[]) {
         const headerRow1 = [
@@ -1337,19 +1420,20 @@ export class ListingGeneratorComponent implements OnInit {
             ...data,
         ]);
 
-        // Crear libro de trabajo
-        const wb: XLSX.WorkBook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, 'Walmart Template');
+        return ws;
+        // // Crear libro de trabajo
+        // const wb: XLSX.WorkBook = XLSX.utils.book_new();
+        // XLSX.utils.book_append_sheet(wb, ws, 'Walmart Template');
 
-        // Guardar el archivo
-        const excelBuffer: any = XLSX.write(wb, {
-            bookType: 'xlsx',
-            type: 'array',
-        });
-        const dataBlob: Blob = new Blob([excelBuffer], {
-            type: 'application/octet-stream',
-        });
-        saveAs(dataBlob, 'Walmart_template.xlsx');
+        // // Guardar el archivo
+        // const excelBuffer: any = XLSX.write(wb, {
+        //     bookType: 'xlsx',
+        //     type: 'array',
+        // });
+        // const dataBlob: Blob = new Blob([excelBuffer], {
+        //     type: 'application/octet-stream',
+        // });
+        // saveAs(dataBlob, 'Walmart_template.xlsx');
     }
     generateAmazonTemplate(masterList: any[]) {
         const headerRow = [
@@ -1548,19 +1632,20 @@ export class ListingGeneratorComponent implements OnInit {
             ...data,
         ]);
 
-        // Crear libro de trabajo
-        const wb: XLSX.WorkBook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, 'Amazon Template');
+        return ws;
+        // // Crear libro de trabajo
+        // const wb: XLSX.WorkBook = XLSX.utils.book_new();
+        // XLSX.utils.book_append_sheet(wb, ws, 'Amazon Template');
 
-        // Guardar el archivo
-        const excelBuffer: any = XLSX.write(wb, {
-            bookType: 'xlsx',
-            type: 'array',
-        });
-        const dataBlob: Blob = new Blob([excelBuffer], {
-            type: 'application/octet-stream',
-        });
-        saveAs(dataBlob, 'Amazon_template.xlsx');
+        // // Guardar el archivo
+        // const excelBuffer: any = XLSX.write(wb, {
+        //     bookType: 'xlsx',
+        //     type: 'array',
+        // });
+        // const dataBlob: Blob = new Blob([excelBuffer], {
+        //     type: 'application/octet-stream',
+        // });
+        // saveAs(dataBlob, 'Amazon_template.xlsx');
     }
     generatePipelineTemplate(masterList: any[]) {
         const headerRow1 = [
@@ -1648,8 +1733,7 @@ export class ListingGeneratorComponent implements OnInit {
                 parent.categories.Pipeline, //Categories
                 '', //Tags
                 '', //Shipping class
-                `${parent.childrens[parent.childrens.length - 1].image1},${
-                    parent.childrens[parent.childrens.length - 1].image2
+                `${parent.childrens[parent.childrens.length - 1].image1},${parent.childrens[parent.childrens.length - 1].image2
                 },${parent.childrens[parent.childrens.length - 1].image3}`, //Images
                 '', //Download limit
                 '', //Download expiry days
@@ -1733,48 +1817,360 @@ export class ListingGeneratorComponent implements OnInit {
             ...data,
         ]);
 
-        // Crear libro de trabajo
-        const wb: XLSX.WorkBook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, 'Pipeline Template');
+        return ws;
+        // // Crear libro de trabajo
+        // const wb: XLSX.WorkBook = XLSX.utils.book_new();
+        // XLSX.utils.book_append_sheet(wb, ws, 'Pipeline Template');
 
-        // Guardar el archivo
-        const excelBuffer: any = XLSX.write(wb, {
-            bookType: 'xlsx',
-            type: 'array',
-        });
-        const dataBlob: Blob = new Blob([excelBuffer], {
-            type: 'application/octet-stream',
-        });
-        saveAs(dataBlob, 'Pipeline_template.xlsx');
+        // // Guardar el archivo
+        // const excelBuffer: any = XLSX.write(wb, {
+        //     bookType: 'xlsx',
+        //     type: 'array',
+        // });
+        // const dataBlob: Blob = new Blob([excelBuffer], {
+        //     type: 'application/octet-stream',
+        // });
+        // saveAs(dataBlob, 'Pipeline_template.xlsx');
     }
-    generateEtsyTemplate(masterList: any[]) {}
-    generateShopifyTemplate(masterList: any[]) {}
-    generateFaireTemplate(masterList: any[]) {}
+    generateFaireTemplate(masterList: any[]) {
+        const headerRow1 = [
+            "Product Name (English)",
+            "Product Status",
+            "Product Token",
+            "Product Type",
+            "Description (English)",
+            "Selling Method",
+            "Case Size",
+            "Minimum Order Quantity",
+            "Item Weight",
+            "Item Weight Unit",
+            "Item Length",
+            "Item Width",
+            "Item Height",
+            "Item Dimensions Unit",
+            "Packaged Weight",
+            "Packaged Weight Unit",
+            "Packaged Length",
+            "Packaged Width",
+            "Packaged Height",
+            "Packaged Dimensions Unit",
+            "Option Status",
+            "SKU",
+            "GTIN",
+            "Option 1 Name",
+            "Option 1 Value",
+            "Option 2 Name",
+            "Option 2 Value",
+            "Option 3 Name",
+            "Option 3 Value",
+            "USD Unit Wholesale Price",
+            "USD Unit Retail Price",
+            "CAD Unit Wholesale Price",
+            "CAD Unit Retail Price",
+            "GBR Unit Wholesale Price",
+            "GBR Unit Retail Price",
+            "EUR Unit Wholesale Price",
+            "EUR Unit Retail Price",
+            "AUD Unit Wholesale Price",
+            "AUD Unit Retail Price",
+            "Option Image",
+            "Preorder",
+            "Ship By Date (YYYY-MM-DD)",
+            "Ship By End Date (if range, YYYY-MM-DD)",
+            "Deadline To Order (YYYY-MM-DD)",
+            "Sell After Order By/Ship Date",
+            "Product Images",
+            "Made In Country",
+            "Tester Price (USD)",
+            "Tester Price (CAD)",
+            "Tester Price (GBP)",
+            "Tester Price (EUR)",
+            "Tester Price (AUD)",
+            "Customizable",
+            "Customization Instructions",
+            "Customization Input Required",
+            "Customization Input Character Limit",
+            "Customization Minimum Order Quantity",
+            "Customization Charge Per Unit (USD)",
+            "Customization Charge Per Unit (CAD)",
+            "Customization Charge Per Unit (GBP)",
+            "Customization Charge Per Unit (EUR)",
+            "Customization Charge Per Unit (AUD)",
+            "Continue selling when out of stock",
+            "On Hand Inventory",
+            "Restock Date",
+            "HS6 Tariff Code"
+        ];
+
+        const data: any[][] = [];
+        masterList.forEach((parent) => {
+            parent.childrens.forEach((child: any, index: number) => {
+                data.push([
+                    parent.title, //Product Name (English)
+                    'Published', //Product Status
+                    '', //Product Token
+                    this.faireProductType(parent.styles, parent.classification), //Product Type
+                    parent.description, //Description (English)
+                    'By the item', //Selling Method
+                    1, //Case Size
+                    2, //Minimum Order Quantity
+                    this.faireItemWaight(parent.styles), //Item Weight
+                    'oz', //Item Weight Unit
+                    '', //Item Length
+                    '', //Item Width
+                    '', //Item Height
+                    '', //Item Dimensions Unit
+                    this.faireItemWaight(parent.styles) + 1, //Packaged Weight
+                    'oz', //Packaged Weight Unit
+                    '', //Packaged Length
+                    '', //Packaged Width
+                    '', //Packaged Height
+                    '', //Packaged Dimensions Unit
+                    'Published', //Option Status
+                    child.full_sku, //SKU
+                    '', //GTIN
+                    'Color', //Option 1 Name
+                    child.color, //Option 1 Value
+                    'Material', //Option 2 Name
+                    this.faireMaterial(parent.styles), //Option 2 Value
+                    'Size', //Option 3 Name
+                    child.size, //Option 3 Value
+                    child.price, //USD Unit Wholesale Price
+                    this.faireWholesalePrice(parent.styles), //USD Unit Retail Price
+                    '', //CAD Unit Wholesale Price
+                    '', //CAD Unit Retail Price
+                    '', //GBR Unit Wholesale Price
+                    '', //GBR Unit Retail Price
+                    '', //EUR Unit Wholesale Price
+                    '', //EUR Unit Retail Price
+                    '', //AUD Unit Wholesale Price
+                    '', //AUD Unit Retail Price
+                    child.image1, //Option Image
+                    'No', //Preorder
+                    '', //Ship By Date (YYYY-MM-DD)
+                    '', //Ship By End Date (if range, YYYY-MM-DD)
+                    '', //Deadline To Order (YYYY-MM-DD)
+                    '', //Sell After Order By/Ship Date
+                    `${child.image1}
+                    ${child.image2}
+                    ${child.image3}
+                    `, //Product Images
+                    'United States', //Made In Country
+                    '', //Tester Price (USD)
+                    '', //Tester Price (CAD)
+                    '', //Tester Price (GBP)
+                    '', //Tester Price (EUR)
+                    '', //Tester Price (AUD)
+                    'No', //Customizable
+                    '', //Customization Instructions
+                    '', //Customization Input Required
+                    '', //Customization Input Character Limit
+                    '', //Customization Minimum Order Quantity
+                    '', //Customization Charge Per Unit (USD)
+                    '', //Customization Charge Per Unit (CAD)
+                    '', //Customization Charge Per Unit (GBP)
+                    '', //Customization Charge Per Unit (EUR)
+                    '', //Customization Charge Per Unit (AUD)
+                    'Yes', //Continue selling when out of stock
+                    200, //On Hand Inventory
+                    '', //Restock Date
+                    ''  //HS6 Tariff Code
+                ]);
+            });
+        });
+
+        const ws: XLSX.WorkSheet = XLSX.utils.aoa_to_sheet([
+            headerRow1,
+            ...data,
+        ]);
+
+        return ws;
+        // // Crear libro de trabajo
+        // const wb: XLSX.WorkBook = XLSX.utils.book_new();
+        // XLSX.utils.book_append_sheet(wb, ws, 'Faire Template');
+
+        // // Guardar el archivo
+        // const excelBuffer: any = XLSX.write(wb, {
+        //     bookType: 'xlsx',
+        //     type: 'array',
+        // });
+        // const dataBlob: Blob = new Blob([excelBuffer], {
+        //     type: 'application/octet-stream',
+        // });
+        // saveAs(dataBlob, 'Faire_template.xlsx');
+    }
+    generateShopifyTemplate(masterList: any[]) {
+        const headerRow1 = [
+            "Handle",
+            "Title",
+            "Body (HTML)",
+            "Vendor",
+            "Product Category",
+            "Type",
+            "Tags",
+            "Collections",
+            "Option1 Name",
+            "Option1 Value",
+            "Option1 Linked To",
+            "Option2 Name",
+            "Option2 Value",
+            "Option2 Linked To",
+            "Option3 Name",
+            "Option3 Value",
+            "Option3 Linked To",
+            "Variant SKU",
+            "Variant Grams",
+            "Variant Inventory Tracker",
+            "Variant Inventory Policy",
+            "Variant Fulfillment Service",
+            "Variant Price",
+            "Variant Compare At Price",
+            "Variant Requires Shipping",
+            "Variant Taxable",
+            "Variant Barcode",
+            "Image Src",
+            "",
+            "Variant Image",
+            "Image Alt Text",
+            "Gift Card",
+            "SEO Title",
+            "SEO Description",
+            "Google Shopping / Google Product Category",
+            "Google Shopping / Gender",
+            "Google Shopping / Age Group",
+            "Google Shopping / MPN",
+            "Google Shopping / Condition",
+            "Google Shopping / Custom Product",
+            "Google Shopping / Custom Label 0",
+            "Google Shopping / Custom Label 1",
+            "Google Shopping / Custom Label 2",
+            "Google Shopping / Custom Label 3",
+            "Google Shopping / Custom Label 4",
+            "Google: Custom Product (product.metafields.mm-google-shopping.custom_product)",
+            "Complementary products (product.metafields.shopify--discovery--product_recommendation.complementary_products)",
+            "Related products (product.metafields.shopify--discovery--product_recommendation.related_products)",
+            "Related products settings (product.metafields.shopify--discovery--product_recommendation.related_products_display)",
+            "Variant Weight Unit",
+            "Variant Tax Code",
+            "Cost per item",
+            "Included / United States",
+            "Price / United States",
+            "Compare At Price / United States",
+            "Included / International",
+            "Price / International",
+            "Compare At Price / International",
+            "San Jose",
+            "Status"
+        ];
+
+        const data: any[][] = [];
+        masterList.forEach((parent) => {
+            parent.childrens.forEach((child: any, index: number) => {
+                data.push([
+                    this.shopifyHandler(parent.title), //Handle
+                    (index == 0) ? parent.title : '', //Title
+                    (index == 0) ? parent.description : '', //Body (HTML)
+                    (index == 0) ? 'Smartprints' : '', //Vendor
+                    (index == 0) ? parent.categories.Shopify : '', //Product Category
+                    (index == 0) ? this.shopifyProductType(parent.styles) : '', //Type
+                    (index == 0) ? parent.keywords : '', //Tags
+                    '', //Collections
+                    (index == 0) ? 'Size' : '', //Option1 Name
+                    child.size, //Option1 Value
+                    '', //Option1 Linked To
+                    (index == 0) ? 'Color' : '', //Option2 Name
+                    child.color, //Option2 Value
+                    '', //Option2 Linked To
+                    '', //Option3 Name
+                    '', //Option3 Value
+                    '', //Option3 Linked To
+                    child.full_sku, //Variant SKU
+                    '', //Variant Grams
+                    'shopify', //Variant Inventory Tracker
+                    'deny', //Variant Inventory Policy
+                    'manual', //Variant Fulfillment Service
+                    child.price, //Variant Price
+                    '', //Variant Compare At Price
+                    'TRUE', //Variant Requires Shipping
+                    'TRUE', //Variant Taxable
+                    '', //Variant Barcode
+                    (index < 5) ? this.shopifyImageSrc(child, index) : '', //Image Src
+                    (index < 4) ? index + 1 : '',
+                    child.image1,//Variant Image
+                    '', //Image Alt Text
+                    'FALSE', //Gift Card
+                    (index == 0) ? parent.title : '', //SEO Title
+                    (index == 0) ? parent.description : '', //SEO Description
+                    (index == 0) ? parent.categories.Shopify : '', //Google Shopping / Google Product Category
+                    (index == 0) ? this.shopifyGender(parent.classification) : '', //Google Shopping / Gender
+                    (index == 0) ? this.shopifyAgeGroup(parent.classification) : '', //Google Shopping / Age Group
+                    '', //Google Shopping / MPN
+                    'New', //Google Shopping / Condition
+                    'FALSE', //Google Shopping / Custom Product
+                    '', //Google Shopping / Custom Label 0
+                    '', //Google Shopping / Custom Label 1
+                    '', //Google Shopping / Custom Label 2
+                    '', //Google Shopping / Custom Label 3
+                    '', //Google Shopping / Custom Label 4
+                    'FALSE', //Google: Custom Product (product.metafields.mm-google-shopping.custom_product)
+                    '', //Complementary products (product.metafields.shopify--discovery--product_recommendation.complementary_products)
+                    '', //Related products (product.metafields.shopify--discovery--product_recommendation.related_products)
+                    '', //Related products settings (product.metafields.shopify--discovery--product_recommendation.related_products_display)
+                    'lb', //Variant Weight Unit
+                    '', //Variant Tax Code
+                    '', //Cost per item
+                    'TRUE', //Included / United States
+                    '', //Price / United States
+                    '', //Compare At Price / United States
+                    'TRUE', //Included / International
+                    '', //Price / International
+                    '', //Compare At Price / International
+                    200, //San Jose
+                    'ACTIVE'  //Status
+                ]);
+            });
+        });
+
+        const ws: XLSX.WorkSheet = XLSX.utils.aoa_to_sheet([
+            headerRow1,
+            ...data,
+        ]);
+
+        return ws;
+        // // Crear libro de trabajo
+        // const wb: XLSX.WorkBook = XLSX.utils.book_new();
+        // XLSX.utils.book_append_sheet(wb, ws, 'Shopify Template');
+
+        // // Guardar el archivo
+        // const excelBuffer: any = XLSX.write(wb, {
+        //     bookType: 'xlsx',
+        //     type: 'array',
+        // });
+        // const dataBlob: Blob = new Blob([excelBuffer], {
+        //     type: 'application/octet-stream',
+        // });
+        // saveAs(dataBlob, 'Shopify_template.xlsx');
+    }
 
     //--------------------------Funciones especificas de Walmart -----------------------------------
 
-    walmartProductType(type: string) {
-        switch (type) {
-            case 'T-shirt':
-                return 'T-shirts';
-            case 'Long Sleeve':
-                return 'T-shirts';
-            case 'Hoddie':
-                return 'Sweatshirts & Hoodies';
-            case 'Sweatshirt':
-                return 'Sweatshirts & Hoodies';
-            case 'Crop Tee':
-                return 'Blouses & Tops';
-            case 'Crop Top':
-                return 'Blouses & Tops';
-            case 'Tank Top':
-                return 'Tank Tops';
-            case 'Racerback Tank':
-                return 'Tank Tops';
+    walmartProductType(type: string): string {
+        const productTypeMap = new Map<string, string>([
+            ['T-shirt', 'T-shirts'],
+            ['T-shirt Color', 'T-shirts'],
+            ['Tie Dye Crystal', 'T-shirts'],
+            ['Tie Dye Cyclone', 'T-shirts'],
+            ['Tie Dye Spiral', 'T-shirts'],
+            ['Long Sleeve', 'T-shirts'],
+            ['Hoddie', 'Sweatshirts & Hoodies'],
+            ['Sweatshirt', 'Sweatshirts & Hoodies'],
+            ['Crop Tee', 'Blouses & Tops'],
+            ['Crop Top', 'Blouses & Tops'],
+            ['Tank Top', 'Tank Tops'],
+            ['Racerback Tank', 'Tank Tops'],
+        ]);
 
-            default:
-                return '';
-        }
+        return productTypeMap.get(type) || '';
     }
     walmartAgeGroup(classification: string) {
         switch (classification) {
@@ -1839,6 +2235,7 @@ export class ListingGeneratorComponent implements OnInit {
                 'Heather Ice Blue',
                 'Indigo Blue',
                 'Navy Blue',
+                'Navy',
                 'Blue Jean',
                 'Blue Spruce',
                 'Flo Blue',
@@ -1968,100 +2365,81 @@ export class ListingGeneratorComponent implements OnInit {
                 return '';
         }
     }
-    walmartSleeveLengthStyle(type: string) {
-        switch (type) {
-            case 'T-shirt':
-                return 'Short Sleeve';
-            case 'Long Sleeve':
-                return 'Long Sleeve';
-            case 'Hoddie':
-                return 'Long Sleeve';
-            case 'Sweatshirt':
-                return 'Long Sleeve';
-            case 'Crop Tee':
-                return 'Short Sleeve';
-            case 'Crop Top':
-                return 'Short Sleeve';
-            case 'Tank Top':
-                return 'Sleeveless';
-            case 'Racerback Tank':
-                return 'Sleeveless';
+    walmartSleeveLengthStyle(style: string): string {
+        const sleeveLengthMap = new Map<string, string>([
+            ['T-shirt', 'Short Sleeve'],
+            ['T-shirt Color', 'Short Sleeve'],
+            ['Tie Dye Crystal', 'Short Sleeve'],
+            ['Tie Dye Cyclone', 'Short Sleeve'],
+            ['Tie Dye Spiral', 'Short Sleeve'],
+            ['Long Sleeve', 'Long Sleeve'],
+            ['Hoddie', 'Long Sleeve'],
+            ['Sweatshirt', 'Long Sleeve'],
+            ['Crop Tee', 'Short Sleeve'],
+            ['Crop Top', 'Short Sleeve'],
+            ['Tank Top', 'Sleeveless'],
+            ['Racerback Tank', 'Sleeveless'],
+            ['Bodysuit', 'Short Sleeve'],
+        ]);
 
-            default:
-                return '';
-        }
+        return sleeveLengthMap.get(style) || '';
     }
 
     //--------------------------Funciones especificas de Amazon -----------------------------------
 
     amazonProductType(type: string) {
-        switch (type) {
-            case 'T-shirt':
-                return 'SHIRT';
-            case 'Long Sleeve':
-                return 'SHIRT';
-            case 'Hoddie':
-                return 'SWEATSHIRT';
-            case 'Sweatshirt':
-                return 'SWEATSHIRT';
-            case 'Crop Tee':
-                return 'SHIRT';
-            case 'Crop Top':
-                return 'SHIRT';
-            case 'Tank Top':
-                return 'SHIRT';
-            case 'Racerback Tank':
-                return 'SHIRT';
+        const productTypeMap = new Map<string, string>([
+            ['T-shirt', 'SHIRT'],
+            ['T-shirt Color', 'SHIRT'],
+            ['Tie Dye Crystal', 'SHIRT'],
+            ['Tie Dye Cyclone', 'SHIRT'],
+            ['Tie Dye Spiral', 'SHIRT'],
+            ['Long Sleeve', 'SHIRT'],
+            ['Hoddie', 'SWEATSHIRT'],
+            ['Sweatshirt', 'SWEATSHIRT'],
+            ['Crop Tee', 'SHIRT'],
+            ['Crop Top', 'SHIRT'],
+            ['Tank Top', 'SHIRT'],
+            ['Racerback Tank', 'SHIRT'],
+        ]);
 
-            default:
-                return '';
-        }
+        return productTypeMap.get(type) || '';
     }
     amazonItemTypeKeyword(type: string) {
-        switch (type) {
-            case 'T-shirt':
-                return 'fashion-t-shirts';
-            case 'Long Sleeve':
-                return 'fashion-t-shirts';
-            case 'Hoddie':
-                return 'fashion-hoodies';
-            case 'Sweatshirt':
-                return 'fashion-sweatshirt';
-            case 'Crop Tee':
-                return 'fashion-t-shirts';
-            case 'Crop Top':
-                return 'fashion-t-shirts';
-            case 'Tank Top':
-                return 'fashion-t-shirts';
-            case 'Racerback Tank':
-                return 'fashion-t-shirts';
+        const productTypeMap = new Map<string, string>([
+            ['T-shirt', 'fashion-t-shirts'],
+            ['T-shirt Color', 'fashion-t-shirts'],
+            ['Tie Dye Crystal', 'fashion-t-shirts'],
+            ['Tie Dye Cyclone', 'fashion-t-shirts'],
+            ['Tie Dye Spiral', 'fashion-t-shirts'],
+            ['Long Sleeve', 'fashion-t-shirts'],
+            ['Hoddie', 'fashion-hoodies'],
+            ['Sweatshirt', 'fashion-sweatshirt'],
+            ['Crop Tee', 'fashion-t-shirts'],
+            ['Crop Top', 'fashion-t-shirts'],
+            ['Tank Top', 'fashion-t-shirts'],
+            ['Racerback Tank', 'fashion-t-shirts'],
+        ]);
 
-            default:
-                return '';
-        }
+        return productTypeMap.get(type) || '';
     }
     amazonStyle(type: string) {
-        switch (type) {
-            case 'T-shirt':
-                return 'Graphic T-shirt';
-            case 'Long Sleeve':
-                return 'GraphicLong Sleeve';
-            case 'Hoddie':
-                return 'Graphic Hoddie';
-            case 'Sweatshirt':
-                return 'Graphic Sweatshirt';
-            case 'Crop Tee':
-                return 'Graphic Crop Tee';
-            case 'Crop Top':
-                return 'GraphicCrop Top';
-            case 'Tank Top':
-                return 'Graphic Tank Top';
-            case 'Racerback Tank':
-                return 'Graphic Racerback Tank';
+        const productStyleMap = new Map<string, string>([
+            ['T-shirt', 'Graphic T-shirt'],
+            ['T-shirt Color', 'Graphic T-shirt'],
+            ['Tie Dye Crystal', 'Graphic T-shirt'],
+            ['Tie Dye Cyclone', 'Graphic T-shirt'],
+            ['Tie Dye Spiral', 'Graphic T-shirt'],
+            ['Long Sleeve', 'Graphic Long Sleeve'],
+            ['Hoddie', 'Graphic Hoddie'],
+            ['Sweatshirt', 'Graphic Sweatshirt'],
+            ['Crop Tee', 'Graphic Crop Tee'],
+            ['Crop Top', 'Graphic Crop Top'],
+            ['Tank Top', 'Graphic Tank Top'],
+            ['Racerback Tank', 'Graphic Racerback Tank'],
+        ]);
 
-            default:
-                return '';
-        }
+        return productStyleMap.get(type) || '';
     }
     amazonAgeRangeDesc(classification: string) {
         switch (classification) {
@@ -2185,28 +2563,24 @@ export class ListingGeneratorComponent implements OnInit {
                 return '';
         }
     }
-    amazonSleeveStyle(type: string) {
-        switch (type) {
-            case 'T-shirt':
-                return 'Short Sleeve';
-            case 'Long Sleeve':
-                return 'Long Sleeve';
-            case 'Hoddie':
-                return 'Long Sleeve';
-            case 'Sweatshirt':
-                return 'Long Sleeve';
-            case 'Crop Tee':
-                return 'Short Sleeve';
-            case 'Crop Top':
-                return 'Short Sleeve';
-            case 'Tank Top':
-                return 'Sleeveless';
-            case 'Racerback Tank':
-                return 'Sleeveless';
+    amazonSleeveStyle(style: string) {
+        const productStyleMap = new Map<string, string>([
+            ['T-shirt', 'Short Sleeve'],
+            ['T-shirt Color', 'Short Sleeve'],
+            ['Tie Dye Crystal', 'Short Sleeve'],
+            ['Tie Dye Cyclone', 'Short Sleeve'],
+            ['Tie Dye Spiral', 'Short Sleeve'],
+            ['Long Sleeve', 'Long Sleeve'],
+            ['Hoddie', 'Long Sleeve'],
+            ['Sweatshirt', 'Long Sleeve'],
+            ['Crop Tee', 'Short Sleeve'],
+            ['Crop Top', 'Short Sleeve'],
+            ['Tank Top', 'Sleeveless'],
+            ['Racerback Tank', 'Sleeveless'],
+            ['Bodysuit', 'Short Sleeve'],
+        ]);
 
-            default:
-                return '';
-        }
+        return productStyleMap.get(style) || '';
     }
 
     //--------------------------Funciones especificas de Pipeline -----------------------------------
@@ -2228,5 +2602,228 @@ export class ListingGeneratorComponent implements OnInit {
         });
 
         return Array.from(colors).join(', ');
+    }
+
+    //--------------------------Funciones especificas de Faire -----------------------------------
+
+    faireProductType(style: string, classification: string) {
+        if (style == 'T-shirt' || style == 'Long Sleeve' || style == 'Crop Tee' || style == 'Crop Top') {
+            switch (classification) {
+                case 'ME':
+                    return `T-Shirt - Men's`;
+                case 'WO':
+                    return `T-Shirt - Women's`;
+                case 'YO':
+                    return `T-Shirt - Unisex`;
+                case 'TO':
+                    return 'T-Shirt - Kids';
+                case 'BB':
+                    return 'T-Shirt - Baby';
+
+                default:
+                    return '';
+            }
+        }
+        if (style == 'Hoddie') {
+            switch (classification) {
+                case 'ME':
+                    return `Hoodie - Men's`;
+                case 'WO':
+                    return `Hoodie - Women's`;
+                case 'YO':
+                    return `Hoodie - Unisex`;
+                case 'TO':
+                    return 'Hoodie - Kids';
+                case 'BB':
+                    return 'Hoodie - Baby';
+
+                default:
+                    return '';
+            }
+        }
+        if (style == 'Sweatshirt') {
+            switch (classification) {
+                case 'ME':
+                    return `Sweatshirt - Men's`;
+                case 'WO':
+                    return `Sweatshirt - Women's`;
+                case 'YO':
+                    return `Sweatshirt - Unisex`;
+                case 'TO':
+                    return 'Sweatshirt - Kids';
+                case 'BB':
+                    return 'Sweatshirt - Baby';
+
+                default:
+                    return '';
+            }
+        }
+        if (style == 'Tank Top' || style == 'Racerback Tank') {
+            switch (classification) {
+                case 'ME':
+                    return `Tank Top - Men's`;
+                case 'WO':
+                    return `Tank Top - Women's`;
+                case 'YO':
+                    return 'Tank Top - Kids';
+                case 'TO':
+                    return 'Tank Top - Kids';
+                case 'BB':
+                    return 'Tank Top - Baby';
+
+                default:
+                    return '';
+            }
+        }
+        if (style == 'Bodysuit') {
+            switch (classification) {
+                case 'BB':
+                    return 'Bodysuit Set - Baby';
+
+                default:
+                    return '';
+            }
+        }
+
+        return '';
+    }
+    faireItemWaight(style: string) {
+        switch (style) {
+            case 'T-shirt':
+                return 5.30;
+            case 'Long Sleeve':
+                return 5.30;
+            case 'Hoddie':
+                return 20.50;
+            case 'Sweatshirt':
+                return 10.50;
+            case 'Crop Tee':
+                return 5.30;
+            case 'Crop Top':
+                return 5.30;
+            case 'Tank Top':
+                return 5.30;
+            case 'Racerback Tank':
+                return 5.30;
+            case 'Bodysuit':
+                return 4.50;
+
+            default:
+                return 0.00;
+        }
+    }
+    faireMaterial(style: string) {
+        const productStyleMap = new Map<string, string>([
+            ['T-shirt', '50% US Cotton / 50% Polyester'],
+            ['T-shirt Color', '50% US Cotton / 50% Polyester'],
+            ['Tie Dye Crystal', '50% US Cotton / 50% Polyester'],
+            ['Tie Dye Cyclone', '50% US Cotton / 50% Polyester'],
+            ['Tie Dye Spiral', '50% US Cotton / 50% Polyester'],
+            ['Long Sleeve', '100% US Cotton'],
+            ['Hoddie', '50% US Cotton / 50% Polyester'],
+            ['Sweatshirt', '75% US Cotton / 25% Recycled Polyester'],
+            ['Crop Tee', '100% US Cotton'],
+            ['Crop Top', '100% US Cotton'],
+            ['Tank Top', '50% US Cotton / 50% Polyester'],
+            ['Racerback Tank', '60% Combed Ring-Spun Cotton, 40% Polyester'],
+            ['Bodysuit', '100% combed ring-spun cotton'],
+        ]);
+
+        return productStyleMap.get(style) || '';
+    }
+    faireWholesalePrice(style: string) {
+        const productPriceMap = new Map<string, number>([
+            ['T-shirt', 25.00],
+            ['T-shirt Color', 25.00],
+            ['Tie Dye Crystal', 25.00],
+            ['Tie Dye Cyclone', 25.00],
+            ['Tie Dye Spiral', 25.00],
+            ['Long Sleeve', 27.00],
+            ['Hoddie', 40.00],
+            ['Sweatshirt', 30.00],
+            ['Crop Tee', 25.00],
+            ['Crop Top', 25.00],
+            ['Tank Top', 20.00],
+            ['Racerback', 20.00],
+            ['Bodysuit', 15.00],
+        ]);
+
+        return productPriceMap.get(style) || '';
+    }
+
+    //--------------------------Funciones especificas de Shopify -----------------------------------
+
+    shopifyHandler(title: string) {
+        return title
+            .toLowerCase()
+            .replace(/[^a-z0-9\s-]/g, '')
+            .replace(/\s+/g, '-')
+    }
+    shopifyProductType(style: string) {
+        const productStyleMap = new Map<string, string>([
+            ['T-shirt', 'T-shirt'],
+            ['T-shirt Color', 'T-shirt'],
+            ['Tie Dye Crystal', 'T-shirt'],
+            ['Tie Dye Cyclone', 'T-shirt'],
+            ['Tie Dye Spiral', 'T-shirt'],
+            ['Long Sleeve', 'T-shirt'],
+            ['Hoddie', 'Sweatshirts & Hoodies'],
+            ['Sweatshirt', 'Sweatshirts & Hoodies'],
+            ['Crop Tee', 'T-shirt'],
+            ['Crop Top', 'T-shirt'],
+            ['Tank Top', 'T-shirt'],
+            ['Racerback', 'T-shirt']
+        ]);
+
+        return productStyleMap.get(style) || '';
+    }
+    shopifyImageSrc(child: any, index: number) {
+        switch (index) {
+            case 0:
+                return child.image1;
+            case 1:
+                return child.image2;
+            case 2:
+                return child.image3;
+            case 3:
+                return child.image4;
+
+            default:
+                return '';
+        }
+    }
+    shopifyAgeGroup(classification: string) {
+        switch (classification) {
+            case 'ME':
+                return 'Adult';
+            case 'WO':
+                return 'Adult';
+            case 'BB':
+                return 'Baby';
+            case 'TO':
+                return 'Toddler';
+            case 'YO':
+                return 'Teen';
+
+            default:
+                return '';
+        }
+    }
+    shopifyGender(classification: string) {
+        switch (classification) {
+            case 'ME':
+                return 'Male';
+            case 'WO':
+                return 'Female';
+            case 'BB':
+                return 'Male';
+            case 'TO':
+                return 'Male';
+            case 'YO':
+                return 'Male';
+
+            default:
+                return '';
+        }
     }
 }

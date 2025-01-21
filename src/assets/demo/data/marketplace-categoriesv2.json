@@ -353,5 +353,159 @@
                 ]
             }
         ]
+    },
+    "Faire": {
+        "groups": [
+            {
+                "label": "Men",
+                "value": "general",
+                "items": [
+                    {
+                        "label": "T-Shirts & Long Sleeve",
+                        "value": "t-shirt",
+                        "path": "T-Shirt - Men's"
+                    },
+                    {
+                        "label": "Sweatshirts",
+                        "value": "sweatshirts",
+                        "path": "Sweatshirt - Men's"
+                    },
+                    {
+                        "label": "Hoodies",
+                        "value": "hoodies",
+                        "path": "Hoodie - Men's"
+                    },
+                    {
+                        "label": "Tank Top",
+                        "value": "tank top",
+                        "path": "Tank Top - Men's"
+                    }
+                ]
+            },
+            {
+                "label": "Women",
+                "value": "general",
+                "items": [
+                    {
+                        "label": "T-Shirts, Long Sleeve & Crop Tee",
+                        "value": "t-shirt",
+                        "path": "T-Shirt - Women's"
+                    },
+                    {
+                        "label": "Sweatshirts",
+                        "value": "sweatshirts",
+                        "path": "Sweatshirt - Women's"
+                    },
+                    {
+                        "label": "Hoodies",
+                        "value": "hoodies",
+                        "path": "Hoodie - Women's"
+                    },
+                    {
+                        "label": "Racerback Tank",
+                        "value": "racerback tank",
+                        "path": "Tank Top - Women's"
+                    }
+                ]
+            },
+            {
+                "label": "Youths",
+                "value": "general",
+                "items": [
+                    {
+                        "label": "T-Shirts & Long Sleeve",
+                        "value": "t-shirt",
+                        "path": "T-Shirt - Unisex"
+                    },
+                    {
+                        "label": "Sweatshirts",
+                        "value": "sweatshirts",
+                        "path": "Sweatshirt - Unisex"
+                    },
+                    {
+                        "label": "Hoodies",
+                        "value": "hoodies",
+                        "path": "Hoodie - Unisex"
+                    },
+                    {
+                        "label": "Tank Top",
+                        "value": "tank top",
+                        "path": "Tank Top - Kids"
+                    }
+                ]
+            },
+            {
+                "label": "Toddlers",
+                "value": "general",
+                "items": [
+                    {
+                        "label": "T-Shirts & Long Sleeve",
+                        "value": "t-shirt",
+                        "path": "T-Shirt - Kids"
+                    },
+                    {
+                        "label": "Sweatshirts",
+                        "value": "sweatshirts",
+                        "path": "Sweatshirt - Kids"
+                    },
+                    {
+                        "label": "Hoodies",
+                        "value": "hoodies",
+                        "path": "Hoodie - Kids"
+                    },
+                    {
+                        "label": "Tank Top",
+                        "value": "tank top",
+                        "path": "Tank Top - Kids"
+                    }
+                ]
+            },
+            {
+                "label": "Infants",
+                "value": "general",
+                "items": [
+                    {
+                        "label": "T-Shirts & Long Sleeve",
+                        "value": "t-shirt",
+                        "path": "T-Shirt - Baby"
+                    },
+                    {
+                        "label": "Sweatshirts",
+                        "value": "sweatshirts",
+                        "path": "Sweatshirt - Baby"
+                    },
+                    {
+                        "label": "Hoodies",
+                        "value": "hoodies",
+                        "path": "Hoodie - Baby"
+                    },
+                    {
+                        "label": "Tank Top",
+                        "value": "tank top",
+                        "path": "Tank Top - Baby"
+                    },
+                    {
+                        "label": "Bodysuit",
+                        "value": "bodysuit",
+                        "path": "Bodysuit Set - Baby"
+                    }
+                ]
+            }
+        ]
+    },
+    "Shopify": {
+        "groups": [
+            {
+                "label": "General",
+                "value": "general",
+                "items": [
+                    {
+                        "label": "Clothing",
+                        "value": "clothing",
+                        "path": "Apparel & Accessories > Clothing"
+                    }
+                ]
+            }
+        ]
     }
 }

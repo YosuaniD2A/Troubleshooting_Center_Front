@@ -19,7 +19,7 @@
 <p-messages *ngIf="activeMessage" severity="error" [closable]="true">
     <ng-template pTemplate>
         <div class="flex flex-column gap-2">
-            <span class="ml-2" *ngFor="let error of errors">{{error}}</span>
+            <span class="ml-2" *ngFor="let error of issues">{{error}}</span>
         </div>
     </ng-template>
 </p-messages>
@@ -171,7 +171,7 @@
                             class="cursor-pointer hugeicons--unlink-04"></span>
                     </div>
                 </th>
-                <th rowspan="2" style="width: 200px">Amazon Department Name</th>
+                <th rowspan="2" style="width: 200px" *ngIf="selectedMarketplace.includes('Amazon')">Amazon Department Name</th>
                 <th [attr.colspan]="selectedMarketplace?.length || 2" class="text-center">Categories</th>
             </tr>
             <tr>
@@ -197,8 +197,9 @@
                         <span><strong>{{design.design}}</strong></span>
                     </div>
                 </td>
-                <td class="w-150" [ngClass]="{ 'bg-red-300': design.title == '' || !uniqueTitle(design.title, design.design) , 'bg-green-300': uniqueTitle(design.title, design.design)}" [pEditableColumn]="design.title"
-                    pEditableColumnField="title">
+                <td class="w-150"
+                    [ngClass]="{ 'bg-red-300': design.title == '' || !uniqueTitle(design.title, design.design) , 'bg-green-300': uniqueTitle(design.title, design.design)}"
+                    [pEditableColumn]="design.title" pEditableColumnField="title">
                     <p-cellEditor>
                         <ng-template pTemplate="input">
                             <textarea rows="3" cols="20" pInputTextarea [autoResize]="true"
@@ -346,30 +347,46 @@
                         </ng-template>
                     </p-cellEditor>
                 </td>
-                <td class="w-250" [ngClass]="{ 'bg-red-300': !generalAmazonDepart }">
+                <td class="w-250" *ngIf="selectedMarketplace.includes('Amazon')" [ngClass]="{ 'bg-red-300': !generalAmazonDepart }">
                     <p-dropdown [options]="amazonDepartmentNames" [(ngModel)]="generalAmazonDepart" optionLabel="name"
                         placeholder="Select a department" />
                 </td>
                 <td *ngFor="let market of selectedMarketplace" [ngClass]="{
-                    'bg-red-300': (!linkSelector(market) && ptoDesigns[rowIndex]?.categories[market]?.length == 0) || (linkSelector(market) && designCategories[market]?.length == 0), 
+                    'bg-red-300': 
+                    (designCategories[market] === undefined) || 
+                    ((!linkSelector(market) && ptoDesigns[rowIndex]?.categories[market]?.length == 0) || 
+                    (linkSelector(market) && designCategories[market]?.length == 0)), 
                      }">
-                    <p-multiSelect *ngIf="!linkSelector(market)" [options]="marketplacesCategories[market]?.groups"
-                        [group]="true" [maxSelectedLabels]="3" [(ngModel)]="ptoDesigns[rowIndex]?.categories[market]"
-                        optionLabel="label" optionValue="path" optionGroupLabel="label" optionGroupChildren="items"
-                        [style]="{ width: '200px' }" scrollHeight="150px" defaultLabel="Select Categories">
+                    <p-multiSelect *ngIf="!linkSelector(market) && market !== 'Faire'"
+                        [options]="marketplacesCategories[market]?.groups" [group]="true" [maxSelectedLabels]="3"
+                        [(ngModel)]="ptoDesigns[rowIndex]?.categories[market]" optionLabel="label" optionValue="path"
+                        optionGroupLabel="label" optionGroupChildren="items" [style]="{ width: '200px' }"
+                        scrollHeight="150px" defaultLabel="Select Categories">
                     </p-multiSelect>
-                    <p-multiSelect *ngIf="linkSelector(market)" [options]="marketplacesCategories[market]?.groups"
-                        [group]="true" [maxSelectedLabels]="3" [(ngModel)]="designCategories[market]"
-                        optionLabel="label" optionValue="path" optionGroupLabel="label" optionGroupChildren="items"
-                        [style]="{ width: '200px' }" scrollHeight="150px" defaultLabel="Select Categories">
+                    <p-multiSelect *ngIf="linkSelector(market) && market !== 'Faire'"
+                        [options]="marketplacesCategories[market]?.groups" [group]="true" [maxSelectedLabels]="3"
+                        [(ngModel)]="designCategories[market]" optionLabel="label" optionValue="path"
+                        optionGroupLabel="label" optionGroupChildren="items" [style]="{ width: '200px' }"
+                        scrollHeight="150px" defaultLabel="Select Categories">
                     </p-multiSelect>
+                    <p-dropdown *ngIf="!linkSelector(market) && market == 'Faire'"
+                        [options]="marketplacesCategories[market]?.groups" [group]="true"
+                        [(ngModel)]="ptoDesigns[rowIndex]?.categories[market]" optionLabel="label" optionValue="path"
+                        placeholder="Select Categories" [style]="{ width: '200px' }" scrollHeight="150px">
+                    </p-dropdown>
+                    <p-dropdown *ngIf="linkSelector(market) && market == 'Faire'"
+                        [options]="marketplacesCategories[market]?.groups" [group]="true"
+                        [(ngModel)]="designCategories[market]" optionLabel="label" optionValue="path"
+                        placeholder="Select Categories" [style]="{ width: '200px' }" scrollHeight="150px">
+                    </p-dropdown>
                 </td>
             </tr>
         </ng-template>
     </p-table>
     <div *ngIf="ptoDesigns.length == 0" class="py-4 flex flex-column justify-content-center align-items-center">
         <h1 class="text-center text-green-500 font-bold">PTO processed.</h1>
-        <h2 class="mt-0 text-center">The PTO has been successfully processed and the corresponding templates have been imported.</h2>
+        <h2 class="mt-0 text-center">The PTO has been successfully processed and the corresponding templates have been
+            imported.</h2>
         <h2 class="mt-0 text-center">Select a new pto to process</h2>
     </div>
 </div>
@@ -394,10 +411,6 @@
                 <label for="eb">Ebay</label>
             </div>
             <div class="flex align-items-center gap-1">
-                <p-checkbox name="group1" value="Etsy" [(ngModel)]="tempSelectedMarketplace" inputId="et"></p-checkbox>
-                <label for="et">Etsy</label>
-            </div>
-            <div class="flex align-items-center gap-1">
                 <p-checkbox name="group1" value="Pipeline" [(ngModel)]="tempSelectedMarketplace"
                     inputId="pi"></p-checkbox>
                 <label for="pi">Pipeline</label>
@@ -408,8 +421,7 @@
                 <label for="sh">Shopify</label>
             </div>
             <div class="flex align-items-center gap-1">
-                <p-checkbox name="group1" value="Faire" [(ngModel)]="tempSelectedMarketplace"
-                    inputId="fa"></p-checkbox>
+                <p-checkbox name="group1" value="Faire" [(ngModel)]="tempSelectedMarketplace" inputId="fa"></p-checkbox>
                 <label for="fa">Faire</label>
             </div>
         </div>
