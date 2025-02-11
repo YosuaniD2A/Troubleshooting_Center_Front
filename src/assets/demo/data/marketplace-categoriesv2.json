@@ -507,5 +507,66 @@
                 ]
             }
         ]
+    },
+    "Shein": {
+        "groups": [
+            {
+                "label": "Men",
+                "value": "general",
+                "items": [
+                    {
+                        "label": "T-Shirts",
+                        "value": "men t-shirt",
+                        "path": "Men > Men Clothing > Men Tops > Men T-Shirts"
+                    },
+                    {
+                        "label": "Sweatshirts",
+                        "value": "men sweatshirts",
+                        "path": "Men > Men Clothing > Men Hoodies & Sweatshirts > Men Sweatshirts"
+                    },
+                    {
+                        "label": "Hoodies",
+                        "value": "men hoodies",
+                        "path": "Men > Men Clothing > Men Hoodies & Sweatshirts > Men Hoodies"
+                    },
+                    {
+                        "label": "Tank Top",
+                        "value": "men tank top",
+                        "path": "Men > Men Clothing > Men Tops > Men Tank Tops"
+                    }
+                ]
+            },
+            {
+                "label": "Women",
+                "value": "general",
+                "items": [
+                    {
+                        "label": "T-Shirts",
+                        "value": "women t-shirt",
+                        "path": "Women Apparel > Women Clothing > Women Tops, Blouses & Tee > Women T-Shirts"
+                    },
+                    {
+                        "label": "Crop Tee",
+                        "value": "women crop tee",
+                        "path": "Women Apparel > Women Clothing > Women Tops, Blouses & Tee > Women Tops"
+                    },
+                    {
+                        "label": "Sweatshirts",
+                        "value": "women sweatshirts",
+                        "path": "Women Apparel > Women Clothing > Women Sweatshirts"
+                    },
+                    {
+                        "label": "Hoodies",
+                        "value": "women hoodies",
+                        "path": "Women Apparel > Women Clothing > Women Outerwear > Women Jackets"
+                    },
+                    {
+                        "label": "Racerback Tank",
+                        "value": "women racerback tank",
+                        "path": "Women Apparel > Women Clothing > Women Tops, Blouses & Tee > Women Tank Tops & Camis"
+                    }
+                ]
+            }
+        ]
     }
 }

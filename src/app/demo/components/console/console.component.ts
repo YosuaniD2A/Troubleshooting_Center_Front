@@ -188,11 +188,12 @@ export class ConsoleComponent implements OnInit {
                         url: item.inner_neck_art_url,
                     });
                 } else {
-                    const url = await this.selectInnerNeckLabel(item.sku);
-                    if (url !== '') {
+                    const neckUrl = await this.selectInnerNeckLabel(item.sku);
+
+                    if (neckUrl !== 'empty' && neckUrl !== '') {
                         print_files.push({
                             key: 'inner_neck_label',
-                            url,
+                            url: neckUrl,
                         });
                     }
                 }
@@ -490,7 +491,7 @@ export class ConsoleComponent implements OnInit {
 
     async selectInnerNeckLabel(sku: string) {
         if (sku.length !== 20) {
-            return '';
+            return 'empty';
         }
         const lightColors = [
             '17',
@@ -581,11 +582,12 @@ export class ConsoleComponent implements OnInit {
         const estilo = sku.substring(12, 15); // Tres caracteres siguientes
         const color = sku.substring(15, 17); // 2 caracteres del color
         const size = sku.substring(17, 20); // 3 caracteres de la talla
+        console.log(size);
 
         if (brand == 'SD') {
             const result = await this.swiftpodService.getSwiftPODBrand(design);
 
-            if (!result.data || result.data.length == 0) return '';
+            if (!result.data || result.data.length == 0) return 'empty';
 
             const license = result.data[0].brand_name;
 
@@ -618,9 +620,13 @@ export class ConsoleComponent implements OnInit {
                     return lightColors.includes(color)
                         ? 'https://www.dropbox.com/scl/fi/yrl92477oxzn523bye5px/HOLA-CHURRO-NECK-LABEL.png?rlkey=95f3dv56k425t7oo1qlahzhm1&st=kjgcn5ep&raw=1'
                         : 'https://www.dropbox.com/scl/fi/8s67be83wsjarrvrd29u5/HOLA-CHURRO-NECK-LABEL_WHITE.png?rlkey=amm1us1mfrdbwgufjeup4l40k&st=igfpbh3y&raw=1';
+                case 'Coca Cola':
+                    return lightColors.includes(color)
+                        ? 'https://www.dropbox.com/scl/fi/aqnoc1vhv9bcnp1sc5v2x/COCA-COLA-NECK-LABEL_BLACK.png?rlkey=ta9s2tgkxtioxxz2ch2n5fnoy&st=5xb7r5vb&raw=1'
+                        : 'https://www.dropbox.com/scl/fi/x33qmdppr79p5zobrcex9/COCA-COLA-NECK-LABEL_WHITE.png?rlkey=jel74fg286maujvr04airm6jw&st=o8nm2fm4&raw=1';
 
                 default:
-                    return '';
+                    return 'empty';
             }
         }
         if (brand == 'GP') {
@@ -644,8 +650,8 @@ export class ConsoleComponent implements OnInit {
                             : '';
                     case '2XL':
                         return lightColors.includes(color)
-                            ? ''
-                            : '';
+                            ? 'https://www.dropbox.com/scl/fi/r2ojh8yn3iph1nwbraexk/NECK_2X.png?rlkey=06swxnfhoaa25mws9pemwuwqc&st=gqeiqdt2&dl=1'
+                            : 'https://www.dropbox.com/scl/fi/rpuyfe24q1k28qmk1r25o/NECK_2X.png?rlkey=qxjpxyzkil6kus1s5l7qje6gg&st=26wq8gqm&dl=1';
                     case '3XL':
                         return lightColors.includes(color)
                             ? ''
@@ -702,7 +708,7 @@ export class ConsoleComponent implements OnInit {
             }
         }
 
-        return '';
+        return 'empty';
     }
 
     selectToken(siteName: string): any {

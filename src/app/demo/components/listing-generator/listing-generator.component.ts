@@ -146,9 +146,7 @@ export class ListingGeneratorComponent implements OnInit {
         );
 
         if (marketplaceFields.includes(field.toLowerCase())) {
-            this.linkStatus[field] = !this.linkStatus[field];
-            console.log(this.linkStatus);
-
+            this.linkStatus[field] = !this.linkStatus[field];            
         } else {
             // No es un marketplace
             switch (field.toLowerCase()) {
@@ -387,6 +385,15 @@ export class ListingGeneratorComponent implements OnInit {
                     seenTitles[design.title] = true; // Marcar como visto
                 }
             }
+
+            //Validar Longitud del Titulo
+            if (design.title) {
+                if (design.title.length > 60) {
+                    this.issues.push(
+                        `Design "${design.design}" a title that is too long, it should be a maximum of 60 characters. `
+                    )
+                }
+            }
         });
 
         return this.issues;
@@ -523,6 +530,7 @@ export class ListingGeneratorComponent implements OnInit {
             if (this.issues.length > 0) {
                 this.activeMessage = true;
             } else {
+                // console.log(this.ptoDesigns);
                 this.spinnerProcessingPanel = true;
                 if (this.mockups.length === 0) {
                     console.warn('No hay mockups para procesar.');
@@ -665,6 +673,45 @@ export class ListingGeneratorComponent implements OnInit {
                 const wsFaire = this.generateFaireTemplate(masterList);
                 XLSX.utils.book_append_sheet(wb, wsFaire, 'Faire Template');
             }
+            if (this.selectedMarketplace.includes('Shein')) {
+                const wsShein = this.generateSheinTemplate(masterList);
+                let category = '';
+                switch (this.ptoDesigns[0].categories.Shein) {
+                    case 'women t-shirt':
+                        category = 'Women T-Shirts(1738)';
+                        break;
+                    case 'women crop tee':
+                        category = 'Women Tops(2214)';
+                        break;
+                    case 'women sweatshirts':
+                        category = 'Women Sweatshirts(1773)';
+                        break;
+                    case 'women racerback tank':
+                        category = 'Women Tank Tops & Camis(1779)';
+                        break;
+                    case 'men t-shirt':
+                        category = 'Men T-Shirts(1978)';
+                        break;
+                    case 'men tank top':
+                        category = 'Men Tank Tops(6505)';
+                        break;
+                    case 'men hoodies':
+                        category = 'Men Hoodies(9099)';
+                        break;
+                    case 'men sweatshirts':
+                        category = 'Men Sweatshirts(1972)';
+                        break;
+        
+                    default:
+                        category = '';
+                        break;
+                }
+                XLSX.utils.book_append_sheet(wb, wsShein, `Shein Template ${category}`);
+            }
+            if (this.selectedMarketplace.includes('Temu')) {
+                const wsTemu = this.generateTemuTemplate(masterList);
+                XLSX.utils.book_append_sheet(wb, wsTemu, 'Temu Template');
+            }
 
             // Guardar el archivo Excel combinado
             const excelBuffer: any = XLSX.write(wb, {
@@ -674,7 +721,11 @@ export class ListingGeneratorComponent implements OnInit {
             const dataBlob: Blob = new Blob([excelBuffer], {
                 type: 'application/octet-stream',
             });
-            saveAs(dataBlob, 'Marketplaces_Templates.xlsx');
+            const currentDate = new Date();
+            const formattedDate = currentDate.toISOString().slice(0, 10).replace(/-/g, '');
+            const fileName = `Marketplaces_Templates_${formattedDate}.xlsx`;
+
+            saveAs(dataBlob, fileName);
 
             // if (this.selectedMarketplace.includes('Ebay')) {
             //     this.generateEbayTemplate(masterList);
@@ -1358,7 +1409,7 @@ export class ListingGeneratorComponent implements OnInit {
                     '', // law_label_identification_provider',
                     '', // law_label_registration_number',
                     'Smartprints', // manufacturer',
-                    '', // manufacturerPartNumber',
+                    child.mpn, // manufacturerPartNumber',
                     '', // maximumOrderQuantity',
                     '', // minimumOrderQuantity',
                     '', // modelNumber',
@@ -1503,62 +1554,62 @@ export class ListingGeneratorComponent implements OnInit {
         masterList.forEach((parent) => {
             data.push([
                 parent.parent_sku, // Seller SKU
-                'Full Update', // Record Action
+                '', // Record Action
                 this.amazonProductType(parent.styles), // Product Type
                 parent.title, // Item Name
                 'Smartprints', // Brand Name
                 'Yes', // Is exempt from supplier declared external product identifier
                 this.amazonItemTypeKeyword(parent.styles), // Item Type Keyword
-                parent.categories.Amazon, // Amazon(CA,AU) - Categorie
-                'N/A', // Model Name
-                'New', // Offering Condition Type
-                parent.childrens[0].price, // List Price
-                'Migrated Template', // Merchant Shipping Group
-                'Made in the USA and Imported', // Import Designation
-                'DEFAULT', // Fulfillment Channel Code (US)
-                200, // Quantity (US)
-                3, // Handling Time (US)
-                parent.childrens[0].price, // Your Price USD (Sell on Amazon, US)
-                parent.description, // Product Description
-                parent.feature1, // Bullet Point
-                parent.feature2, // Bullet Point
-                parent.feature3, // Bullet Point
-                parent.keywords, // Generic Keywords
-                'Breathable', // Special Features
-                'Absorbent', // Special Features
-                'Lightweight', // Special Features
-                this.amazonStyle(parent.styles), // Style
-                parent.amazonDepart, // Department Name
-                this.amazonTargetGender(parent.amazonDepart), // Target Gender
-                this.amazonAgeRangeDesc(parent.classification), // Age Range Description
-                'US', // Shirt Size System
-                'Alpha', // Shirt Size Class
+                '', // Amazon(CA,AU) - Categorie
+                '', // Model Name
+                '', // Offering Condition Type
+                '', // List Price
+                '', // Merchant Shipping Group
+                '', // Import Designation
+                '', // Fulfillment Channel Code (US)
+                '', // Quantity (US)
+                '', // Handling Time (US)
+                '', // Your Price USD (Sell on Amazon, US)
+                '', // Product Description
+                '', // Bullet Point
+                '', // Bullet Point
+                '', // Bullet Point
+                '', // Generic Keywords
+                '', // Special Features
+                '', // Special Features
+                '', // Special Features
+                '', // Style
+                '', // Department Name
+                '', // Target Gender
+                '', // Age Range Description
+                '', // Shirt Size System
+                '', // Shirt Size Class
                 '', // Shirt Size Value
                 '', // Shirt Size To Range
-                'Regular', // Shirt Body Type
-                'Regular', // Shirt Height Type
-                'Cotton', // Material
-                '100% Cotton', // Fabric Type
-                'Standard', // Special Size
+                '', // Shirt Body Type
+                '', // Shirt Height Type
+                '', // Material
+                '', // Fabric Type
+                '', // Special Size
                 '', // Color
-                'Short Length', // Item Length Description
+                '', // Item Length Description
                 '', // Part Number
-                parent.theme, // Theme
+                '', // Theme
                 '', // Fit Type
-                'Machine Wash', // Care Instructions
-                'No', // Is Customizable?
-                'Solid', // Pattern
-                'Crew Neck', // Neck Style
-                this.amazonSleeveStyle(parent.styles), // Sleeve Type
+                '', // Care Instructions
+                '', // Is Customizable?
+                '', // Pattern
+                '', // Neck Style
+                '', // Sleeve Type
                 'Parent', // Parentage Level
-                'Variation', // Child Relationship Type
-                parent.parent_sku, // Parent SKU
-                'SIZE/COLOR', // Variation Theme Name
-                'United States', // Country of Origin
-                parent.childrens[0].image1, // Main Image URL
-                parent.childrens[0].image2, // Other Image URL
-                parent.childrens[0].image3, // Other Image URL
-                parent.childrens[0].image4, // Other Image URL
+                '', // Child Relationship Type
+                '', // Parent SKU
+                'SizeColor', // Variation Theme Name
+                '', // Country of Origin
+                '', // Main Image URL
+                '', // Other Image URL
+                '', // Other Image URL
+                '', // Other Image URL
                 '', // Package Weight
                 '', // Package Weight Unit
             ]);
@@ -1615,7 +1666,7 @@ export class ListingGeneratorComponent implements OnInit {
                     'Child', // Parentage Level
                     'Variation', // Child Relationship Type
                     parent.parent_sku, // Parent SKU
-                    'SIZE/COLOR', // Variation Theme Name
+                    'SizeColor', // Variation Theme Name
                     'United States', // Country of Origin
                     child.image1, // Main Image URL
                     child.image2, // Other Image URL
@@ -1703,6 +1754,7 @@ export class ListingGeneratorComponent implements OnInit {
 
         const data: any[][] = [];
         masterList.forEach((parent) => {
+            const randomIndex = Math.floor(Math.random() * parent.childrens.length);
             data.push([
                 '', //ID
                 'variable', //Type
@@ -1733,8 +1785,8 @@ export class ListingGeneratorComponent implements OnInit {
                 parent.categories.Pipeline, //Categories
                 '', //Tags
                 '', //Shipping class
-                `${parent.childrens[parent.childrens.length - 1].image1},${parent.childrens[parent.childrens.length - 1].image2
-                },${parent.childrens[parent.childrens.length - 1].image3}`, //Images
+                `${parent.childrens[randomIndex].image1},${parent.childrens[randomIndex].image2
+                },${parent.childrens[randomIndex].image3}`, //Images
                 '', //Download limit
                 '', //Download expiry days
                 '', //Parent
@@ -1749,12 +1801,12 @@ export class ListingGeneratorComponent implements OnInit {
                 this.pipelineGetUniqueSizes(parent.childrens), //Attribute 1 value(s)
                 1, //Attribute 1 visible
                 1, //Attribute 1 global
-                parent.childrens[parent.childrens.length - 1].size, //Attribute 1 default
+                parent.childrens[randomIndex].size, //Attribute 1 default
                 'Color', //Attribute 2 name
                 this.pipelineGetUniqueColors(parent.childrens), //Attribute 2 value(s)
                 1, //Attribute 2 visible
                 1, //Attribute 2 global
-                parent.childrens[parent.childrens.length - 1].color, //Attribute 2 default
+                parent.childrens[randomIndex].color, //Attribute 2 default
             ]);
             parent.childrens.forEach((child: any, index: number) => {
                 data.push([
@@ -1898,8 +1950,147 @@ export class ListingGeneratorComponent implements OnInit {
             "Customization Charge Per Unit (AUD)",
             "Continue selling when out of stock",
             "On Hand Inventory",
+            "On Hand Inventory (Read Only)",
             "Restock Date",
             "HS6 Tariff Code"
+        ];
+        const headerRow2 = [
+            "Mandatory",
+            "Optional, defaults to Published",
+            "Do not edit for exported products. Leave blank for new products.",
+            "Optional",
+            "Optional",
+            "Mandatory",
+            "Mandatory if selling by the case. Leave blank for 'By the item' or 'Open sizing'.",
+            "Mandatory",
+            "Optional",
+            "Mandatory if item weight is provided. Select between kg, g, lb, or oz",
+            "Optional",
+            "Optional",
+            "Optional",
+            "Mandatory if item dimensions are provided. Select between cm or in",
+            "Optional",
+            "Mandatory if packaged weight is provided. Select between kg, g, lb, or oz",
+            "Optional",
+            "Optional",
+            "Optional",
+            "Mandatory if packaged dimensions are provided. Select between cm or in",
+            "Optional, defaults to Published",
+            "Optional",
+            "Optional",
+            "Optional",
+            "Mandatory if Option 1 Name is filled",
+            "Optional",
+            "Mandatory if Option 2 Name is filled",
+            "Optional",
+            "Mandatory if Option 3 Name is filled",
+            "Mandatory",
+            "Mandatory",
+            "Optional",
+            "Optional",
+            "Optional",
+            "Optional",
+            "Optional",
+            "Optional",
+            "Optional",
+            "Optional",
+            "Optional",
+            "Optional",
+            "Mandatory if Preorder",
+            "Optional if Preorder",
+            "Optional if Preorder",
+            "Optional if Preorder",
+            "Mandatory for at least 1 row per product, and should contain at least 1 URL or image filename",
+            "Optional",
+            "Optional, defaults to blank which means there is not a tester",
+            "Optional, defaults to blank which means there is not a tester",
+            "Optional, defaults to blank which means there is not a tester",
+            "Optional, defaults to blank which means there is not a tester",
+            "Optional, defaults to blank which means there is not a tester",
+            "Optional, default to No",
+            "Mandatory for products with customizations",
+            "Optional, default to No",
+            "Mandatory for products with customizations",
+            "Mandatory for products with customizations",
+            "Optional, default to $0.00",
+            "Optional, default to $0.00",
+            "Optional, default to £0.00",
+            "Optional, default to €0.00",
+            "Optional, default to $0.00",
+            "Optional",
+            "Optional",
+            "Optional",
+            "Optional",
+            "Optional"
+        ];
+        const headerRow3 = [
+            "product_name_english",
+            "info_status_v2",
+            "info_product_token",
+            "info_product_type",
+            "product_description_english",
+            "selling_method",
+            "case_quantity",
+            "minimum_order_quantity",
+            "item_weight",
+            "item_weight_unit",
+            "item_length",
+            "item_width",
+            "item_height",
+            "item_dimensions_unit",
+            "packaged_weight",
+            "packaged_weight_unit",
+            "packaged_length",
+            "packaged_width",
+            "packaged_height",
+            "packaged_dimensions_unit",
+            "option_status",
+            "sku",
+            "gtin",
+            "option_1_name",
+            "option_1_value",
+            "option_2_name",
+            "option_2_value",
+            "option_3_name",
+            "option_3_value",
+            "price_wholesale",
+            "price_retail",
+            "canadian_price_wholesale",
+            "canadian_price_retail",
+            "uk_price_wholesale",
+            "uk_price_retail",
+            "eu_price_wholesale",
+            "eu_price_retail",
+            "australian_price_wholesale",
+            "australian_price_retail",
+            "option_image",
+            "preorderable",
+            "ship_by_start_date",
+            "ship_by_end_date",
+            "order_by_date",
+            "keep_active",
+            "product_images",
+            "made_in_country",
+            "tester_price",
+            "canadian_tester_price",
+            "uk_tester_price",
+            "eu_tester_price",
+            "australian_tester_price",
+            "has_customization",
+            "customization_instructions",
+            "customization_input_required",
+            "customization_input_limit",
+            "customization_moq",
+            "customization_charge",
+            "canadian_customization_charge",
+            "uk_customization_charge",
+            "eu_customization_charge",
+            "australian_customization_charge",
+            "continue_selling_when_out_of_stock",
+            "on_hand_inventory",
+            "on_hand_inventory_original",
+            "restock_date",
+            "tariff_code"
         ];
 
         const data: any[][] = [];
@@ -1951,9 +2142,7 @@ export class ListingGeneratorComponent implements OnInit {
                     '', //Ship By End Date (if range, YYYY-MM-DD)
                     '', //Deadline To Order (YYYY-MM-DD)
                     '', //Sell After Order By/Ship Date
-                    `${child.image1}
-                    ${child.image2}
-                    ${child.image3}
+                    `${child.image1} ${child.image2} ${child.image3}
                     `, //Product Images
                     'United States', //Made In Country
                     '', //Tester Price (USD)
@@ -1973,6 +2162,7 @@ export class ListingGeneratorComponent implements OnInit {
                     '', //Customization Charge Per Unit (AUD)
                     'Yes', //Continue selling when out of stock
                     200, //On Hand Inventory
+                    '', //On Hand Inventory (Read Only)
                     '', //Restock Date
                     ''  //HS6 Tariff Code
                 ]);
@@ -1981,6 +2171,8 @@ export class ListingGeneratorComponent implements OnInit {
 
         const ws: XLSX.WorkSheet = XLSX.utils.aoa_to_sheet([
             headerRow1,
+            headerRow2,
+            headerRow3,
             ...data,
         ]);
 
@@ -2151,26 +2343,1164 @@ export class ListingGeneratorComponent implements OnInit {
         // });
         // saveAs(dataBlob, 'Shopify_template.xlsx');
     }
+    generateSheinTemplate(masterList: any[]) {
+        //Women
+        const headerWomenTshirt = [
+            "Field Code",
+            "Default product name [en]",
+            "Multilingual product names [es]",
+            "Product Number",
+            "Default product description [en]",
+            "Multilingual product description [es]",
+            "Brand",
+            "First Image",
+            "Back Image",
+            "Square Chart",
+            "Color Index Image",
+            "Detail image 1",
+            "Detail image 2",
+            "Detail image 3",
+            "Detail image 4",
+            "Detail image 5",
+            "Detail image 6",
+            "Detail image 7",
+            "Detail image 8",
+            "Detail image 9",
+            "Seller SKU",
+            "Inventory [U.S.+PS4343240944]",
+            "Weight",
+            "Unit of weight",
+            "Length",
+            "Width",
+            "Height",
+            "Unit of length, width, and height",
+            "Original Price [shein-us+USD]",
+            "Special Offer Price [shein-us+USD]",
+            "Size chart template name",
+            "Color (27)",
+            "Size (87)",
+            "Composition (62)",
+            "Lining (1000078)",
+            "Coating (1000105)",
+            "Belt (9)",
+            "Details (31)",
+            "Fabric (39)",
+            "Length (54)",
+            "Body (58)",
+            "Neckline (66)",
+            "Sleeve Length (90)",
+            "Sleeve Type (92)",
+            "Style (101)",
+            "Type (109)",
+            "Occasion (128)",
+            "Hem Shaped (129)",
+            "Material (160)",
+            "Sheer (207)",
+            "Features (217)",
+            "Care Instructions (1000069)",
+            "Functional Type (1000104)",
+            "Quantity (1000411)",
+            "Lined For Added Warmth (1000437)",
+            "Pockets (1000438)",
+            "Product Model (1000546)",
+            "Specific Pattern (1000627)",
+            "Style features (1001159)",
+            "Temperature (1001364)",
+            "Special auxiliary materials (1002021)"
+        ];
+        const headerWomenCrop = [
+            "Field Code",
+            "Default product name [en]",
+            "Multilingual product names [es]",
+            "Product Number",
+            "Default product description [en]",
+            "Multilingual product description [es]",
+            "Brand",
+            "First Image",
+            "Back Image",
+            "Square Chart",
+            "Color Index Image",
+            "Detail image 1",
+            "Detail image 2",
+            "Detail image 3",
+            "Detail image 4",
+            "Detail image 5",
+            "Detail image 6",
+            "Detail image 7",
+            "Detail image 8",
+            "Detail image 9",
+            "Seller SKU",
+            "Inventory [U.S.+PS4343240944]",
+            "Weight",
+            "Unit of weight",
+            "Length",
+            "Width",
+            "Height",
+            "Unit of length, width, and height",
+            "Original Price [shein-us+USD]",
+            "Special Offer Price [shein-us+USD]",
+            "Size chart template name",
+            "Color (27)",
+            "Size (87)",
+            "Composition (62)",
+            "Filling (1000067)",
+            "Lining (1000078)",
+            "Coating (1000105)",
+            "Belt (9)",
+            "Chest pad (23)",
+            "Details (31)",
+            "Fabric (39)",
+            "Fit Type (40)",
+            "Length (54)",
+            "Body (58)",
+            "Neckline (66)",
+            "Sleeve Length (90)",
+            "Sleeve Type (92)",
+            "Style (101)",
+            "Hem Shaped (129)",
+            "Material (160)",
+            "Sheer (207)",
+            "Features (217)",
+            "Care Instructions (1000069)",
+            "Quantity (1000411)",
+            "Lined For Added Warmth (1000437)",
+            "Pockets (1000438)",
+            "Specific Pattern (1000627)",
+            "Style features (1001159)",
+            "Special auxiliary materials (1002021)"
+        ];
+        const headerWomenSweatshirt = [
+            "Field Code",
+            "Default product name [en]",
+            "Multilingual product names [es]",
+            "Product Number",
+            "Default product description [en]",
+            "Multilingual product description [es]",
+            "Brand",
+            "First Image",
+            "Back Image",
+            "Square Chart",
+            "Color Index Image",
+            "Detail image 1",
+            "Detail image 2",
+            "Detail image 3",
+            "Detail image 4",
+            "Detail image 5",
+            "Detail image 6",
+            "Detail image 7",
+            "Detail image 8",
+            "Detail image 9",
+            "Seller SKU",
+            "Inventory [U.S.+PS4343240944]",
+            "Weight",
+            "Unit of weight",
+            "Length",
+            "Width",
+            "Height",
+            "Unit of length, width, and height",
+            "Original Price [shein-us+USD]",
+            "Special Offer Price [shein-us+USD]",
+            "Size chart template name",
+            "Color (27)",
+            "Size (87)",
+            "Composition (62)",
+            "Filling (1000067)",
+            "Lining (1000078)",
+            "Coating (1000105)",
+            "Belt (9)",
+            "Details (31)",
+            "Fabric (39)",
+            "Fit Type (40)",
+            "Length (54)",
+            "Body (58)",
+            "Neckline (66)",
+            "Sleeve Length (90)",
+            "Sleeve Type (92)",
+            "Style (101)",
+            "Type (109)",
+            "Occasion (128)",
+            "Hem Shaped (129)",
+            "Material (160)",
+            "Sheer (207)",
+            "Features (217)",
+            "Care Instructions (1000069)",
+            "Functional Type (1000104)",
+            "Quantity (1000411)",
+            "Lined For Added Warmth (1000437)",
+            "Pockets (1000438)",
+            "Specific Pattern (1000627)",
+            "Temperature (1001364)",
+            "Special auxiliary materials (1002021)"
+        ];
+        const headerWomenTank = [
+            "Field Code",
+            "Default product name[en]",
+            "Multilingual product names[es]",
+            "Product Number",
+            "Default product description[en]",
+            "Multilingual product description[es]",
+            "Brand",
+            "First Image",
+            "Back Image",
+            "Square Chart",
+            "Color Index Image",
+            "Detail image1",
+            "Detail image2",
+            "Detail image3",
+            "Detail image4",
+            "Detail image5",
+            "Detail image6",
+            "Detail image7",
+            "Detail image8",
+            "Detail image9",
+            "Seller SKU",
+            "Inventory[U.S.+PS4343240944]",
+            "Weight",
+            "Unit of weight",
+            "Length",
+            "Width",
+            "Height",
+            "Unit of length, width and height",
+            "Original Price[shein-us+USD]",
+            "Special Offer Price[shein-us+USD]",
+            "Size chart template name",
+            "Color(27)",
+            "Size(87)",
+            "Composition(62)",
+            "Filling(1000067)",
+            "Lining(1000078)",
+            "Coating(1000105)",
+            "Belt(9)",
+            "Chest pad(23)",
+            "Details(31)",
+            "Fabric(39)",
+            "Fit Type(40)",
+            "Length(54)",
+            "Body(58)",
+            "Neckline(66)",
+            "Sleeve Length(90)",
+            "Sleeve Type(92)",
+            "Style(101)",
+            "Hem Shaped(129)",
+            "Material(160)",
+            "Sheer(207)",
+            "Features(217)",
+            "Care Instructions(1000069)",
+            "Quantity(1000411)",
+            "Lined For Added Warmth(1000437)",
+            "Pockets(1000438)",
+            "Specific Pattern(1000627)",
+            "Style features(1001159)",
+            "Special auxiliary materials(1002021)"
+        ];
+        //Men
+        const headerMenTshirt = [
+            "Field Code",
+            "Default product name [en]",
+            "Multilingual product names [es]",
+            "Product Number",
+            "Default product description [en]",
+            "Multilingual product description [es]",
+            "Brand",
+            "First Image",
+            "Back Image",
+            "Square Chart",
+            "Color Index Image",
+            "Detail image 1",
+            "Detail image 2",
+            "Detail image 3",
+            "Detail image 4",
+            "Detail image 5",
+            "Detail image 6",
+            "Detail image 7",
+            "Detail image 8",
+            "Detail image 9",
+            "Seller SKU",
+            "Inventory [U.S.+PS4343240944]",
+            "Weight",
+            "Unit of weight",
+            "Length",
+            "Width",
+            "Height",
+            "Unit of length, width, and height",
+            "Original Price [shein-us+USD]",
+            "Special Offer Price [shein-us+USD]",
+            "Size chart template name",
+            "Color (27)",
+            "Size (87)",
+            "Composition (62)",
+            "Lining (1000078)",
+            "Coating (1000105)",
+            "Belt (9)",
+            "Details (31)",
+            "Fabric (39)",
+            "Length (54)",
+            "Body (58)",
+            "Neckline (66)",
+            "Sleeve Length (90)",
+            "Sleeve Type (92)",
+            "Style (101)",
+            "Hem Shaped (129)",
+            "Material (160)",
+            "Sheer (207)",
+            "Features (217)",
+            "Care Instructions (1000069)",
+            "Functional Type (1000104)",
+            "Quantity (1000411)",
+            "Lined For Added Warmth (1000437)",
+            "Pockets (1000438)",
+            "Product Model (1000546)",
+            "Specific Pattern (1000627)",
+            "Style features (1001159)",
+            "Temperature (1001364)"
+        ];
+        const headerMenTank = [
+            "Field Code",
+            "Default product name [en]",
+            "Multilingual product names [es]",
+            "Product Number",
+            "Default product description [en]",
+            "Multilingual product description [es]",
+            "Brand",
+            "First Image",
+            "Back Image",
+            "Square Chart",
+            "Color Index Image",
+            "Detail image 1",
+            "Detail image 2",
+            "Detail image 3",
+            "Detail image 4",
+            "Detail image 5",
+            "Detail image 6",
+            "Detail image 7",
+            "Detail image 8",
+            "Detail image 9",
+            "Seller SKU",
+            "Inventory [U.S.+PS4343240944]",
+            "Weight",
+            "Unit of weight",
+            "Length",
+            "Width",
+            "Height",
+            "Unit of length, width, and height",
+            "Original Price [shein-us+USD]",
+            "Special Offer Price [shein-us+USD]",
+            "Size chart template name",
+            "Color (27)",
+            "Size (87)",
+            "Composition (62)",
+            "Lining (1000078)",
+            "Coating (1000105)",
+            "Belt (9)",
+            "Details (31)",
+            "Fabric (39)",
+            "Fit Type (40)",
+            "Length (54)",
+            "Body (58)",
+            "Neckline (66)",
+            "Pattern Type (73)",
+            "Season (77)",
+            "Sleeve Length (90)",
+            "Style (101)",
+            "Hem Shaped (129)",
+            "Placket Type (150)",
+            "Age (154)",
+            "Material (160)",
+            "Location (169)",
+            "Sheer (207)",
+            "Features (217)",
+            "Care Instructions (1000069)",
+            "Number of Pieces (1000103)",
+            "Quantity (1000411)",
+            "Lined For Added Warmth (1000437)",
+            "Pockets (1000438)",
+            "Other Material (1000547)",
+            "Specific Pattern (1000627)"
+        ];
+        const headerMenHoodie = [
+            "Field Code",
+            "Default product name [en]",
+            "Multilingual product names [es]",
+            "Product Number",
+            "Default product description [en]",
+            "Multilingual product description [es]",
+            "Brand",
+            "First Image",
+            "Back Image",
+            "Square Chart",
+            "Color Index Image",
+            "Detail image 1",
+            "Detail image 2",
+            "Detail image 3",
+            "Detail image 4",
+            "Detail image 5",
+            "Detail image 6",
+            "Detail image 7",
+            "Detail image 8",
+            "Detail image 9",
+            "Seller SKU",
+            "Inventory [U.S.+PS4343240944]",
+            "Weight",
+            "Unit of weight",
+            "Length",
+            "Width",
+            "Height",
+            "Unit of length, width, and height",
+            "Original Price [shein-us+USD]",
+            "Special Offer Price [shein-us+USD]",
+            "Size chart template name",
+            "Color (27)",
+            "Size (87)",
+            "Composition (62)",
+            "Filling (1000067)",
+            "Lining (1000078)",
+            "Coating (1000105)",
+            "Belt (9)",
+            "Details (31)",
+            "Fabric (39)",
+            "Fit Type (40)",
+            "Length (54)",
+            "Body (58)",
+            "Neckline (66)",
+            "Pattern Type (73)",
+            "Season (77)",
+            "Sleeve Length (90)",
+            "Sleeve Type (92)",
+            "Style (101)",
+            "Hem Shaped (129)",
+            "Placket Type (150)",
+            "Age (154)",
+            "Material (160)",
+            "Location (169)",
+            "Users-Romwe (176)",
+            "Users-Shein (177)",
+            "Sheer (207)",
+            "Features (217)",
+            "Care Instructions (1000069)",
+            "Number of Pieces (1000103)",
+            "Quantity (1000411)",
+            "Lined For Added Warmth (1000437)",
+            "Pockets (1000438)",
+            "Other Material (1000547)",
+            "Specific Pattern (1000627)",
+            "Temperature (1001364)"
+        ];
+        const headerMenSweatshirt = [
+            "Field Code",
+            "Default product name [en]",
+            "Multilingual product names [es]",
+            "Product Number",
+            "Default product description [en]",
+            "Multilingual product description [es]",
+            "Brand",
+            "First Image",
+            "Back Image",
+            "Square Chart",
+            "Color Index Image",
+            "Detail image 1",
+            "Detail image 2",
+            "Detail image 3",
+            "Detail image 4",
+            "Detail image 5",
+            "Detail image 6",
+            "Detail image 7",
+            "Detail image 8",
+            "Detail image 9",
+            "Seller SKU",
+            "Inventory [U.S.+PS4343240944]",
+            "Weight",
+            "Unit of weight",
+            "Length",
+            "Width",
+            "Height",
+            "Unit of length, width, and height",
+            "Original Price [shein-us+USD]",
+            "Special Offer Price [shein-us+USD]",
+            "Size chart template name",
+            "Color (27)",
+            "Size (87)",
+            "Composition (62)",
+            "Filling (1000067)",
+            "Lining (1000078)",
+            "Coating (1000105)",
+            "Belt (9)",
+            "Details (31)",
+            "Fabric (39)",
+            "Fit Type (40)",
+            "Length (54)",
+            "Body (58)",
+            "Neckline (66)",
+            "Season (77)",
+            "Sleeve Length (90)",
+            "Sleeve Type (92)",
+            "Style (101)",
+            "Type (109)",
+            "Hem Shaped (129)",
+            "Placket Type (150)",
+            "Age (154)",
+            "Material (160)",
+            "Location (169)",
+            "Users-Romwe (176)",
+            "Users-Shein (177)",
+            "Sheer (207)",
+            "Features (217)",
+            "Design Style (1000063)",
+            "Shoulder Shape (1000066)",
+            "Care Instructions (1000069)",
+            "Process options (1000410)",
+            "Quantity (1000411)",
+            "Lined For Added Warmth (1000437)",
+            "Pockets (1000438)",
+            "Other Material (1000547)",
+            "Specific Pattern (1000627)",
+            "Temperature (1001364)"
+        ];
+
+        console.log(`MasterList: ${masterList[0].categories.Shein}`);
+        console.log(`ptoDesign: ${this.ptoDesigns[0].categories.Shein}`);
+        
+        const data: any[][] = [];
+        masterList.forEach((parent) => {
+            parent.childrens.forEach((child: any, index: number) => {
+                switch (this.ptoDesigns[0].categories.Shein) {
+                    case 'women t-shirt':
+                        data.push([
+                            '', //Field Code
+                            parent.title, //Default product name [en]
+                            '', //Multilingual product names [es]
+                            child.full_sku, //Product Number
+                            parent.description, //Default product description [en]
+                            '', //Multilingual product description [es]
+                            '', //Brand
+                            child.image1, //First Image
+                            '', //Back Image
+                            child.image4, //Square Chart
+                            '', //Color Index Image
+                            child.image2, //Detail image 1
+                            child.image3, //Detail image 2
+                            '', //Detail image 3
+                            '', //Detail image 4
+                            '', //Detail image 5
+                            '', //Detail image 6
+                            '', //Detail image 7
+                            '', //Detail image 8
+                            '', //Detail image 9
+                            '', //Seller SKU
+                            200, //Inventory [U.S.+PS4343240944]
+                            5.3, //Weight
+                            'oz', //Unit of weight
+                            '', //Length
+                            '', //Width
+                            '', //Height
+                            '', //Unit of length, width, and height
+                            child.price, //Original Price [shein-us+USD]
+                            '', //Special Offer Price [shein-us+USD]
+                            '', //Size chart template name
+                            child.color, //Color (27)
+                            child.size, //Size (87)
+                            this.sheinMaterial(parent.styles), //Composition (62)
+                            '', //Lining (1000078)
+                            '', //Coating (1000105)
+                            '', //Belt (9)
+                            '', //Details (31)
+                            'Slight Stretch', //Fabric (39)
+                            '', //Length (54)
+                            '', //Body (58)
+                            '', //Neckline (66)
+                            'Short Sleeve', //Sleeve Length (90)
+                            '', //Sleeve Type (92)
+                            '', //Style (101)
+                            '', //Type (109)
+                            '', //Occasion (128)
+                            '', //Hem Shaped (129)
+                            'Fabric', //Material (160)
+                            '', //Sheer (207)
+                            'Comfortable', //Features (217)
+                            'Machine wash, do not dry clean', //Care Instructions (1000069)
+                            '', //Functional Type (1000104)
+                            '', //Quantity (1000411)
+                            '', //Lined For Added Warmth (1000437)
+                            '', //Pockets (1000438)
+                            '', //Product Model (1000546)
+                            '', //Specific Pattern (1000627)
+                            'None', //Style features (1001159)
+                            '', //Temperature (1001364)
+                            '' //Special auxiliary materials (1002021)
+                        ]);
+                        break;
+                    case 'women crop tee':
+                        data.push([
+                            '', //Field Code
+                            parent.title, //Default product name [en]
+                            '', //Multilingual product names [es]
+                            child.full_sku, //Product Number
+                            parent.description, //Default product description [en]
+                            '', //Multilingual product description [es]
+                            '', //Brand
+                            child.image1, //First Image
+                            '', //Back Image
+                            child.image4, //Square Chart
+                            '', //Color Index Image
+                            child.image2, //Detail image 1
+                            child.image3, //Detail image 2
+                            '', //Detail image 3
+                            '', //Detail image 4
+                            '', //Detail image 5
+                            '', //Detail image 6
+                            '', //Detail image 7
+                            '', //Detail image 8
+                            '', //Detail image 9
+                            '', //Seller SKU
+                            200, //Inventory [U.S.+PS4343240944]
+                            5.3, //Weight
+                            'oz', //Unit of weight
+                            '', //Length
+                            '', //Width
+                            '', //Height
+                            '', //Unit of length, width, and height
+                            child.price, //Original Price [shein-us+USD]
+                            '', //Special Offer Price [shein-us+USD]
+                            '', //Size chart template name
+                            child.color, //Color (27)
+                            child.size, //Size (87)
+                            this.sheinMaterial(parent.styles), //Composition (62)
+                            '', //Filling (1000067)
+                            '', //Lining (1000078)
+                            '', //Coating (1000105)
+                            '', //Belt (9)
+                            '', //Chest pad (23)
+                            '', //Details (31)
+                            'Slight Stretch', //Fabric (39)
+                            '', //Fit Type (40)
+                            '', //Length (54)
+                            '', //Body (58)
+                            '', //Neckline (66)
+                            'Short Sleeve', //Sleeve Length (90)
+                            '', //Sleeve Type (92)
+                            '', //Style (101)
+                            '', //Hem Shaped (129)
+                            'Fabric', //Material (160)
+                            '', //Sheer (207)
+                            'Comfortable', //Features (217)
+                            'Machine wash, do not dry clean', //Care Instructions (1000069)
+                            '', //Quantity (1000411)
+                            '', //Lined For Added Warmth (1000437)
+                            '', //Pockets (1000438)
+                            '', //Specific Pattern (1000627)
+                            'None', //Style features (1001159)
+                            '' //Special auxiliary materials (1002021)
+                        ]);
+                        break;
+                    case 'women sweatshirts':
+                        data.push([
+                            '', //Field Code
+                            parent.title, //Default product name [en]
+                            '', //Multilingual product names [es]
+                            child.full_sku, //Product Number
+                            parent.description, //Default product description [en]
+                            '', //Multilingual product description [es]
+                            '', //Brand
+                            child.image1, //First Image
+                            '', //Back Image
+                            child.image4, //Square Chart
+                            '', //Color Index Image
+                            child.image2, //Detail image 1
+                            child.image3, //Detail image 2
+                            '', //Detail image 3
+                            '', //Detail image 4
+                            '', //Detail image 5
+                            '', //Detail image 6
+                            '', //Detail image 7
+                            '', //Detail image 8
+                            '', //Detail image 9
+                            '', //Seller SKU
+                            200, //Inventory [U.S.+PS4343240944]
+                            10.5, //Weight
+                            'oz', //Unit of weight
+                            '', //Length
+                            '', //Width
+                            '', //Height
+                            '', //Unit of length, width, and height
+                            child.price, //Original Price [shein-us+USD]
+                            '', //Special Offer Price [shein-us+USD]
+                            '', //Size chart template name
+                            child.color, //Color (27)
+                            child.size, //Size (87)
+                            this.sheinMaterial(parent.styles), //Composition (62)
+                            '', //Filling (1000067)
+                            '', //Lining (1000078)
+                            '', //Coating (1000105)
+                            '', //Belt (9)
+                            '', //Details (31)
+                            'Slight Stretch', //Fabric (39)
+                            '', //Fit Type (40)
+                            '', //Length (54)
+                            '', //Body (58)
+                            '', //Neckline (66)
+                            'Long Sleeve', //Sleeve Length (90)
+                            '', //Sleeve Type (92)
+                            '', //Style (101)
+                            '', //Type (109)
+                            '', //Occasion (128)
+                            '', //Hem Shaped (129)
+                            'Fabric', //Material (160)
+                            '', //Sheer (207)
+                            'Comfortable', //Features (217)
+                            'Machine wash, do not dry clean', //Care Instructions (1000069)
+                            '', //Functional Type (1000104)
+                            '', //Quantity (1000411)
+                            '', //Lined For Added Warmth (1000437)
+                            '', //Pockets (1000438)
+                            '', //Specific Pattern (1000627)
+                            '', //Temperature (1001364)
+                            '' //Special auxiliary materials (1002021)
+                        ]);
+                        break;
+                    case 'women racerback tank':
+                        data.push([
+                            '', //Field Code
+                            parent.title, //Default product name[en]
+                            '', //Multilingual product names[es]
+                            child.full_sku, //Product Number
+                            parent.description, //Default product description[en]
+                            '', //Multilingual product description[es]
+                            '', //Brand
+                            child.image1, //First Image
+                            '', //Back Image
+                            child.image4, //Square Chart
+                            '', //Color Index Image
+                            child.image2, //Detail image1
+                            child.image3, //Detail image2
+                            '', //Detail image3
+                            '', //Detail image4
+                            '', //Detail image5
+                            '', //Detail image6
+                            '', //Detail image7
+                            '', //Detail image8
+                            '', //Detail image9
+                            '', //Seller SKU
+                            200, //Inventory[U.S.+PS4343240944]
+                            5.3, //Weight
+                            'oz', //Unit of weight
+                            '', //Length
+                            '', //Width
+                            '', //Height
+                            '', //Unit of length, width and height
+                            child.price, //Original Price[shein-us+USD]
+                            '', //Special Offer Price[shein-us+USD]
+                            '', //Size chart template name
+                            child.color, //Color(27)
+                            child.size, //Size(87)
+                            this.sheinMaterial(parent.styles), //Composition(62)
+                            '', //Filling(1000067)
+                            '', //Lining(1000078)
+                            '', //Coating(1000105)
+                            '', //Belt(9)
+                            '', //Chest pad(23)
+                            '', //Details(31)
+                            'Slight Stretch', //Fabric(39)
+                            '', //Fit Type(40)
+                            '', //Length(54)
+                            '', //Body(58)
+                            '', //Neckline(66)
+                            'Sleeveless', //Sleeve Length(90)
+                            '', //Sleeve Type(92)
+                            '', //Style(101)
+                            '', //Hem Shaped(129)
+                            'Fabric', //Material(160)
+                            '', //Sheer(207)
+                            'Comfortable', //Features(217)
+                            'Machine wash, do not dry clean', //Care Instructions(1000069)
+                            '', //Quantity(1000411)
+                            '', //Lined For Added Warmth(1000437)
+                            '', //Pockets(1000438)
+                            '', //Specific Pattern(1000627)
+                            'None', //Style features(1001159)
+                            '' //Special auxiliary materials(1002021)
+                        ]);
+                        break;
+                    case 'men t-shirt':
+                        data.push([
+                            '', //Field Code
+                            parent.title, //Default product name [en]
+                            '', //Multilingual product names [es]
+                            child.full_sku, //Product Number
+                            parent.description, //Default product description [en]
+                            '', //Multilingual product description [es]
+                            '', //Brand
+                            child.image1, //First Image
+                            '', //Back Image
+                            child.image4, //Square Chart
+                            '', //Color Index Image
+                            child.image2, //Detail image 1
+                            child.image3, //Detail image 2
+                            '', //Detail image 3
+                            '', //Detail image 4
+                            '', //Detail image 5
+                            '', //Detail image 6
+                            '', //Detail image 7
+                            '', //Detail image 8
+                            '', //Detail image 9
+                            '', //Seller SKU
+                            200, //Inventory [U.S.+PS4343240944]
+                            5.3, //Weight
+                            'oz', //Unit of weight
+                            '', //Length
+                            '', //Width
+                            '', //Height
+                            '', //Unit of length, width, and height
+                            child.price, //Original Price [shein-us+USD]
+                            '', //Special Offer Price [shein-us+USD]
+                            '', //Size chart template name
+                            child.color, //Color (27)
+                            child.size, //Size (87)
+                            this.sheinMaterial(parent.styles), //Composition (62)
+                            '', //Lining (1000078)
+                            '', //Coating (1000105)
+                            '', //Belt (9)
+                            '', //Details (31)
+                            'Slight Stretch', //Fabric (39)
+                            '', //Length (54)
+                            '', //Body (58)
+                            '', //Neckline (66)
+                            'Short Sleeve', //Sleeve Length (90)
+                            '', //Sleeve Type (92)
+                            '', //Style (101)
+                            '', //Hem Shaped (129)
+                            'Fabric', //Material (160)
+                            '', //Sheer (207)
+                            'Comfortable', //Features (217)
+                            'Machine wash, do not dry clean', //Care Instructions (1000069)
+                            '', //Functional Type (1000104)
+                            '', //Quantity (1000411)
+                            '', //Lined For Added Warmth (1000437)
+                            '', //Pockets (1000438)
+                            '', //Product Model (1000546)
+                            '', //Specific Pattern (1000627)
+                            'None', //Style features (1001159)
+                            '' //Temperature (1001364)
+                        ]);
+                        break;
+                    case 'men tank top':
+                        data.push([
+                            '', //Field Code
+                            parent.title, //Default product name [en]
+                            '', //Multilingual product names [es]
+                            child.full_sku, //Product Number
+                            parent.description, //Default product description [en]
+                            '', //Multilingual product description [es]
+                            '', //Brand
+                            child.image1, //First Image
+                            '', //Back Image
+                            child.image4, //Square Chart
+                            '', //Color Index Image
+                            child.image2, //Detail image 1
+                            child.image3, //Detail image 2
+                            '', //Detail image 3
+                            '', //Detail image 4
+                            '', //Detail image 5
+                            '', //Detail image 6
+                            '', //Detail image 7
+                            '', //Detail image 8
+                            '', //Detail image 9
+                            '', //Seller SKU
+                            200, //Inventory [U.S.+PS4343240944]
+                            5.3, //Weight
+                            'oz', //Unit of weight
+                            '', //Length
+                            '', //Width
+                            '', //Height
+                            '', //Unit of length, width, and height
+                            child.price, //Original Price [shein-us+USD]
+                            '', //Special Offer Price [shein-us+USD]
+                            '', //Size chart template name
+                            child.color, //Color (27)
+                            child.size, //Size (87)
+                            '', //Composition (62)
+                            '', //Lining (1000078)
+                            '', //Coating (1000105)
+                            '', //Belt (9)
+                            '', //Details (31)
+                            'Slight Stretch', //Fabric (39)
+                            '', //Fit Type (40)
+                            '', //Length (54)
+                            '', //Body (58)
+                            '', //Neckline (66)
+                            '', //Pattern Type (73)
+                            '', //Season (77)
+                            'Sleeveless', //Sleeve Length (90)
+                            '', //Style (101)
+                            '', //Hem Shaped (129)
+                            '', //Placket Type (150)
+                            '', //Age (154)
+                            'Fabric', //Material (160)
+                            '', //Location (169)
+                            '', //Sheer (207)
+                            'Comfortable', //Features (217)
+                            'Machine wash, do not dry clean', //Care Instructions (1000069)
+                            '', //Number of Pieces (1000103)
+                            '', //Quantity (1000411)
+                            '', //Lined For Added Warmth (1000437)
+                            '', //Pockets (1000438)
+                            '', //Other Material (1000547)
+                            '' //Specific Pattern (1000627)
+                        ]);
+                        break;
+                    case 'men hoodies':
+                        data.push([
+                            '', //Field Code
+                            parent.title, //Default product name [en]
+                            '', //Multilingual product names [es]
+                            child.full_sku, //Product Number
+                            parent.description, //Default product description [en]
+                            '', //Multilingual product description [es]
+                            '', //Brand
+                            child.image1, //First Image
+                            '', //Back Image
+                            child.image4, //Square Chart
+                            '', //Color Index Image
+                            child.image2, //Detail image 1
+                            child.image3, //Detail image 2
+                            '', //Detail image 3
+                            '', //Detail image 4
+                            '', //Detail image 5
+                            '', //Detail image 6
+                            '', //Detail image 7
+                            '', //Detail image 8
+                            '', //Detail image 9
+                            '', //Seller SKU
+                            200, //Inventory [U.S.+PS4343240944]
+                            20.5, //Weight
+                            'oz', //Unit of weight
+                            '', //Length
+                            '', //Width
+                            '', //Height
+                            '', //Unit of length, width, and height
+                            child.price, //Original Price [shein-us+USD]
+                            '', //Special Offer Price [shein-us+USD]
+                            '', //Size chart template name
+                            child.color, //Color (27)
+                            child.size, //Size (87)
+                            this.sheinMaterial(parent.styles), //Composition (62)
+                            '', //Filling (1000067)
+                            '', //Lining (1000078)
+                            '', //Coating (1000105)
+                            '', //Belt (9)
+                            '', //Details (31)
+                            'Slight Stretch', //Fabric (39)
+                            '', //Fit Type (40)
+                            '', //Length (54)
+                            '', //Body (58)
+                            '', //Neckline (66)
+                            '', //Pattern Type (73)
+                            '', //Season (77)
+                            'Long Sleeve', //Sleeve Length (90)
+                            '', //Sleeve Type (92)
+                            '', //Style (101)
+                            '', //Hem Shaped (129)
+                            '', //Placket Type (150)
+                            '', //Age (154)
+                            'Fabric', //Material (160)
+                            '', //Location (169)
+                            '', //Users-Romwe (176)
+                            '', //Users-Shein (177)
+                            '', //Sheer (207)
+                            'Comfortable', //Features (217)
+                            'Machine wash, do not dry clean', //Care Instructions (1000069)
+                            '', //Number of Pieces (1000103)
+                            '', //Quantity (1000411)
+                            '', //Lined For Added Warmth (1000437)
+                            '', //Pockets (1000438)
+                            '', //Other Material (1000547)
+                            '', //Specific Pattern (1000627)
+                            '' //Temperature (1001364)
+                        ]);
+                        break;
+                    case 'men sweatshirts':
+                        data.push([
+                           '', //Field Code
+                           parent.title, //Default product name [en]
+                           '', //Multilingual product names [es]
+                           child.full_sku, //Product Number
+                           parent.description, //Default product description [en]
+                           '', //Multilingual product description [es]
+                           '', //Brand
+                           child.image1, //First Image
+                           '', //Back Image
+                           child.image4, //Square Chart
+                           '', //Color Index Image
+                           child.image2, //Detail image 1
+                           child.image3, //Detail image 2
+                           '', //Detail image 3
+                           '', //Detail image 4
+                           '', //Detail image 5
+                           '', //Detail image 6
+                           '', //Detail image 7
+                           '', //Detail image 8
+                           '', //Detail image 9
+                           '', //Seller SKU
+                           200, //Inventory [U.S.+PS4343240944]
+                           10.5, //Weight
+                           'oz', //Unit of weight
+                           '', //Length
+                           '', //Width
+                           '', //Height
+                           '', //Unit of length, width, and height
+                           child.price, //Original Price [shein-us+USD]
+                           '', //Special Offer Price [shein-us+USD]
+                           '', //Size chart template name
+                           child.color, //Color (27)
+                           child.size, //Size (87)
+                           this.sheinMaterial(parent.styles), //Composition (62)
+                           '', //Filling (1000067)
+                           '', //Lining (1000078)
+                           '', //Coating (1000105)
+                           '', //Belt (9)
+                           '', //Details (31)
+                           'Slight Stretch', //Fabric (39)
+                           '', //Fit Type (40)
+                           '', //Length (54)
+                           '', //Body (58)
+                           '', //Neckline (66)
+                           '', //Season (77)
+                           'Long Sleeve', //Sleeve Length (90)
+                           '', //Sleeve Type (92)
+                           '', //Style (101)
+                           '', //Type (109)
+                           '', //Hem Shaped (129)
+                           '', //Placket Type (150)
+                           '', //Age (154)
+                           'Fabric', //Material (160)
+                           '', //Location (169)
+                           '', //Users-Romwe (176)
+                           '', //Users-Shein (177)
+                           '', //Sheer (207)
+                           'Comfortable', //Features (217)
+                           '', //Design Style (1000063)
+                           '', //Shoulder Shape (1000066)
+                           'Machine wash, do not dry clean', //Care Instructions (1000069)
+                           '', //Process options (1000410)
+                           '', //Quantity (1000411)
+                           '', //Lined For Added Warmth (1000437)
+                           '', //Pockets (1000438)
+                           '', //Other Material (1000547)
+                           '', //Specific Pattern (1000627)
+                           '' //Temperature (1001364)
+                        ]);
+                        break;
+
+                    default:
+                        data.push([]);
+                        break;
+                }
+            });
+        });
+        let headerRow
+
+        // A partir del 1er valor de categorias se definira el tipo de archivo que se exportara
+        switch (this.ptoDesigns[0].categories.Shein) {
+            case 'women t-shirt':
+                headerRow = headerWomenTshirt;
+                break;
+            case 'women crop tee':
+                headerRow = headerWomenCrop;
+                break;
+            case 'women sweatshirts':
+                headerRow = headerWomenSweatshirt;
+                break;
+            case 'women racerback tank':
+                headerRow = headerWomenTank;
+                break;
+            case 'men t-shirt':
+                headerRow = headerMenTshirt;
+                break;
+            case 'men tank top':
+                headerRow = headerMenTank;
+                break;
+            case 'men hoodies':
+                headerRow = headerMenHoodie;
+                break;
+            case 'men sweatshirts':
+                headerRow = headerMenSweatshirt;
+                break;
+
+            default:
+                headerRow = [];
+                break;
+        }
+
+        const ws: XLSX.WorkSheet = XLSX.utils.aoa_to_sheet([
+            headerRow,
+            ...data,
+        ]);
+
+        return ws;
+        // // Crear libro de trabajo
+        // const wb: XLSX.WorkBook = XLSX.utils.book_new();
+        // XLSX.utils.book_append_sheet(wb, ws, 'Shein Template');
+
+        // // Guardar el archivo
+        // const excelBuffer: any = XLSX.write(wb, {
+        //     bookType: 'xlsx',
+        //     type: 'array',
+        // });
+        // const dataBlob: Blob = new Blob([excelBuffer], {
+        //     type: 'application/octet-stream',
+        // });
+        // saveAs(dataBlob, 'Shein_template.xlsx');
+    }
+    generateTemuTemplate(masterList: any[]) {
+        const headerRow1 = [
+        ];
+
+        const data: any[][] = [];
+        masterList.forEach((parent) => {
+            parent.childrens.forEach((child: any, index: number) => {
+                data.push([
+                ]);
+            });
+        });
+
+        const ws: XLSX.WorkSheet = XLSX.utils.aoa_to_sheet([
+            headerRow1,
+            ...data,
+        ]);
+
+        return ws;
+        // // Crear libro de trabajo
+        // const wb: XLSX.WorkBook = XLSX.utils.book_new();
+        // XLSX.utils.book_append_sheet(wb, ws, 'Temu Template');
+
+        // // Guardar el archivo
+        // const excelBuffer: any = XLSX.write(wb, {
+        //     bookType: 'xlsx',
+        //     type: 'array',
+        // });
+        // const dataBlob: Blob = new Blob([excelBuffer], {
+        //     type: 'application/octet-stream',
+        // });
+        // saveAs(dataBlob, 'Temu_template.xlsx');
+    }
 
     //--------------------------Funciones especificas de Walmart -----------------------------------
 
     walmartProductType(type: string): string {
-        const productTypeMap = new Map<string, string>([
-            ['T-shirt', 'T-shirts'],
-            ['T-shirt Color', 'T-shirts'],
-            ['Tie Dye Crystal', 'T-shirts'],
-            ['Tie Dye Cyclone', 'T-shirts'],
-            ['Tie Dye Spiral', 'T-shirts'],
-            ['Long Sleeve', 'T-shirts'],
-            ['Hoddie', 'Sweatshirts & Hoodies'],
-            ['Sweatshirt', 'Sweatshirts & Hoodies'],
-            ['Crop Tee', 'Blouses & Tops'],
-            ['Crop Top', 'Blouses & Tops'],
-            ['Tank Top', 'Tank Tops'],
-            ['Racerback Tank', 'Tank Tops'],
-        ]);
-
-        return productTypeMap.get(type) || '';
+        const productTypeMap: { [key: string]: string } = {
+            'T-shirt': 'T-shirts',
+            'T-shirt Color': 'T-shirts',
+            'Tie Dye Crystal': 'T-shirts',
+            'Tie Dye Cyclone': 'T-shirts',
+            'Tie Dye Spiral': 'T-shirts',
+            'Long Sleeve': 'T-shirts',
+            'Hoddie': 'Sweatshirts & Hoodies',
+            'Sweatshirt': 'Sweatshirts & Hoodies',
+            'Crop Tee': 'Blouses & Tops',
+            'Crop Top': 'Blouses & Tops',
+            'Tank Top': 'Tank Tops',
+            'Racerback Tank': 'Tank Tops',
+        };
+        const normalizedType = type.trim();
+        return productTypeMap[normalizedType] || '';
     }
     walmartAgeGroup(classification: string) {
         switch (classification) {
@@ -2242,6 +3572,8 @@ export class ListingGeneratorComponent implements OnInit {
                 'Ice Blue',
                 'Lagoon Blue',
                 'Mystic Blue',
+                'Royal',
+                'Light Blue'
             ],
             Bronze: [],
             Brown: ['Brown', 'Pebble Brown'],
@@ -2269,7 +3601,7 @@ export class ListingGeneratorComponent implements OnInit {
                 'Solid Light Grey',
                 'Dark Grey Heather',
                 'Charcoal Grey',
-                'Grey',
+                'Ash',
                 'Oxford Grey',
             ],
             Green: [
@@ -2289,6 +3621,7 @@ export class ListingGeneratorComponent implements OnInit {
                 'Kelly Green',
                 'Light Green',
                 'Safety Green',
+                'Lime'
             ],
             Multicolor: [],
             Orange: [
@@ -2311,6 +3644,8 @@ export class ListingGeneratorComponent implements OnInit {
                 'Solid Red',
                 'Canvas Red',
                 'Solid Cardinal Red',
+                'Heliconia',
+                'Light Pink'
             ],
             Purple: [
                 'Purple Rush',
@@ -2337,7 +3672,7 @@ export class ListingGeneratorComponent implements OnInit {
                 'Grey/white',
                 'Black To White',
             ],
-            Yellow: ['Yellow', 'Pale Yellow', 'Neon Yellow', 'Maize Yellow'],
+            Yellow: ['Yellow', 'Pale Yellow', 'Neon Yellow', 'Maize Yellow', 'Daisy'],
         };
 
         for (const [group, colors] of Object.entries(colorGroup)) {
@@ -2388,58 +3723,58 @@ export class ListingGeneratorComponent implements OnInit {
     //--------------------------Funciones especificas de Amazon -----------------------------------
 
     amazonProductType(type: string) {
-        const productTypeMap = new Map<string, string>([
-            ['T-shirt', 'SHIRT'],
-            ['T-shirt Color', 'SHIRT'],
-            ['Tie Dye Crystal', 'SHIRT'],
-            ['Tie Dye Cyclone', 'SHIRT'],
-            ['Tie Dye Spiral', 'SHIRT'],
-            ['Long Sleeve', 'SHIRT'],
-            ['Hoddie', 'SWEATSHIRT'],
-            ['Sweatshirt', 'SWEATSHIRT'],
-            ['Crop Tee', 'SHIRT'],
-            ['Crop Top', 'SHIRT'],
-            ['Tank Top', 'SHIRT'],
-            ['Racerback Tank', 'SHIRT'],
-        ]);
-
-        return productTypeMap.get(type) || '';
+        const productTypeMap: { [key: string]: string } = {
+            'T-shirt': 'SHIRT',
+            'T-shirt Color': 'SHIRT',
+            'Tie Dye Crystal': 'SHIRT',
+            'Tie Dye Cyclone': 'SHIRT',
+            'Tie Dye Spiral': 'SHIRT',
+            'Long Sleeve': 'SHIRT',
+            'Hoddie': 'SWEATSHIRT',
+            'Sweatshirt': 'SWEATSHIRT',
+            'Crop Tee': 'SHIRT',
+            'Crop Top': 'SHIRT',
+            'Tank Top': 'SHIRT',
+            'Racerback Tank': 'SHIRT',
+        };
+        const normalizedType = type.trim();
+        return productTypeMap[normalizedType] || '';
     }
     amazonItemTypeKeyword(type: string) {
-        const productTypeMap = new Map<string, string>([
-            ['T-shirt', 'fashion-t-shirts'],
-            ['T-shirt Color', 'fashion-t-shirts'],
-            ['Tie Dye Crystal', 'fashion-t-shirts'],
-            ['Tie Dye Cyclone', 'fashion-t-shirts'],
-            ['Tie Dye Spiral', 'fashion-t-shirts'],
-            ['Long Sleeve', 'fashion-t-shirts'],
-            ['Hoddie', 'fashion-hoodies'],
-            ['Sweatshirt', 'fashion-sweatshirt'],
-            ['Crop Tee', 'fashion-t-shirts'],
-            ['Crop Top', 'fashion-t-shirts'],
-            ['Tank Top', 'fashion-t-shirts'],
-            ['Racerback Tank', 'fashion-t-shirts'],
-        ]);
-
-        return productTypeMap.get(type) || '';
+        const productTypeMap: { [key: string]: string } = {
+            'T-shirt': 'fashion-t-shirts',
+            'T-shirt Color': 'fashion-t-shirts',
+            'Tie Dye Crystal': 'fashion-t-shirts',
+            'Tie Dye Cyclone': 'fashion-t-shirts',
+            'Tie Dye Spiral': 'fashion-t-shirts',
+            'Long Sleeve': 'fashion-t-shirts',
+            'Hoddie': 'fashion-hoodies',
+            'Sweatshirt': 'fashion-sweatshirt',
+            'Crop Tee': 'fashion-t-shirts',
+            'Crop Top': 'fashion-t-shirts',
+            'Tank Top': 'fashion-t-shirts',
+            'Racerback Tank': 'fashion-t-shirts',
+        }
+        const normalizedType = type.trim();
+        return productTypeMap[normalizedType] || '';
     }
     amazonStyle(type: string) {
-        const productStyleMap = new Map<string, string>([
-            ['T-shirt', 'Graphic T-shirt'],
-            ['T-shirt Color', 'Graphic T-shirt'],
-            ['Tie Dye Crystal', 'Graphic T-shirt'],
-            ['Tie Dye Cyclone', 'Graphic T-shirt'],
-            ['Tie Dye Spiral', 'Graphic T-shirt'],
-            ['Long Sleeve', 'Graphic Long Sleeve'],
-            ['Hoddie', 'Graphic Hoddie'],
-            ['Sweatshirt', 'Graphic Sweatshirt'],
-            ['Crop Tee', 'Graphic Crop Tee'],
-            ['Crop Top', 'Graphic Crop Top'],
-            ['Tank Top', 'Graphic Tank Top'],
-            ['Racerback Tank', 'Graphic Racerback Tank'],
-        ]);
-
-        return productStyleMap.get(type) || '';
+        const productStyleMap: { [key: string]: string } = {
+            'T-shirt': 'Graphic T-shirt',
+            'T-shirt Color': 'Graphic T-shirt',
+            'Tie Dye Crystal': 'Graphic T-shirt',
+            'Tie Dye Cyclone': 'Graphic T-shirt',
+            'Tie Dye Spiral': 'Graphic T-shirt',
+            'Long Sleeve': 'Graphic Long Sleeve',
+            'Hoddie': 'Graphic Hoddie',
+            'Sweatshirt': 'Graphic Sweatshirt',
+            'Crop Tee': 'Graphic Crop Tee',
+            'Crop Top': 'Graphic Crop Top',
+            'Tank Top': 'Graphic Tank Top',
+            'Racerback Tank': 'Graphic Racerback Tank',
+        }
+        const normalizedType = type.trim();
+        return productStyleMap[normalizedType] || '';
     }
     amazonAgeRangeDesc(classification: string) {
         switch (classification) {
@@ -2564,23 +3899,23 @@ export class ListingGeneratorComponent implements OnInit {
         }
     }
     amazonSleeveStyle(style: string) {
-        const productStyleMap = new Map<string, string>([
-            ['T-shirt', 'Short Sleeve'],
-            ['T-shirt Color', 'Short Sleeve'],
-            ['Tie Dye Crystal', 'Short Sleeve'],
-            ['Tie Dye Cyclone', 'Short Sleeve'],
-            ['Tie Dye Spiral', 'Short Sleeve'],
-            ['Long Sleeve', 'Long Sleeve'],
-            ['Hoddie', 'Long Sleeve'],
-            ['Sweatshirt', 'Long Sleeve'],
-            ['Crop Tee', 'Short Sleeve'],
-            ['Crop Top', 'Short Sleeve'],
-            ['Tank Top', 'Sleeveless'],
-            ['Racerback Tank', 'Sleeveless'],
-            ['Bodysuit', 'Short Sleeve'],
-        ]);
-
-        return productStyleMap.get(style) || '';
+        const productStyleMap: { [key: string]: string } = {
+            'T-shirt': 'Short Sleeve',
+            'T-shirt Color': 'Short Sleeve',
+            'Tie Dye Crystal': 'Short Sleeve',
+            'Tie Dye Cyclone': 'Short Sleeve',
+            'Tie Dye Spiral': 'Short Sleeve',
+            'Long Sleeve': 'Long Sleeve',
+            'Hoddie': 'Long Sleeve',
+            'Sweatshirt': 'Long Sleeve',
+            'Crop Tee': 'Short Sleeve',
+            'Crop Top': 'Short Sleeve',
+            'Tank Top': 'Sleeveless',
+            'Racerback Tank': 'Sleeveless',
+            'Bodysuit': 'Short Sleeve',
+        }
+        const normalizedType = style.trim();
+        return productStyleMap[normalizedType] || '';
     }
 
     //--------------------------Funciones especificas de Pipeline -----------------------------------
@@ -2713,42 +4048,42 @@ export class ListingGeneratorComponent implements OnInit {
         }
     }
     faireMaterial(style: string) {
-        const productStyleMap = new Map<string, string>([
-            ['T-shirt', '50% US Cotton / 50% Polyester'],
-            ['T-shirt Color', '50% US Cotton / 50% Polyester'],
-            ['Tie Dye Crystal', '50% US Cotton / 50% Polyester'],
-            ['Tie Dye Cyclone', '50% US Cotton / 50% Polyester'],
-            ['Tie Dye Spiral', '50% US Cotton / 50% Polyester'],
-            ['Long Sleeve', '100% US Cotton'],
-            ['Hoddie', '50% US Cotton / 50% Polyester'],
-            ['Sweatshirt', '75% US Cotton / 25% Recycled Polyester'],
-            ['Crop Tee', '100% US Cotton'],
-            ['Crop Top', '100% US Cotton'],
-            ['Tank Top', '50% US Cotton / 50% Polyester'],
-            ['Racerback Tank', '60% Combed Ring-Spun Cotton, 40% Polyester'],
-            ['Bodysuit', '100% combed ring-spun cotton'],
-        ]);
-
-        return productStyleMap.get(style) || '';
+        const productStyleMap: { [key: string]: string } = {
+            'T-shirt': '100% US Cotton',
+            'T-shirt Color': '100% US Cotton',
+            'Tie Dye Crystal': '100% US Cotton',
+            'Tie Dye Cyclone': '100% US Cotton',
+            'Tie Dye Spiral': '100% US Cotton',
+            'Long Sleeve': '100% US Cotton',
+            'Hoddie': '50% US Cotton / 50% Polyester',
+            'Sweatshirt': '75% US Cotton / 25% Recycled Polyester',
+            'Crop Tee': '100% US Cotton',
+            'Crop Top': '100% US Cotton',
+            'Tank Top': '50% US Cotton / 50% Polyester',
+            'Racerback Tank': '60% Combed Ring-Spun Cotton, 40% Polyester',
+            'Bodysuit': '100% combed ring-spun cotton',
+        }
+        const normalizedType = style.trim();
+        return productStyleMap[normalizedType] || '';
     }
     faireWholesalePrice(style: string) {
-        const productPriceMap = new Map<string, number>([
-            ['T-shirt', 25.00],
-            ['T-shirt Color', 25.00],
-            ['Tie Dye Crystal', 25.00],
-            ['Tie Dye Cyclone', 25.00],
-            ['Tie Dye Spiral', 25.00],
-            ['Long Sleeve', 27.00],
-            ['Hoddie', 40.00],
-            ['Sweatshirt', 30.00],
-            ['Crop Tee', 25.00],
-            ['Crop Top', 25.00],
-            ['Tank Top', 20.00],
-            ['Racerback', 20.00],
-            ['Bodysuit', 15.00],
-        ]);
-
-        return productPriceMap.get(style) || '';
+        const productPriceMap: { [key: string]: number } = {
+            'T-shirt': 25.00,
+            'T-shirt Color': 25.00,
+            'Tie Dye Crystal': 25.00,
+            'Tie Dye Cyclone': 25.00,
+            'Tie Dye Spiral': 25.00,
+            'Long Sleeve': 27.00,
+            'Hoddie': 40.00,
+            'Sweatshirt': 30.00,
+            'Crop Tee': 25.00,
+            'Crop Top': 25.00,
+            'Tank Top': 20.00,
+            'Racerback': 20.00,
+            'Bodysuit': 15.00,
+        }
+        const normalizedType = style.trim();
+        return productPriceMap[normalizedType] || '';
     }
 
     //--------------------------Funciones especificas de Shopify -----------------------------------
@@ -2760,22 +4095,22 @@ export class ListingGeneratorComponent implements OnInit {
             .replace(/\s+/g, '-')
     }
     shopifyProductType(style: string) {
-        const productStyleMap = new Map<string, string>([
-            ['T-shirt', 'T-shirt'],
-            ['T-shirt Color', 'T-shirt'],
-            ['Tie Dye Crystal', 'T-shirt'],
-            ['Tie Dye Cyclone', 'T-shirt'],
-            ['Tie Dye Spiral', 'T-shirt'],
-            ['Long Sleeve', 'T-shirt'],
-            ['Hoddie', 'Sweatshirts & Hoodies'],
-            ['Sweatshirt', 'Sweatshirts & Hoodies'],
-            ['Crop Tee', 'T-shirt'],
-            ['Crop Top', 'T-shirt'],
-            ['Tank Top', 'T-shirt'],
-            ['Racerback', 'T-shirt']
-        ]);
-
-        return productStyleMap.get(style) || '';
+        const productStyleMap: { [key: string]: string } = {
+            'T-shirt': 'T-shirt',
+            'T-shirt Color': 'T-shirt',
+            'Tie Dye Crystal': 'T-shirt',
+            'Tie Dye Cyclone': 'T-shirt',
+            'Tie Dye Spiral': 'T-shirt',
+            'Long Sleeve': 'T-shirt',
+            'Hoddie': 'Sweatshirts & Hoodies',
+            'Sweatshirt': 'Sweatshirts & Hoodies',
+            'Crop Tee': 'T-shirt',
+            'Crop Top': 'T-shirt',
+            'Tank Top': 'T-shirt',
+            'Racerback': 'T-shirt'
+        }
+        const normalizedType = style.trim();
+        return productStyleMap[normalizedType] || '';
     }
     shopifyImageSrc(child: any, index: number) {
         switch (index) {
@@ -2825,5 +4160,27 @@ export class ListingGeneratorComponent implements OnInit {
             default:
                 return '';
         }
+    }
+
+    //--------------------------Funciones especificas de Shein -----------------------------------
+
+    sheinMaterial(style: string) {
+        const productStyleMap: { [key: string]: string } = {
+            'T-shirt': '100% US Cotton',
+            'T-shirt Color': '100% US Cotton',
+            'Tie Dye Crystal': '100% US Cotton',
+            'Tie Dye Cyclone': '100% US Cotton',
+            'Tie Dye Spiral': '100% US Cotton',
+            'Long Sleeve': '100% US Cotton',
+            'Hoddie': '50% US Cotton / 50% Polyester',
+            'Sweatshirt': '75% US Cotton / 25% Recycled Polyester',
+            'Crop Tee': '100% US Cotton',
+            'Crop Top': '100% US Cotton',
+            'Tank Top': '50% US Cotton / 50% Polyester',
+            'Racerback Tank': '60% Combed Ring-Spun Cotton, 40% Polyester',
+            'Bodysuit': '100% combed ring-spun cotton',
+        }
+        const normalizedType = style.trim();
+        return productStyleMap[normalizedType] || '';
     }
 }

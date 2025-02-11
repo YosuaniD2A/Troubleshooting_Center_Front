@@ -198,7 +198,7 @@
                     </div>
                 </td>
                 <td class="w-150"
-                    [ngClass]="{ 'bg-red-300': design.title == '' || !uniqueTitle(design.title, design.design) , 'bg-green-300': uniqueTitle(design.title, design.design)}"
+                    [ngClass]="{ 'bg-red-300': design.title == '' || !uniqueTitle(design.title, design.design) || design.title?.length > 60, 'bg-green-300': uniqueTitle(design.title, design.design)}"
                     [pEditableColumn]="design.title" pEditableColumnField="title">
                     <p-cellEditor>
                         <ng-template pTemplate="input">
@@ -353,17 +353,16 @@
                 </td>
                 <td *ngFor="let market of selectedMarketplace" [ngClass]="{
                     'bg-red-300': 
-                    (designCategories[market] === undefined) || 
                     ((!linkSelector(market) && ptoDesigns[rowIndex]?.categories[market]?.length == 0) || 
-                    (linkSelector(market) && designCategories[market]?.length == 0)), 
+                    (linkSelector(market) && (designCategories[market]?.length == 0 || designCategories[market] == undefined)))  
                      }">
-                    <p-multiSelect *ngIf="!linkSelector(market) && market !== 'Faire'"
+                    <p-multiSelect *ngIf="!linkSelector(market) && (market !== 'Faire' && market !== 'Shein')"
                         [options]="marketplacesCategories[market]?.groups" [group]="true" [maxSelectedLabels]="3"
                         [(ngModel)]="ptoDesigns[rowIndex]?.categories[market]" optionLabel="label" optionValue="path"
                         optionGroupLabel="label" optionGroupChildren="items" [style]="{ width: '200px' }"
                         scrollHeight="150px" defaultLabel="Select Categories">
                     </p-multiSelect>
-                    <p-multiSelect *ngIf="linkSelector(market) && market !== 'Faire'"
+                    <p-multiSelect *ngIf="linkSelector(market) && (market !== 'Faire' && market !== 'Shein')"
                         [options]="marketplacesCategories[market]?.groups" [group]="true" [maxSelectedLabels]="3"
                         [(ngModel)]="designCategories[market]" optionLabel="label" optionValue="path"
                         optionGroupLabel="label" optionGroupChildren="items" [style]="{ width: '200px' }"
@@ -377,6 +376,16 @@
                     <p-dropdown *ngIf="linkSelector(market) && market == 'Faire'"
                         [options]="marketplacesCategories[market]?.groups" [group]="true"
                         [(ngModel)]="designCategories[market]" optionLabel="label" optionValue="path"
+                        placeholder="Select Categories" [style]="{ width: '200px' }" scrollHeight="150px">
+                    </p-dropdown>
+                    <p-dropdown *ngIf="!linkSelector(market) && market == 'Shein'"
+                        [options]="marketplacesCategories[market]?.groups" [group]="true"
+                        [(ngModel)]="ptoDesigns[rowIndex]?.categories[market]" optionLabel="label" optionValue="value"
+                        placeholder="Select Categories" [style]="{ width: '200px' }" scrollHeight="150px">
+                    </p-dropdown>
+                    <p-dropdown *ngIf="linkSelector(market) && market == 'Shein'"
+                        [options]="marketplacesCategories[market]?.groups" [group]="true"
+                        [(ngModel)]="designCategories[market]" optionLabel="label" optionValue="value"
                         placeholder="Select Categories" [style]="{ width: '200px' }" scrollHeight="150px">
                     </p-dropdown>
                 </td>
@@ -396,33 +405,45 @@
     <div class="flex flex-column items-center gap-4 mb-4">
         <label for="username" class="font-semibold w-24">Marketplaces to Export</label>
         <div class="flex justify-content-start flex-wrap gap-3">
-            <div class="flex align-items-center gap-1">
+            <div class="min-wid flex align-items-center gap-1">
                 <p-checkbox name="group1" value="Walmart" [(ngModel)]="tempSelectedMarketplace"
                     inputId="wa"></p-checkbox>
                 <label for="wa">Walmart</label>
             </div>
-            <div class="flex align-items-center gap-1">
+            <div class="min-wid flex align-items-center gap-1">
                 <p-checkbox name="group1" value="Amazon" [(ngModel)]="tempSelectedMarketplace"
                     inputId="am"></p-checkbox>
                 <label for="am">Amazon</label>
             </div>
-            <div class="flex align-items-center gap-1">
-                <p-checkbox name="group1" value="Ebay" [(ngModel)]="tempSelectedMarketplace" inputId="eb"></p-checkbox>
+            <div class="min-wid flex align-items-center gap-1">
+                <p-checkbox name="group1" value="Ebay" [(ngModel)]="tempSelectedMarketplace" 
+                inputId="eb"></p-checkbox>
                 <label for="eb">Ebay</label>
             </div>
-            <div class="flex align-items-center gap-1">
+            <div class="min-wid flex align-items-center gap-1">
                 <p-checkbox name="group1" value="Pipeline" [(ngModel)]="tempSelectedMarketplace"
                     inputId="pi"></p-checkbox>
                 <label for="pi">Pipeline</label>
             </div>
-            <div class="flex align-items-center gap-1">
+            <div class="min-wid flex align-items-center gap-1">
                 <p-checkbox name="group1" value="Shopify" [(ngModel)]="tempSelectedMarketplace"
                     inputId="sh"></p-checkbox>
                 <label for="sh">Shopify</label>
             </div>
-            <div class="flex align-items-center gap-1">
-                <p-checkbox name="group1" value="Faire" [(ngModel)]="tempSelectedMarketplace" inputId="fa"></p-checkbox>
+            <div class="min-wid flex align-items-center gap-1">
+                <p-checkbox name="group1" value="Faire" [(ngModel)]="tempSelectedMarketplace" 
+                inputId="fa"></p-checkbox>
                 <label for="fa">Faire</label>
+            </div>
+            <div class="min-wid flex align-items-center gap-1">
+                <p-checkbox name="group1" value="Shein" [(ngModel)]="tempSelectedMarketplace" 
+                inputId="sn"></p-checkbox>
+                <label for="sn">Shein</label>
+            </div>
+            <div class="min-wid flex align-items-center gap-1">
+                <p-checkbox name="group1" value="Temu" [(ngModel)]="tempSelectedMarketplace" 
+                inputId="tm"></p-checkbox>
+                <label for="tm">Temu</label>
             </div>
         </div>
     </div>
