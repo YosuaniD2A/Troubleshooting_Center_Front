@@ -8,7 +8,7 @@ $gutter: 1rem; //for primeflex grid system
 // @import "../node_modules/primeng/resources/themes/soho-dark/theme.css";
 // @import "../node_modules/primeng/resources/primeng.css";
 @import "../node_modules/primeflex/primeflex.scss";
-@import "../node_modules/primeicons/primeicons.css";
+@import "primeicons/primeicons.css";
 
 /* Demos */
 @import "assets/demo/styles/flags/flags.css";
@@ -106,12 +106,32 @@ $gutter: 1rem; //for primeflex grid system
     }
 }
 
+.dynamic-mockup-color{
+    background-color: #650def;
+    border: 1px solid #650def;
+    color: #ffffff;
+
+    &:hover{
+        background-color: #650def !important;
+        border: 1px solid #787878 !important;
+        color: #905de2 !important;
+    }
+}
+
 .min-h-300{
     min-height: 300px;
 }
 
 .max-h-500{
     max-height: 500px;
+}
+
+.max-h-600{
+    max-height: 600px;
+}
+
+.max-h-700{
+    max-height: 700px;
 }
 
 .container-left{

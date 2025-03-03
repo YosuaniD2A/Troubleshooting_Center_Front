@@ -634,36 +634,36 @@ export class ConsoleComponent implements OnInit {
                 switch (size) {
                     case '00S':
                         return lightColors.includes(color)
-                            ? ''
-                            : '';
+                            ? 'https://www.dropbox.com/scl/fi/87dvjbgzp7lqyy2oh7ux1/NECK_S.png?rlkey=h8tstfvkc4lx68gfkgrcib747&st=lqnt3gjm&dl=1'
+                            : 'https://www.dropbox.com/scl/fi/4el4x24ww0h1cmw6z2z26/NECK_S.png?rlkey=gaps624is040zt0zwbnenujpm&st=i87xzmhs&dl=1';
                     case '00M':
                         return lightColors.includes(color)
-                            ? ''
-                            : '';
+                            ? 'https://www.dropbox.com/scl/fi/n2460394ky4me6zztgaba/NECK_M.png?rlkey=wlvj3gm1l3sr74blzrd5psrui&st=0cbxyuij&dl=1'
+                            : 'https://www.dropbox.com/scl/fi/q4j3mgbu9j1j5faw3w6i4/NECK_M.png?rlkey=2b6wkbw0z23t5qa4ns5o2ag91&st=zke6z7sj&dl=1';
                     case '00L':
                         return lightColors.includes(color)
-                            ? ''
-                            : '';
+                            ? 'https://www.dropbox.com/scl/fi/za0tgzsl31gtxlao91m9u/NECK_L.png?rlkey=w3vztnf5b7pjz6mqu3w7vao37&st=y455u2tm&dl=1'
+                            : 'https://www.dropbox.com/scl/fi/t7ybxde7axyc9h8hx1sql/NECK_L.png?rlkey=s918mn4gxtcojdjhwbdig2mds&st=y5sid9oc&dl=1';
                     case '0XL':
                         return lightColors.includes(color)
-                            ? ''
-                            : '';
+                            ? 'https://www.dropbox.com/scl/fi/82yb90vkz60ygmyvjosbv/NECK_XL.png?rlkey=ng1zgl6p4i86m6mnu5gslmd3m&st=0xa6gy7j&dl=1'
+                            : 'https://www.dropbox.com/scl/fi/rntj5qxxfrfonbnzvnx9n/NECK_XL.png?rlkey=4h3u17yzv3946zmmlmjbcp0av&st=jmmrdijj&dl=1';
                     case '2XL':
                         return lightColors.includes(color)
                             ? 'https://www.dropbox.com/scl/fi/r2ojh8yn3iph1nwbraexk/NECK_2X.png?rlkey=06swxnfhoaa25mws9pemwuwqc&st=gqeiqdt2&dl=1'
                             : 'https://www.dropbox.com/scl/fi/rpuyfe24q1k28qmk1r25o/NECK_2X.png?rlkey=qxjpxyzkil6kus1s5l7qje6gg&st=26wq8gqm&dl=1';
                     case '3XL':
                         return lightColors.includes(color)
-                            ? ''
-                            : '';
+                            ? 'https://www.dropbox.com/scl/fi/mgoufrzi53vw026allvzz/NECK_3X.png?rlkey=t5tqd3rl2k7l0tdi520ambl81&st=zc3a6djd&dl=1'
+                            : 'https://www.dropbox.com/scl/fi/353kfa71jrnv3v81qgb3t/NECK_3X.png?rlkey=frg8nafixx3fil2v7msqkpmzp&st=8q6lnt5p&dl=1';
                     case '4XL':
                         return lightColors.includes(color)
-                            ? ''
-                            : '';
+                            ? 'https://www.dropbox.com/scl/fi/ciq7y94w03r8g1c4zir8j/NECK_4X.png?rlkey=eh51uv225a9np5gmp5cnfho9u&st=1lkwbuuq&dl=1'
+                            : 'https://www.dropbox.com/scl/fi/drrvayg8017qw81dca7v9/NECK_4X.png?rlkey=veqmjvy25u66ev8n3dhes1vri&st=4r0um40q&dl=1';
                     case '5XL':
                         return lightColors.includes(color)
-                            ? ''
-                            : '';
+                            ? 'https://www.dropbox.com/scl/fi/7qsq400qo3izz2xd5om6r/NECK_5X.png?rlkey=hez6zo5ri6luoedsrrcatrxyu&st=g3ew7rvm&dl=1'
+                            : 'https://www.dropbox.com/scl/fi/61ouj0p2z97osrbhv4ak1/NECK_5X.png?rlkey=e6jr4t6z4gdry0v2712rxbaei&st=nqlt9lqe&dl=1';
 
                     default:
                         return '';
@@ -673,28 +673,28 @@ export class ConsoleComponent implements OnInit {
                 switch (size) {
                     case '0XS':
                         return lightColors.includes(color)
-                            ? ''
-                            : '';
+                            ? 'https://www.dropbox.com/scl/fi/kfnexd2h3eerrn8h411i9/NECK_XS.png?rlkey=1hme48nixgqod76xvd41mtoc0&st=4z9znxfq&dl=1'
+                            : 'https://www.dropbox.com/scl/fi/ufdq9wzr7zsk60jzunskh/NECK_XS.png?rlkey=nft3mqsfybbgukal51it4s6du&st=frh6hzda&dl=1';
                     case '00S':
                         return lightColors.includes(color)
-                            ? ''
-                            : '';
+                            ? 'https://www.dropbox.com/scl/fi/8c8j0by3dsueeyuzyeg5t/NECK_S.png?rlkey=q02sjjhmw1wqxfm2sgr8n6dhl&st=fnqoxvt9&dl=1'
+                            : 'https://www.dropbox.com/scl/fi/t5703mm1tfuhvbnc4379x/NECK_S.png?rlkey=o2u6n2fugt0xlvlfml23oc1g4&st=qpv577o3&dl=1';
                     case '00M':
                         return lightColors.includes(color)
-                            ? ''
-                            : '';
+                            ? 'https://www.dropbox.com/scl/fi/l9cnvitriodva76qcli0w/NECK_M.png?rlkey=r2tuy4xri7qm5xgu6bjtukfdb&st=wr0opdes&dl=1'
+                            : 'https://www.dropbox.com/scl/fi/encyrtx473iizvv8zdzig/NECK_M.png?rlkey=iqjursoki01pd6m3zjfxmkgr3&st=43gbe8bu&dl=1';
                     case '00L':
                         return lightColors.includes(color)
-                            ? ''
-                            : '';
+                            ? 'https://www.dropbox.com/scl/fi/v64g21rfi3aykl4saxy8k/NECK_L.png?rlkey=dbm439ajrz4k1rkpkibx46vxo&st=8xhawqa7&dl=1'
+                            : 'https://www.dropbox.com/scl/fi/826ih3els62h94i8yz8lk/NECK_L.png?rlkey=no3t1k30vq6oryjn2lji7oqhk&st=y2pjagtf&dl=1';
                     case '0XL':
                         return lightColors.includes(color)
-                            ? ''
-                            : '';
+                            ? 'https://www.dropbox.com/scl/fi/e3f26ri6i0vk5wqyht8ve/NECK_XL.png?rlkey=jpxnyreozyxxceghytey39o37&st=i87sh61c&dl=1'
+                            : 'https://www.dropbox.com/scl/fi/ou7k43lij0gub6u64wmuh/NECK_XL.png?rlkey=86xjxfi9z24uq6q8th5ppnttw&st=dszz25rd&dl=1';
                     case '2XL':
                         return lightColors.includes(color)
-                            ? ''
-                            : '';
+                            ? 'https://www.dropbox.com/scl/fi/v4broomp58ew68k1j4u88/NECK_2XL.png?rlkey=w7r5ljxelimjecfj1jmi3q85t&st=9pcw9cnh&dl=1'
+                            : 'https://www.dropbox.com/scl/fi/g6tjx8zg1ragpqqvxvjlx/NECK_2XL.png?rlkey=l2nvn3sgccte3fvcztmc46gmd&st=6ouel6t8&dl=1';
 
                     default:
                         return '';

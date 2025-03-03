@@ -4,7 +4,7 @@ import { BrokedImageService } from '../../service/broked-image.service';
 
 @Component({
     templateUrl: './broken-images.component.html',
-    providers: [MessageService]
+    providers: [MessageService],
 })
 export class BrokenImagesComponent implements OnInit {
 

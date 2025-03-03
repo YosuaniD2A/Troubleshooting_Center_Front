@@ -1,0 +1,163 @@
+<p-toast position="bottom-center" key="bc"></p-toast>
+<p-toast position="top-center" key="tc"></p-toast>
+<p-toolbar styleClass="mb-4">
+    <ng-template pTemplate="left">
+        <div class="my-2 mr-2 flex gap-3 align-items-center justify-content-center">
+            <img src="assets/demo/images/dynamic_logo.png" width="90px" alt="">
+            <h1 class="my-0 ml-2">Mockups Generator </h1>
+        </div>
+    </ng-template>
+    <ng-template pTemplate="right">
+        <p-button [icon]="activeSpinnerUpdate ? 'pi pi-spin pi-spinner' : 'pi pi-tag'" label="Update Mockups"
+            (click)="updateMockups()" severity="info"></p-button>
+    </ng-template>
+</p-toolbar>
+<div class="grid px-3 py-3">
+    <div class="col-12 md:col-4 pl-0">
+        <div class="card mb-0 px-6 py-6">
+            <p-toast />
+            <p-fileUpload #uploader [disabled]="false" name="files" customUpload="true" (uploadHandler)="upload($event)"
+                [method]="'post'" [multiple]="true" accept=".png" maxFileSize="8000000"
+                (onSelect)="onSelectedFiles($event)" (onClear)="onClear()" [showCancelButton]="true"
+                uploadStyleClass="dynamic-mockup-color" cancelStyleClass="dynamic-mockup-color"
+                chooseStyleClass="dynamic-mockup-color" removeStyleClass="aws-color">
+                <ng-template pTemplate="toolbar">
+                    <div class="flex gap-5">
+                        <div class="py-3" *ngIf="files.length > 0">{{files.length}} Files Selected</div>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="content">
+                    <div class="grid container-left max-h-700 pr-3 ">
+                        <ul class="pl-3">
+                            <li class="flex align-items-center gap-3 mb-2" *ngFor="let file of files">
+                                <div class="">
+                                    <img role="presentation" [alt]="file.name" [src]="file.objectURL" width="50"
+                                        height="auto" />
+                                </div>
+                                <div class="flex justify-content-between w-full align-items-center gap-5">
+                                    <div>
+                                        <p class="mb-0">{{ file.name }}</p>
+                                        <p>{{ formatBytes(file.size) }}</p>
+                                    </div>
+                                    <div>
+                                        <button pButton icon="pi pi-times" class="button_cancel"
+                                            (click)="removeFile(file)"></button>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="empty">
+                </ng-template>
+            </p-fileUpload>
+        </div>
+    </div>
+    <div class="col-12 md:col-8 pr-0">
+        <!-- Seccion de configuracion -->
+        <div class="card mb-0 flex-grow-1 col-12  px-6 py-6 mb-2">
+            <div class="p-fluid p-formgrid grid">
+                <div class="field col-12 md:col-3 mb-0">
+                    <label for="category" class="font-bold">Category</label>
+                    <p-dropdown [options]="categories" [(ngModel)]="selectedCategory" id="category" optionLabel="name"
+                        placeholder="Select an option" [showClear]="true"
+                        [ngClass]="{ 'ng-dirty ng-invalid': errors.includes('category') }" />
+                </div>
+                <div class="field col-12 md:col-3 mb-0">
+                    <label for="type" class="font-bold">Type</label>
+                    <p-dropdown [options]="type" [(ngModel)]="selectedType" id="type" optionLabel="name"
+                        placeholder="Select an option" [showClear]="true"
+                        [ngClass]="{ 'ng-dirty ng-invalid': errors.includes('type') }" />
+                </div>
+                <div class="field col-12 md:col-3 mb-0">
+                    <label for="printArea" class="font-bold">Print area</label>
+                    <p-dropdown [options]="printArea" [(ngModel)]="selectedPrintArea" id="printArea" optionLabel="name"
+                        placeholder="Select an option" [showClear]="true"
+                        [ngClass]="{ 'ng-dirty ng-invalid': errors.includes('printArea') }" />
+                </div>
+                <div class="field col-12 md:col-3 mb-0">
+                    <label for="amount" class="font-bold">Mockups</label>
+                    <p-inputNumber id="amount" inputId="minmax" mode="decimal" placeholder="Mockup amount"
+                        [(ngModel)]="selectedMockupAmount" suffix=" Mockups" [min]="2" [max]="5" />
+                </div>
+                <div class="field col-12 md:col-6 mb-0">
+                    <label for="color" class="font-bold">Colors</label>
+                    <!-- <p-dropdown [options]="color" [(ngModel)]="selectedColor" id="color" optionLabel="name"
+                        [showClear]="true" placeholder="Select an option" [ngClass]="{ 'ng-dirty ng-invalid': errors.includes('color') }">
+                        <ng-template pTemplate="selectedItem">
+                            <div class="flex align-items-center gap-2" *ngIf="selectedColor">
+                                <div [style.backgroundColor]="selectedColor.code" class="color-circle"></div>
+                                <div>{{ selectedColor.name }}</div>
+                            </div>
+                        </ng-template>
+                        <ng-template let-color pTemplate="item">
+                            <div class="flex align-items-center gap-2">
+                                <div [style.backgroundColor]="color.code" class="color-circle"></div>
+                                <div>{{ color.name }}</div>
+                            </div>
+                        </ng-template>
+                    </p-dropdown> -->
+                    <p-multiSelect [options]="color" [(ngModel)]="selectedColors" [ngModelOptions]="{standalone: true}"
+                        placeholder="Select the colors" optionLabel="name"
+                        [ngClass]="{ 'ng-dirty ng-invalid': errors.includes('colors') }">
+                        <ng-template let-value pTemplate="selectedItems">
+                            <div class="inline-flex align-items-center gap-2 px-1" *ngFor="let option of value">
+                                <div class="circle" [style.background-color]="option.code"></div>
+                            </div>
+                            <div *ngIf="!value || value.length === 0">Select colors</div>
+                        </ng-template>
+                        <ng-template let-color pTemplate="item">
+                            <div class="flex align-items-center gap-2">
+                                <div class="circle" [style.background-color]="color.code"></div>
+                                <div>{{ color.name }}</div>
+                            </div>
+                        </ng-template>
+                    </p-multiSelect>
+                </div>
+                <div class="field col-12 md:col-6 mb-0">
+                    <label for="downloadPath" class="font-bold">Download Path</label>
+                    <div class="flex grap-2 download-path">
+                        <input type="text" id="downloadPath" [readOnly]="true" pInputText [(ngModel)]="downloadPath" />
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <!-- Informacion proyectada de los mockups generado -->
+        <div class="card mb-0 flex-grow-1 col-12  px-6 py-6">
+            <div *ngIf="activeSpinner" class="flex align-items-center gap-3">
+                <span class="svg-spinners--clock"></span>
+                <h3 class="my-0 color-primary">Procesando imágenes para generar los mockups</h3>
+            </div>
+            <p-table *ngIf="mockups.length > 0" [value]="mockups" [tableStyle]="{'min-width': '60rem'}">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>Designs</th>
+                        <th>Mockups</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-mockup>
+                    <tr>
+                        <td>
+                            <div class="flex flex-column gap-2 align-items-center">
+                                <img [src]="mockup.design_path" [alt]="mockup.design_path" width="100" />
+                                <span>{{mockup.design}}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="flex gap-4">
+                                <div *ngFor="let images of mockup?.images; let i = index"
+                                    class="flex flex-column gap-2 align-items-center">
+                                    <img [src]="images.download_path" [alt]="images.mockup_name" width="auto"
+                                        height="150" class="shadow-4" />
+                                    <span>{{images.mockup_name}}</span>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+    </div>
+
+</div>

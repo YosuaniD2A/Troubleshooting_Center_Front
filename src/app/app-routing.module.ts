@@ -21,6 +21,7 @@ import { uploadGuard } from './demo/guards/upload.guard';
                     { path: 'sales-reports', loadChildren: () => import('./demo/components/sales-reports/sales-reports.module').then(m => m.SalesReportsModule) },
                     { path: 'scalablepress', loadChildren: () => import('./demo/components/scalablepress/scalablepress.module').then(m => m.ScalablepressModule) },
                     { path: 'listing-generator', loadChildren: () => import('./demo/components/listing-generator/listing-generator.module').then(m => m.ListingGeneratorModule) },
+                    { path: 'mockup-generator', loadChildren: () => import('./demo/components/mockup-generator/mockup-generator.module').then(m => m.MockupGeneratorModule) },
                     { path: 'uikit', loadChildren: () => import('./demo/components/uikit/uikit.module').then(m => m.UIkitModule) },
                     { path: 'utilities', loadChildren: () => import('./demo/components/utilities/utilities.module').then(m => m.UtilitiesModule) },
                     { path: 'documentation', loadChildren: () => import('./demo/components/documentation/documentation.module').then(m => m.DocumentationModule) },

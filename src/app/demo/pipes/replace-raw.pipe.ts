@@ -1,7 +1,8 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({
-  name: 'replaceRaw'
+  name: 'replaceRaw',
+  standalone: false,
 })
 export class ReplaceRaw implements PipeTransform {
 

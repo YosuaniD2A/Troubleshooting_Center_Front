@@ -95,12 +95,13 @@ export class ListingGeneratorComponent implements OnInit {
     activeMessage: boolean = false;
     colors: any[] = [];
     amazonDepartmentNames: any[] = [
-        { name: 'Mens' },
-        { name: 'Womens' },
-        { name: 'Girls' },
-        { name: 'Boys' },
-        { name: 'Infants' },
-        { name: 'Toddlers' },
+        { name: 'Mens', value: 'mens' },
+        { name: 'Womens', value: 'womens' },
+        { name: 'Girls', value: 'girls' },
+        { name: 'Boys', value: 'boys' },
+        { name: 'Infants', value: 'infants' },
+        { name: 'Toddlers', value: 'toddlers' },
+        { name: 'Unisex Child', value: 'unisex-child' },
     ];
     issues: string[] = [];
 
@@ -146,7 +147,7 @@ export class ListingGeneratorComponent implements OnInit {
         );
 
         if (marketplaceFields.includes(field.toLowerCase())) {
-            this.linkStatus[field] = !this.linkStatus[field];            
+            this.linkStatus[field] = !this.linkStatus[field];
         } else {
             // No es un marketplace
             switch (field.toLowerCase()) {
@@ -222,7 +223,7 @@ export class ListingGeneratorComponent implements OnInit {
             if (this.linkFeature2) design.feature2 = this.generalFeature2;
             if (this.linkFeature3) design.feature3 = this.generalFeature3;
             design.amazonDepart = this.generalAmazonDepart
-                ? this.generalAmazonDepart.name
+                ? this.generalAmazonDepart.value
                 : '';
             design.theme = this.theme;
         });
@@ -701,12 +702,12 @@ export class ListingGeneratorComponent implements OnInit {
                     case 'men sweatshirts':
                         category = 'Men Sweatshirts(1972)';
                         break;
-        
+
                     default:
                         category = '';
                         break;
                 }
-                XLSX.utils.book_append_sheet(wb, wsShein, `Shein Template ${category}`);
+                XLSX.utils.book_append_sheet(wb, wsShein, `${category}`);
             }
             if (this.selectedMarketplace.includes('Temu')) {
                 const wsTemu = this.generateTemuTemplate(masterList);
@@ -723,7 +724,7 @@ export class ListingGeneratorComponent implements OnInit {
             });
             const currentDate = new Date();
             const formattedDate = currentDate.toISOString().slice(0, 10).replace(/-/g, '');
-            const fileName = `Marketplaces_Templates_${formattedDate}.xlsx`;
+            const fileName = `Marketplaces_Templates_(PTO-${this.selectedPTO.pto}).xlsx`;
 
             saveAs(dataBlob, fileName);
 
@@ -853,36 +854,36 @@ export class ListingGeneratorComponent implements OnInit {
     assignFourthImage(classification, style) {
         const urls = {
             ME: {
-                "T-shirt": "https://d3d71ba2asa5oz.cloudfront.net/12044225/images/new-tshirt-wotsa__100.jpg",
-                "Long Sleeve": "https://cdn.shopify.com/s/files/1/0067/6148/0228/files/long_20sleeve_e8db1e36-36cf-48c8-8a26-ab99b33402dc.png?v=1715388229",
-                "Tank Top": "https://www.dropbox.com/scl/fi/uimc3ug3np15vdzv40o5m/TANK-TOP.png?rlkey=15lh8qucsvrb2460u08lfkuez&st=bkoxhvq7&raw=1",
-                Sweatshirt: "https://d3d71ba2asa5oz.cloudfront.net/12043248/images/unisex%20sweatshirt.png",
-                Hoodie: "https://cdn.shopify.com/s/files/1/0067/6148/0228/products/hoodies_100_c758a436-974a-4b8f-800e-c026fc76a1a3.jpg?v=1677346373",
+                "T-shirt": "https://chart-size.s3.us-east-1.amazonaws.com/men-women+tshirt+chat+size+900x900.jpg",
+                "Long Sleeve": "https://chart-size.s3.us-east-1.amazonaws.com/men-long+sleeve+chart+size+900x900.jpg",
+                "Tank Top": "https://chart-size.s3.us-east-1.amazonaws.com/men-tank+top+chat+size+900x900.jpg",
+                "Sweatshirt": "https://chart-size.s3.us-east-1.amazonaws.com/men-women+sweatshirt+chat+size+900x900.jpg",
+                "Hoodie": "https://chart-size.s3.us-east-1.amazonaws.com/men-women+hoodie+chart+size+900x900.jpg",
             },
             WO: {
-                "T-shirt": "https://d3d71ba2asa5oz.cloudfront.net/12044225/images/new-tshirt-wotsa__100.jpg",
-                "Crop Tee": "https://d3d71ba2asa5oz.cloudfront.net/12042359/images/au%20crop%20tee.jpg",
-                "Crop Top": "https://d3d71ba2asa5oz.cloudfront.net/12042359/images/au%20crop%20tee.jpg",
-                "Long Sleeve": "https://cdn.shopify.com/s/files/1/0067/6148/0228/files/long_20sleeve_e8db1e36-36cf-48c8-8a26-ab99b33402dc.png?v=1715388229",
-                "Racerback Tank": "https://ptos-url.s3.us-east-1.amazonaws.com/women+racerback.png",
-                Sweatshirt: "https://d3d71ba2asa5oz.cloudfront.net/12043248/images/unisex%20sweatshirt.png",
-                Hoodie: "https://cdn.shopify.com/s/files/1/0067/6148/0228/products/hoodies_100_c758a436-974a-4b8f-800e-c026fc76a1a3.jpg?v=1677346373",
+                "T-shirt": "https://chart-size.s3.us-east-1.amazonaws.com/men-women+tshirt+chat+size+900x900.jpg",
+                "Crop Tee": "https://chart-size.s3.us-east-1.amazonaws.com/women-crop+top+chart+size+900x900.jpg",
+                "Crop Top": "https://chart-size.s3.us-east-1.amazonaws.com/women-crop+top+chart+size+900x900.jpg",
+                "Long Sleeve": "https://chart-size.s3.us-east-1.amazonaws.com/men-long+sleeve+chart+size+900x900.jpg",
+                "Racerback Tank": "https://chart-size.s3.us-east-1.amazonaws.com/women-racerback+chart+size+900x900.jpg",
+                "Sweatshirt": "https://chart-size.s3.us-east-1.amazonaws.com/men-women+sweatshirt+chat+size+900x900.jpg",
+                "Hoodie": "https://chart-size.s3.us-east-1.amazonaws.com/men-women+hoodie+chart+size+900x900.jpg",
             },
             YO: {
-                "T-shirt": "https://ptos-url.s3.us-east-1.amazonaws.com/YOUTH+tshirt.png",
+                "T-shirt": "https://chart-size.s3.us-east-1.amazonaws.com/youth-tshirt+chart+size+900x900.jpg",
                 "Long Sleeve": "",
-                Sweatshirt: "",
-                Hoodie: "https://ptos-url.s3.us-east-1.amazonaws.com/YOUTH+HOODIE.png"
+                "Sweatshirt": "",
+                "Hoodie": "https://chart-size.s3.us-east-1.amazonaws.com/youth-hoodie+chart+size+900x900.jpg"
             },
             TO: {
-                "T-shirt": "https://ptos-url.s3.us-east-1.amazonaws.com/1737480551577-Size%20Chart%20for%20TOTSA.jpg",
-                "Long Sleeve": "https://ptos-url.s3.us-east-1.amazonaws.com/toddler+longsleeve.png",
-                Sweatshirt: "",
-                Hoodie: "https://ptos-url.s3.us-east-1.amazonaws.com/toddler+hoodie.png"
+                "T-shirt": "https://chart-size.s3.us-east-1.amazonaws.com/toddler-tshirt+chart+size+900x900.jpg",
+                "Long Sleeve": "https://chart-size.s3.us-east-1.amazonaws.com/toddler-long+sleeve+chart+size+900x900.jpg",
+                "Sweatshirt": "",
+                "Hoodie": "https://chart-size.s3.us-east-1.amazonaws.com/toddler-hoodie+chart+size+900x900.jpg"
             },
             BB: {
-                "T-shirt": "https://ptos-url.s3.us-east-1.amazonaws.com/1736849347455-BABY%20tshirt.jpeg",
-                Bodysuit: "https://ptos-url.s3.us-east-1.amazonaws.com/1736488751364-bodysuite.jpeg"
+                "T-shirt": "https://chart-size.s3.us-east-1.amazonaws.com/baby-tshirt+chart+size+900x900.jpeg",
+                "Bodysuit": "https://chart-size.s3.us-east-1.amazonaws.com/baby-bodysuit+chart+size+900x900.jpeg"
             }
         };
 
@@ -1362,7 +1363,7 @@ export class ListingGeneratorComponent implements OnInit {
                     'Casual', // clothingStyle',
                     'Pullover', // clothingTopStyle',
                     child.color, // color',
-                    this.walmartColorCategory(child.color), // colorCategory',
+                    this.colorCategory(child.color), // colorCategory',
                     'New', // condition',
                     'Machine Wash', // fabricCareInstructions',
                     'Cotton', // materialName',
@@ -1513,6 +1514,7 @@ export class ListingGeneratorComponent implements OnInit {
             'Special Features',
             'Special Features',
             'Special Features',
+            'Lifestyle',
             'Style',
             'Department Name',
             'Target Gender',
@@ -1525,7 +1527,9 @@ export class ListingGeneratorComponent implements OnInit {
             'Shirt Height Type',
             'Material',
             'Fabric Type',
+            'Pattern',
             'Special Size',
+            'Color Map',
             'Color',
             'Item Length Description',
             'Part Number',
@@ -1533,14 +1537,15 @@ export class ListingGeneratorComponent implements OnInit {
             'Fit Type',
             'Care Instructions',
             'Is Customizable?',
-            'Pattern',
             'Neck Style',
             'Sleeve Type',
+            'Closure Type',
             'Parentage Level',
             'Child Relationship Type',
             'Parent SKU',
             'Variation Theme Name',
             'Country of Origin',
+            'Dangerous Goods Regulations',
             'Main Image URL',
             'Other Image URL',
             'Other Image URL',
@@ -1554,34 +1559,35 @@ export class ListingGeneratorComponent implements OnInit {
         masterList.forEach((parent) => {
             data.push([
                 parent.parent_sku, // Seller SKU
-                '', // Record Action
+                'Full Update', // Record Action
                 this.amazonProductType(parent.styles), // Product Type
                 parent.title, // Item Name
                 'Smartprints', // Brand Name
-                'Yes', // Is exempt from supplier declared external product identifier
+                '', // Is exempt from supplier declared external product identifier
                 this.amazonItemTypeKeyword(parent.styles), // Item Type Keyword
                 '', // Amazon(CA,AU) - Categorie
                 '', // Model Name
                 '', // Offering Condition Type
                 '', // List Price
                 '', // Merchant Shipping Group
-                '', // Import Designation
-                '', // Fulfillment Channel Code (US)
-                '', // Quantity (US)
+                'Made in the USA and Imported', // Import Designation
+                'DEFAULT', // Fulfillment Channel Code (US)
+                200, // Quantity (US)
                 '', // Handling Time (US)
                 '', // Your Price USD (Sell on Amazon, US)
-                '', // Product Description
-                '', // Bullet Point
-                '', // Bullet Point
-                '', // Bullet Point
-                '', // Generic Keywords
-                '', // Special Features
-                '', // Special Features
-                '', // Special Features
+                parent.description, // Product Description
+                parent.feature1, // Bullet Point
+                parent.feature2, // Bullet Point
+                parent.feature3, // Bullet Point
+                parent.keywords, // Generic Keywords
+                'Breathable', // Special Features
+                'Absorbent', // Special Features
+                'Lightweight', // Special Features
+                '', // Lifestyle
                 '', // Style
-                '', // Department Name
-                '', // Target Gender
-                '', // Age Range Description
+                parent.amazonDepart, // Department Name
+                this.amazonTargetGender(parent.amazonDepart), // Target Gender
+                this.amazonAgeRangeDesc(parent.classification), // Age Range Description
                 '', // Shirt Size System
                 '', // Shirt Size Class
                 '', // Shirt Size Value
@@ -1589,24 +1595,27 @@ export class ListingGeneratorComponent implements OnInit {
                 '', // Shirt Body Type
                 '', // Shirt Height Type
                 '', // Material
-                '', // Fabric Type
+                this.amazonFabricType(parent.styles), // Fabric Type
+                'Solid', // Pattern
                 '', // Special Size
+                '', // Color Map
                 '', // Color
                 '', // Item Length Description
                 '', // Part Number
-                '', // Theme
+                parent.theme, // Theme
                 '', // Fit Type
-                '', // Care Instructions
+                'Machine Wash', // Care Instructions
                 '', // Is Customizable?
-                '', // Pattern
                 '', // Neck Style
                 '', // Sleeve Type
+                '', // Closure Type
                 'Parent', // Parentage Level
-                '', // Child Relationship Type
+                'Variation', // Child Relationship Type
                 '', // Parent SKU
-                'SizeColor', // Variation Theme Name
-                '', // Country of Origin
-                '', // Main Image URL
+                'SIZE/COLOR', // Variation Theme Name
+                'United States', // Country of Origin
+                'Not Applicable', // Dangerous Goods Regulations
+                parent.childrens[0].image1, // Main Image URL
                 '', // Other Image URL
                 '', // Other Image URL
                 '', // Other Image URL
@@ -1622,7 +1631,7 @@ export class ListingGeneratorComponent implements OnInit {
                     'Smartprints', // Brand Name
                     'Yes', // Is exempt from supplier declared external product identifier
                     this.amazonItemTypeKeyword(parent.styles), // Item Type Keyword
-                    parent.categories.Amazon, // Amazon(CA,AU) - Categorie
+                    '', //parent.categories.Amazon, // Amazon(CA,AU) - Categorie
                     'N/A', // Model Name
                     'New', // Offering Condition Type
                     child.price, // List Price
@@ -1630,7 +1639,7 @@ export class ListingGeneratorComponent implements OnInit {
                     'Made in the USA and Imported', // Import Designation
                     'DEFAULT', // Fulfillment Channel Code (US)
                     200, // Quantity (US)
-                    3, // Handling Time (US)
+                    '', // Handling Time (US)
                     child.price, // Your Price USD (Sell on Amazon, US)
                     parent.description, // Product Description
                     parent.feature1, // Bullet Point
@@ -1640,6 +1649,7 @@ export class ListingGeneratorComponent implements OnInit {
                     'Breathable', // Special Features
                     'Absorbent', // Special Features
                     'Lightweight', // Special Features
+                    'Casual', // Lifestyle
                     this.amazonStyle(parent.styles), // Style
                     parent.amazonDepart, // Department Name
                     this.amazonTargetGender(parent.amazonDepart), // Target Gender
@@ -1650,29 +1660,32 @@ export class ListingGeneratorComponent implements OnInit {
                     this.amazonTranslateSizePlus(child.size), // Shirt Size To Range
                     'Regular', // Shirt Body Type
                     'Regular', // Shirt Height Type
-                    'Cotton', // Material
-                    '100% Cotton', // Fabric Type
+                    '', // Material
+                    this.amazonFabricType(parent.styles), // Fabric Type
+                    'Solid', // Pattern
                     'Standard', // Special Size
+                    this.colorCategory(child.color), // Color Map
                     child.color, // Color
-                    'Short Length', // Item Length Description
+                    'Standard Length', // Item Length Description
                     child.mpn, // Part Number
                     parent.theme, // Theme
                     'Regular Fit', // Fit Type
                     'Machine Wash', // Care Instructions
                     'No', // Is Customizable?
-                    'Solid', // Pattern
                     'Crew Neck', // Neck Style
                     this.amazonSleeveStyle(parent.styles), // Sleeve Type
+                    this.amazonSleeveStyle(parent.styles) == 'Long Sleeve' ? 'Pull On' : '', //Closure Type
                     'Child', // Parentage Level
                     'Variation', // Child Relationship Type
                     parent.parent_sku, // Parent SKU
-                    'SizeColor', // Variation Theme Name
+                    'SIZE/COLOR', // Variation Theme Name
                     'United States', // Country of Origin
+                    'Not Applicable', // Dangerous Goods Regulations
                     child.image1, // Main Image URL
                     child.image2, // Other Image URL
                     child.image3, // Other Image URL
                     child.image4, // Other Image URL
-                    5.3, // Package Weight
+                    this.itemWeight(parent.styles), // Package Weight
                     'Ounces', // Package Weight Unit
                 ]);
             });
@@ -2105,13 +2118,13 @@ export class ListingGeneratorComponent implements OnInit {
                     'By the item', //Selling Method
                     1, //Case Size
                     2, //Minimum Order Quantity
-                    this.faireItemWaight(parent.styles), //Item Weight
+                    this.itemWeight(parent.styles), //Item Weight
                     'oz', //Item Weight Unit
                     '', //Item Length
                     '', //Item Width
                     '', //Item Height
                     '', //Item Dimensions Unit
-                    this.faireItemWaight(parent.styles) + 1, //Packaged Weight
+                    this.itemWeight(parent.styles) + 1, //Packaged Weight
                     'oz', //Packaged Weight Unit
                     '', //Packaged Length
                     '', //Packaged Width
@@ -2581,6 +2594,8 @@ export class ListingGeneratorComponent implements OnInit {
             "Sleeve Length(90)",
             "Sleeve Type(92)",
             "Style(101)",
+            "Type(109)",
+            "Occasion(128)",
             "Hem Shaped(129)",
             "Material(160)",
             "Sheer(207)",
@@ -2593,6 +2608,71 @@ export class ListingGeneratorComponent implements OnInit {
             "Style features(1001159)",
             "Special auxiliary materials(1002021)"
         ];
+        const headerWomenHoodie = [
+            "Field Code",
+            "default product name[en]",
+            "Multilingual product names[es]",
+            "Product Number",
+            "Default product description[en]",
+            "Multilingual product description[es]",
+            "brand",
+            "First Image",
+            "Back Image",
+            "Square Chart",
+            "Color Index Image",
+            "Detail image1",
+            "Detail image2",
+            "Detail image3",
+            "Detail image4",
+            "Detail image5",
+            "Detail image6",
+            "Detail image7",
+            "Detail image8",
+            "Detail image9",
+            "Seller SKU",
+            "Inventory[U.S.+PS4343240944]",
+            "Weight",
+            "unit of weight",
+            "Length",
+            "Width",
+            "Height",
+            "unit of length, width and height",
+            "Original Price[shein-us+USD]",
+            "Special Offer Price[shein-us+USD]",
+            "Size chart template name",
+            "Color(27)",
+            "Size(87)",
+            "Composition(62)",
+            "Filling(1000067)",
+            "Lining(1000078)",
+            "Weight of Down(1000097)",
+            "Coating(1000105)",
+            "Belt(9)",
+            "Details(31)",
+            "Fabric(39)",
+            "Fit Type(40)",
+            "Length(54)",
+            "Body(58)",
+            "Neckline(66)",
+            "Placket(74)",
+            "Sleeve Length(90)",
+            "Sleeve Type(92)",
+            "Style(101)",
+            "Type(109)",
+            "Hem Shaped(129)",
+            "Material(160)",
+            "Sheer(207)",
+            "Features(217)",
+            "Care Instructions(1000069)",
+            "Quantity(1000411)",
+            "Waterproof(1000412)",
+            "Lined For Added Warmth(1000437)",
+            "Pockets(1000438)",
+            "Specific Pattern(1000627)",
+            "Temperature(1001364)",
+            "Special auxiliary materials(1002021)"
+        ];
+
         //Men
         const headerMenTshirt = [
             "Field Code",
@@ -2858,7 +2938,7 @@ export class ListingGeneratorComponent implements OnInit {
 
         console.log(`MasterList: ${masterList[0].categories.Shein}`);
         console.log(`ptoDesign: ${this.ptoDesigns[0].categories.Shein}`);
-        
+
         const data: any[][] = [];
         masterList.forEach((parent) => {
             parent.childrens.forEach((child: any, index: number) => {
@@ -2868,7 +2948,7 @@ export class ListingGeneratorComponent implements OnInit {
                             '', //Field Code
                             parent.title, //Default product name [en]
                             '', //Multilingual product names [es]
-                            child.full_sku, //Product Number
+                            parent.parent_sku, //Product Number
                             parent.description, //Default product description [en]
                             '', //Multilingual product description [es]
                             '', //Brand
@@ -2898,31 +2978,31 @@ export class ListingGeneratorComponent implements OnInit {
                             '', //Size chart template name
                             child.color, //Color (27)
                             child.size, //Size (87)
-                            this.sheinMaterial(parent.styles), //Composition (62)
+                            'Cotton=100', //Composition (62)
                             '', //Lining (1000078)
                             '', //Coating (1000105)
-                            '', //Belt (9)
-                            '', //Details (31)
+                            'No', //Belt (9)
+                            'Textured', //Details (31)
                             'Slight Stretch', //Fabric (39)
-                            '', //Length (54)
-                            '', //Body (58)
-                            '', //Neckline (66)
+                            'Regular', //Length (54)
+                            'Unlined', //Body (58)
+                            'Round Neck', //Neckline (66)
                             'Short Sleeve', //Sleeve Length (90)
-                            '', //Sleeve Type (92)
-                            '', //Style (101)
+                            'Regular Sleeve', //Sleeve Type (92)
+                            'Casual', //Style (101)
                             '', //Type (109)
-                            '', //Occasion (128)
+                            'Home', //Occasion (128)
                             '', //Hem Shaped (129)
                             'Fabric', //Material (160)
-                            '', //Sheer (207)
+                            'No', //Sheer (207)
                             'Comfortable', //Features (217)
                             'Machine wash, do not dry clean', //Care Instructions (1000069)
                             '', //Functional Type (1000104)
-                            '', //Quantity (1000411)
-                            '', //Lined For Added Warmth (1000437)
-                            '', //Pockets (1000438)
+                            'piece(s)=1', //Quantity (1000411)
+                            'No', //Lined For Added Warmth (1000437)
+                            'No', //Pockets (1000438)
                             '', //Product Model (1000546)
-                            '', //Specific Pattern (1000627)
+                            'Graphic', //Specific Pattern (1000627)
                             'None', //Style features (1001159)
                             '', //Temperature (1001364)
                             '' //Special auxiliary materials (1002021)
@@ -2933,7 +3013,7 @@ export class ListingGeneratorComponent implements OnInit {
                             '', //Field Code
                             parent.title, //Default product name [en]
                             '', //Multilingual product names [es]
-                            child.full_sku, //Product Number
+                            parent.parent_sku, //Product Number
                             parent.description, //Default product description [en]
                             '', //Multilingual product description [es]
                             '', //Brand
@@ -2963,32 +3043,32 @@ export class ListingGeneratorComponent implements OnInit {
                             '', //Size chart template name
                             child.color, //Color (27)
                             child.size, //Size (87)
-                            this.sheinMaterial(parent.styles), //Composition (62)
+                            'Cotton=100', //Composition (62)
                             '', //Filling (1000067)
                             '', //Lining (1000078)
                             '', //Coating (1000105)
-                            '', //Belt (9)
-                            '', //Chest pad (23)
-                            '', //Details (31)
+                            'No', //Belt (9)
+                            'No Padding', //Chest pad (23)
+                            'Textured', //Details (31)
                             'Slight Stretch', //Fabric (39)
-                            '', //Fit Type (40)
-                            '', //Length (54)
-                            '', //Body (58)
-                            '', //Neckline (66)
+                            'Regular Fit', //Fit Type (40)
+                            'Regular', //Length (54)
+                            'Unlined', //Body (58)
+                            'Round Neck', //Neckline (66)
                             'Short Sleeve', //Sleeve Length (90)
-                            '', //Sleeve Type (92)
-                            '', //Style (101)
+                            'Regular Sleeve', //Sleeve Type (92)
+                            'Casual', //Style (101)
                             '', //Hem Shaped (129)
                             'Fabric', //Material (160)
                             '', //Sheer (207)
                             'Comfortable', //Features (217)
                             'Machine wash, do not dry clean', //Care Instructions (1000069)
-                            '', //Quantity (1000411)
-                            '', //Lined For Added Warmth (1000437)
-                            '', //Pockets (1000438)
-                            '', //Specific Pattern (1000627)
+                            'piece(s)=1', //Quantity (1000411)
+                            'No', //Lined For Added Warmth (1000437)
+                            'No', //Pockets (1000438)
+                            'Graphic', //Specific Pattern (1000627)
                             'None', //Style features (1001159)
-                            '' //Special auxiliary materials (1002021)
+                            'Without Drawstrings' //Special auxiliary materials (1002021)
                         ]);
                         break;
                     case 'women sweatshirts':
@@ -2996,7 +3076,7 @@ export class ListingGeneratorComponent implements OnInit {
                             '', //Field Code
                             parent.title, //Default product name [en]
                             '', //Multilingual product names [es]
-                            child.full_sku, //Product Number
+                            parent.parent_sku, //Product Number
                             parent.description, //Default product description [en]
                             '', //Multilingual product description [es]
                             '', //Brand
@@ -3026,32 +3106,32 @@ export class ListingGeneratorComponent implements OnInit {
                             '', //Size chart template name
                             child.color, //Color (27)
                             child.size, //Size (87)
-                            this.sheinMaterial(parent.styles), //Composition (62)
+                            'cotton*polyester=50*50', //Composition (62)
                             '', //Filling (1000067)
                             '', //Lining (1000078)
                             '', //Coating (1000105)
-                            '', //Belt (9)
-                            '', //Details (31)
+                            'No', //Belt (9)
+                            'Contrast Binding', //Details (31)
                             'Slight Stretch', //Fabric (39)
-                            '', //Fit Type (40)
+                            'Regular Fit', //Fit Type (40)
                             '', //Length (54)
-                            '', //Body (58)
-                            '', //Neckline (66)
+                            'Unlined', //Body (58)
+                            'Round Neck', //Neckline (66)
                             'Long Sleeve', //Sleeve Length (90)
-                            '', //Sleeve Type (92)
+                            'Regular Sleeve', //Sleeve Type (92)
                             '', //Style (101)
                             '', //Type (109)
                             '', //Occasion (128)
                             '', //Hem Shaped (129)
-                            'Fabric', //Material (160)
+                            'Polyester', //Material (160)
                             '', //Sheer (207)
                             'Comfortable', //Features (217)
                             'Machine wash, do not dry clean', //Care Instructions (1000069)
                             '', //Functional Type (1000104)
-                            '', //Quantity (1000411)
+                            'piece(s)=1', //Quantity (1000411)
                             '', //Lined For Added Warmth (1000437)
                             '', //Pockets (1000438)
-                            '', //Specific Pattern (1000627)
+                            'Graphic', //Specific Pattern (1000627)
                             '', //Temperature (1001364)
                             '' //Special auxiliary materials (1002021)
                         ]);
@@ -3061,7 +3141,7 @@ export class ListingGeneratorComponent implements OnInit {
                             '', //Field Code
                             parent.title, //Default product name[en]
                             '', //Multilingual product names[es]
-                            child.full_sku, //Product Number
+                            parent.parent_sku, //Product Number
                             parent.description, //Default product description[en]
                             '', //Multilingual product description[es]
                             '', //Brand
@@ -3091,40 +3171,108 @@ export class ListingGeneratorComponent implements OnInit {
                             '', //Size chart template name
                             child.color, //Color(27)
                             child.size, //Size(87)
-                            this.sheinMaterial(parent.styles), //Composition(62)
+                            'Cotton=100', //Composition(62)
                             '', //Filling(1000067)
                             '', //Lining(1000078)
                             '', //Coating(1000105)
-                            '', //Belt(9)
-                            '', //Chest pad(23)
-                            '', //Details(31)
+                            'No', //Belt(9)
+                            'No Padding', //Chest pad(23)
+                            'Textured', //Details(31)
                             'Slight Stretch', //Fabric(39)
-                            '', //Fit Type(40)
+                            'Regular Fit', //Fit Type(40)
                             '', //Length(54)
-                            '', //Body(58)
-                            '', //Neckline(66)
+                            'Unlined', //Body(58)
+                            'Round Neck', //Neckline(66)
                             'Sleeveless', //Sleeve Length(90)
                             '', //Sleeve Type(92)
-                            '', //Style(101)
+                            'Casual', //Style(101)
+                            'Tank', //Type(109)
+                            'Home*Sports', //Occasion(128)
                             '', //Hem Shaped(129)
-                            'Fabric', //Material(160)
+                            'Cotton', //Material(160)
                             '', //Sheer(207)
                             'Comfortable', //Features(217)
                             'Machine wash, do not dry clean', //Care Instructions(1000069)
-                            '', //Quantity(1000411)
-                            '', //Lined For Added Warmth(1000437)
+                            'piece(s)=1', //Quantity(1000411)
+                            'No', //Lined For Added Warmth(1000437)
                             '', //Pockets(1000438)
-                            '', //Specific Pattern(1000627)
+                            'Graphic', //Specific Pattern(1000627)
                             'None', //Style features(1001159)
-                            '' //Special auxiliary materials(1002021)
+                            'Without Drawstrings' //Special auxiliary materials(1002021)
                         ]);
+                        break;
+                    case 'women hoodies':
+                        data.push([
+                            '', //Field Code
+                            parent.title, //default product name[en]
+                            '', //Multilingual product names[es]
+                            parent.parent_sku, //Product Number
+                            parent.description, //Default product description[en]
+                            '', //Multilingual product description[es]
+                            '', //Brand
+                            child.image1, //First Image
+                            '', //Back Image
+                            child.image4, //Square Chart
+                            '', //Color Index Image
+                            child.image2, //Detail image1
+                            child.image3, //Detail image2
+                            '', //Detail image3
+                            '', //Detail image4
+                            '', //Detail image5
+                            '', //Detail image6
+                            '', //Detail image7
+                            '', //Detail image8
+                            '', //Detail image9
+                            '', //Seller SKU
+                            200, //Inventory[U.S.+PS4343240944]
+                            20.5, //Weight
+                            'oz', //unit of weight
+                            '', //Length
+                            '', //Width
+                            '', //Height
+                            '', //unit of length, width and height
+                            child.price, //Original Price[shein-us+USD]
+                            '', //Special Offer Price[shein-us+USD]
+                            '', //Size chart template name
+                            child.color, //Color(27)
+                            child.size, //Size(87)
+                            'Cotton*Polyester=50*50', //Composition(62)
+                            '', //Filling(1000067)
+                            '', //Lining(1000078)
+                            '', //Weight of Down(1000097)
+                            '', //Coating(1000105)
+                            'No', //Belt(9)
+                            'Textured', //Details(31)
+                            'Slight Stretch', //Fabric(39)
+                            'Regular Fit', //Fit Type(40)
+                            'Long', //Length(54)
+                            'Unlined', //Body(58)
+                            'Round Neck', //Neckline(66)
+                            'Pullover', //Placket(74)
+                            'Long Sleeve', //Sleeve Length(90)
+                            'Regular Sleeve', //Sleeve Type(92)
+                            'Casual', //Style(101)
+                            '', //Type(109)
+                            '', //Hem Shaped(129)
+                            'Fabric', //Material(160)
+                            'No', //Sheer(207)
+                            'Comfortable', //Features(217)
+                            'Machine wash or professional dry clean', //Care Instructions(1000069)
+                            'piece(s)=1', //Quantity(1000411)
+                            'No', //Waterproof(1000412)
+                            'No', //Lined For Added Warmth(1000437)
+                            'Yes', //Pockets(1000438)
+                            'Graphic', //Specific Pattern(1000627)
+                            '', //Temperature(1001364)
+                            'Without Drawstrings' //Special auxiliary materials(1002021)
+                        ])
                         break;
                     case 'men t-shirt':
                         data.push([
                             '', //Field Code
                             parent.title, //Default product name [en]
                             '', //Multilingual product names [es]
-                            child.full_sku, //Product Number
+                            parent.parent_sku, //Product Number
                             parent.description, //Default product description [en]
                             '', //Multilingual product description [es]
                             '', //Brand
@@ -3145,7 +3293,7 @@ export class ListingGeneratorComponent implements OnInit {
                             200, //Inventory [U.S.+PS4343240944]
                             5.3, //Weight
                             'oz', //Unit of weight
-                            '', //Length
+                            'Regular', //Length
                             '', //Width
                             '', //Height
                             '', //Unit of length, width, and height
@@ -3154,29 +3302,29 @@ export class ListingGeneratorComponent implements OnInit {
                             '', //Size chart template name
                             child.color, //Color (27)
                             child.size, //Size (87)
-                            this.sheinMaterial(parent.styles), //Composition (62)
+                            'Cotton=100', //Composition (62)
                             '', //Lining (1000078)
                             '', //Coating (1000105)
-                            '', //Belt (9)
-                            '', //Details (31)
+                            'No', //Belt (9)
+                            'Textured', //Details (31)
                             'Slight Stretch', //Fabric (39)
                             '', //Length (54)
                             '', //Body (58)
-                            '', //Neckline (66)
+                            'Round Neck', //Neckline (66)
                             'Short Sleeve', //Sleeve Length (90)
                             '', //Sleeve Type (92)
-                            '', //Style (101)
+                            'Casual', //Style (101)
                             '', //Hem Shaped (129)
-                            'Fabric', //Material (160)
+                            'Cotton', //Material (160)
                             '', //Sheer (207)
                             'Comfortable', //Features (217)
                             'Machine wash, do not dry clean', //Care Instructions (1000069)
                             '', //Functional Type (1000104)
-                            '', //Quantity (1000411)
+                            'piece(s)=1', //Quantity (1000411)
                             '', //Lined For Added Warmth (1000437)
                             '', //Pockets (1000438)
                             '', //Product Model (1000546)
-                            '', //Specific Pattern (1000627)
+                            'Graphic', //Specific Pattern (1000627)
                             'None', //Style features (1001159)
                             '' //Temperature (1001364)
                         ]);
@@ -3186,7 +3334,7 @@ export class ListingGeneratorComponent implements OnInit {
                             '', //Field Code
                             parent.title, //Default product name [en]
                             '', //Multilingual product names [es]
-                            child.full_sku, //Product Number
+                            parent.parent_sku, //Product Number
                             parent.description, //Default product description [en]
                             '', //Multilingual product description [es]
                             '', //Brand
@@ -3207,7 +3355,7 @@ export class ListingGeneratorComponent implements OnInit {
                             200, //Inventory [U.S.+PS4343240944]
                             5.3, //Weight
                             'oz', //Unit of weight
-                            '', //Length
+                            'Regular', //Length
                             '', //Width
                             '', //Height
                             '', //Unit of length, width, and height
@@ -3216,34 +3364,34 @@ export class ListingGeneratorComponent implements OnInit {
                             '', //Size chart template name
                             child.color, //Color (27)
                             child.size, //Size (87)
-                            '', //Composition (62)
+                            'Cotton=100', //Composition (62)
                             '', //Lining (1000078)
                             '', //Coating (1000105)
-                            '', //Belt (9)
-                            '', //Details (31)
+                            'No', //Belt (9)
+                            'Contrast Binding', //Details (31)
                             'Slight Stretch', //Fabric (39)
-                            '', //Fit Type (40)
+                            'Regular Fit', //Fit Type (40)
                             '', //Length (54)
                             '', //Body (58)
                             '', //Neckline (66)
-                            '', //Pattern Type (73)
-                            '', //Season (77)
+                            'Graphic', //Pattern Type (73)
+                            'Spring/Summer', //Season (77)
                             'Sleeveless', //Sleeve Length (90)
-                            '', //Style (101)
+                            'Casual', //Style (101)
                             '', //Hem Shaped (129)
                             '', //Placket Type (150)
-                            '', //Age (154)
+                            '18-35Y', //Age (154)
                             'Fabric', //Material (160)
                             '', //Location (169)
                             '', //Sheer (207)
-                            'Comfortable', //Features (217)
+                            'Breathable', //Features (217)
                             'Machine wash, do not dry clean', //Care Instructions (1000069)
                             '', //Number of Pieces (1000103)
-                            '', //Quantity (1000411)
-                            '', //Lined For Added Warmth (1000437)
+                            'piece(s)=1', //Quantity (1000411)
+                            'No', //Lined For Added Warmth (1000437)
                             '', //Pockets (1000438)
-                            '', //Other Material (1000547)
-                            '' //Specific Pattern (1000627)
+                            'Fabric', //Other Material (1000547)
+                            'Graphic' //Specific Pattern (1000627)
                         ]);
                         break;
                     case 'men hoodies':
@@ -3251,7 +3399,7 @@ export class ListingGeneratorComponent implements OnInit {
                             '', //Field Code
                             parent.title, //Default product name [en]
                             '', //Multilingual product names [es]
-                            child.full_sku, //Product Number
+                            parent.parent_sku, //Product Number
                             parent.description, //Default product description [en]
                             '', //Multilingual product description [es]
                             '', //Brand
@@ -3281,111 +3429,111 @@ export class ListingGeneratorComponent implements OnInit {
                             '', //Size chart template name
                             child.color, //Color (27)
                             child.size, //Size (87)
-                            this.sheinMaterial(parent.styles), //Composition (62)
+                            'Cotton*Polyester=50*50', //Composition (62)
                             '', //Filling (1000067)
-                            '', //Lining (1000078)
+                            'Cotton*Polyester=50*50', //Lining (1000078)
                             '', //Coating (1000105)
-                            '', //Belt (9)
-                            '', //Details (31)
-                            'Slight Stretch', //Fabric (39)
-                            '', //Fit Type (40)
+                            'No', //Belt (9)
+                            'Textured', //Details (31)
+                            '', //Fabric (39)
+                            'Regular Fit', //Fit Type (40)
                             '', //Length (54)
-                            '', //Body (58)
-                            '', //Neckline (66)
-                            '', //Pattern Type (73)
-                            '', //Season (77)
+                            'Unlined', //Body (58)
+                            'Round Neck', //Neckline (66)
+                            'Graphic', //Pattern Type (73)
+                            'All', //Season (77)
                             'Long Sleeve', //Sleeve Length (90)
                             '', //Sleeve Type (92)
-                            '', //Style (101)
+                            'Casual', //Style (101)
                             '', //Hem Shaped (129)
                             '', //Placket Type (150)
-                            '', //Age (154)
-                            'Fabric', //Material (160)
-                            '', //Location (169)
+                            '18-35Y', //Age (154)
+                            '', //Material (160)
+                            'US', //Location (169)
                             '', //Users-Romwe (176)
                             '', //Users-Shein (177)
                             '', //Sheer (207)
                             'Comfortable', //Features (217)
                             'Machine wash, do not dry clean', //Care Instructions (1000069)
                             '', //Number of Pieces (1000103)
-                            '', //Quantity (1000411)
+                            'piece(s)=1', //Quantity (1000411)
                             '', //Lined For Added Warmth (1000437)
                             '', //Pockets (1000438)
-                            '', //Other Material (1000547)
-                            '', //Specific Pattern (1000627)
+                            'Other Material', //Other Material (1000547)
+                            'Specific Pattern', //Specific Pattern (1000627)
                             '' //Temperature (1001364)
                         ]);
                         break;
                     case 'men sweatshirts':
                         data.push([
-                           '', //Field Code
-                           parent.title, //Default product name [en]
-                           '', //Multilingual product names [es]
-                           child.full_sku, //Product Number
-                           parent.description, //Default product description [en]
-                           '', //Multilingual product description [es]
-                           '', //Brand
-                           child.image1, //First Image
-                           '', //Back Image
-                           child.image4, //Square Chart
-                           '', //Color Index Image
-                           child.image2, //Detail image 1
-                           child.image3, //Detail image 2
-                           '', //Detail image 3
-                           '', //Detail image 4
-                           '', //Detail image 5
-                           '', //Detail image 6
-                           '', //Detail image 7
-                           '', //Detail image 8
-                           '', //Detail image 9
-                           '', //Seller SKU
-                           200, //Inventory [U.S.+PS4343240944]
-                           10.5, //Weight
-                           'oz', //Unit of weight
-                           '', //Length
-                           '', //Width
-                           '', //Height
-                           '', //Unit of length, width, and height
-                           child.price, //Original Price [shein-us+USD]
-                           '', //Special Offer Price [shein-us+USD]
-                           '', //Size chart template name
-                           child.color, //Color (27)
-                           child.size, //Size (87)
-                           this.sheinMaterial(parent.styles), //Composition (62)
-                           '', //Filling (1000067)
-                           '', //Lining (1000078)
-                           '', //Coating (1000105)
-                           '', //Belt (9)
-                           '', //Details (31)
-                           'Slight Stretch', //Fabric (39)
-                           '', //Fit Type (40)
-                           '', //Length (54)
-                           '', //Body (58)
-                           '', //Neckline (66)
-                           '', //Season (77)
-                           'Long Sleeve', //Sleeve Length (90)
-                           '', //Sleeve Type (92)
-                           '', //Style (101)
-                           '', //Type (109)
-                           '', //Hem Shaped (129)
-                           '', //Placket Type (150)
-                           '', //Age (154)
-                           'Fabric', //Material (160)
-                           '', //Location (169)
-                           '', //Users-Romwe (176)
-                           '', //Users-Shein (177)
-                           '', //Sheer (207)
-                           'Comfortable', //Features (217)
-                           '', //Design Style (1000063)
-                           '', //Shoulder Shape (1000066)
-                           'Machine wash, do not dry clean', //Care Instructions (1000069)
-                           '', //Process options (1000410)
-                           '', //Quantity (1000411)
-                           '', //Lined For Added Warmth (1000437)
-                           '', //Pockets (1000438)
-                           '', //Other Material (1000547)
-                           '', //Specific Pattern (1000627)
-                           '' //Temperature (1001364)
+                            '', //Field Code
+                            parent.title, //Default product name [en]
+                            '', //Multilingual product names [es]
+                            parent.parent_sku, //Product Number
+                            parent.description, //Default product description [en]
+                            '', //Multilingual product description [es]
+                            '', //Brand
+                            child.image1, //First Image
+                            '', //Back Image
+                            child.image4, //Square Chart
+                            '', //Color Index Image
+                            child.image2, //Detail image 1
+                            child.image3, //Detail image 2
+                            '', //Detail image 3
+                            '', //Detail image 4
+                            '', //Detail image 5
+                            '', //Detail image 6
+                            '', //Detail image 7
+                            '', //Detail image 8
+                            '', //Detail image 9
+                            '', //Seller SKU
+                            200, //Inventory [U.S.+PS4343240944]
+                            10.5, //Weight
+                            'oz', //Unit of weight
+                            '', //Length
+                            '', //Width
+                            '', //Height
+                            '', //Unit of length, width, and height
+                            child.price, //Original Price [shein-us+USD]
+                            '', //Special Offer Price [shein-us+USD]
+                            '', //Size chart template name
+                            child.color, //Color (27)
+                            child.size, //Size (87)
+                            'Cotton=100', //Composition (62)
+                            '', //Filling (1000067)
+                            'Cotton=100', //Lining (1000078)
+                            '', //Coating (1000105)
+                            'No', //Belt (9)
+                            '', //Details (31)
+                            'Slight Stretch', //Fabric (39)
+                            'Regular Fit', //Fit Type (40)
+                            '', //Length (54)
+                            'Unlined', //Body (58)
+                            '', //Neckline (66)
+                            'All', //Season (77)
+                            'Long Sleeve', //Sleeve Length (90)
+                            '', //Sleeve Type (92)
+                            '', //Style (101)
+                            '', //Type (109)
+                            '', //Hem Shaped (129)
+                            'Pullovers', //Placket Type (150)
+                            '18-35Y', //Age (154)
+                            'Fabric', //Material (160)
+                            'US', //Location (169)
+                            '', //Users-Romwe (176)
+                            '', //Users-Shein (177)
+                            'No', //Sheer (207)
+                            'Features', //Features (217)
+                            'Casual', //Design Style (1000063)
+                            '', //Shoulder Shape (1000066)
+                            'Hand wash,do not dry clean', //Care Instructions (1000069)
+                            '', //Process options (1000410)
+                            'piece(s)=1', //Quantity (1000411)
+                            '', //Lined For Added Warmth (1000437)
+                            '', //Pockets (1000438)
+                            'Cotton', //Other Material (1000547)
+                            'Graphic', //Specific Pattern (1000627)
+                            '' //Temperature (1001364)
                         ]);
                         break;
 
@@ -3410,6 +3558,9 @@ export class ListingGeneratorComponent implements OnInit {
                 break;
             case 'women racerback tank':
                 headerRow = headerWomenTank;
+                break;
+            case 'women hoodies':
+                headerRow = headerWomenHoodie;
                 break;
             case 'men t-shirt':
                 headerRow = headerMenTshirt;
@@ -3536,7 +3687,7 @@ export class ListingGeneratorComponent implements OnInit {
                 return '';
         }
     }
-    walmartColorCategory(color: string) {
+    colorCategory(color: string) {
         const colorGroup = {
             Beige: [],
             Black: [
@@ -3812,6 +3963,25 @@ export class ListingGeneratorComponent implements OnInit {
                 return '';
         }
     }
+    amazonFabricType(style: string) {
+        const productStyleMap: { [key: string]: string } = {
+            'T-shirt': '100% Cotton',
+            'T-shirt Color': '100% Cotton',
+            'Tie Dye Crystal': '100% Cotton',
+            'Tie Dye Cyclone': '100% Cotton',
+            'Tie Dye Spiral': '100% Cotton',
+            'Long Sleeve': '100% Cotton',
+            'Hoddie': '50% Cotton, 50% Polyester',
+            'Sweatshirt': '75% Cotton, 25% Polyester',
+            'Crop Tee': '100% Cotton',
+            'Crop Top': '100% Cotton',
+            'Tank Top': '50% Cotton, 50% Polyester',
+            'Racerback Tank': '60% Cotton, 40% Polyester',
+            'Bodysuit': '100% Cotton',
+        }
+        const normalizedType = style.trim();
+        return productStyleMap[normalizedType] || '';
+    }
     amazonTranslateSize(size) {
         switch (size) {
             case 'XS':
@@ -4022,7 +4192,7 @@ export class ListingGeneratorComponent implements OnInit {
 
         return '';
     }
-    faireItemWaight(style: string) {
+    itemWeight(style: string) {
         switch (style) {
             case 'T-shirt':
                 return 5.30;
