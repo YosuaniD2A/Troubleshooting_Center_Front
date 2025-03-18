@@ -1,0 +1,56 @@
+.color-circle {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: inline-block;
+    border: 1px solid #ccc;
+    /* Opcional: borde para mejor visibilidad */
+}
+
+
+.color-primary {
+    color: #088d8d;
+}
+
+.bg-light {
+    background-color: #f8f9fa;
+}
+
+.circle {
+    width: 22px;
+    height: 22px;
+    border-radius: 100%;
+    border: 1px solid rgb(230, 228, 228);
+}
+
+.section-processing{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 50px 10px 20px;
+    height: 100%;
+}
+
+.svg-spinners--clock {
+    display: inline-block;
+    width: 40px;
+    height: 40px;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23088d8d' d='M12,1A11,11,0,1,0,23,12,11,11,0,0,0,12,1Zm0,20a9,9,0,1,1,9-9A9,9,0,0,1,12,21Z'/%3E%3Crect width='2' height='7' x='11' y='6' fill='%23088d8d' rx='1'%3E%3CanimateTransform attributeName='transform' dur='9s' repeatCount='indefinite' type='rotate' values='0 12 12;360 12 12'/%3E%3C/rect%3E%3Crect width='2' height='9' x='11' y='11' fill='%23088d8d' rx='1'%3E%3CanimateTransform attributeName='transform' dur='0.75s' repeatCount='indefinite' type='rotate' values='0 12 12;360 12 12'/%3E%3C/rect%3E%3C/svg%3E");
+  }
+
+  .preview-img{
+    padding: 5px;
+    border-radius: 5px;
+    background-color: #ccc;
+  }
+
+  .clarity--exclamation-triangle-line {
+    display: inline-block;
+    width: 40px;
+    height: 40px;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'%3E%3Cpath fill='%23088d8d' d='M18 21.32a1.3 1.3 0 0 0 1.3-1.3V14a1.3 1.3 0 1 0-2.6 0v6a1.3 1.3 0 0 0 1.3 1.32' class='clr-i-outline clr-i-outline-path-1'/%3E%3Ccircle cx='17.95' cy='24.27' r='1.5' fill='%23088d8d' class='clr-i-outline clr-i-outline-path-2'/%3E%3Cpath fill='%23088d8d' d='M30.33 25.54L20.59 7.6a3 3 0 0 0-5.27 0L5.57 25.54A3 3 0 0 0 8.21 30h19.48a3 3 0 0 0 2.64-4.43Zm-1.78 1.94a1 1 0 0 1-.86.49H8.21a1 1 0 0 1-.88-1.48l9.74-17.94a1 1 0 0 1 1.76 0l9.74 17.94a1 1 0 0 1-.02.99' class='clr-i-outline clr-i-outline-path-3'/%3E%3Cpath fill='none' d='M0 0h36v36H0z'/%3E%3C/svg%3E");
+  }

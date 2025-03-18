@@ -356,13 +356,13 @@
                     ((!linkSelector(market) && ptoDesigns[rowIndex]?.categories[market]?.length == 0) || 
                     (linkSelector(market) && (designCategories[market]?.length == 0 || designCategories[market] == undefined)))  
                      }">
-                    <p-multiSelect *ngIf="!linkSelector(market) && (market !== 'Faire' && market !== 'Shein')"
+                    <p-multiSelect *ngIf="!linkSelector(market) && (market !== 'Faire' && market !== 'Shein' && market !== 'Temu')"
                         [options]="marketplacesCategories[market]?.groups" [group]="true" [maxSelectedLabels]="3"
                         [(ngModel)]="ptoDesigns[rowIndex]?.categories[market]" optionLabel="label" optionValue="path"
                         optionGroupLabel="label" optionGroupChildren="items" [style]="{ width: '200px' }"
                         scrollHeight="150px" defaultLabel="Select Categories">
                     </p-multiSelect>
-                    <p-multiSelect *ngIf="linkSelector(market) && (market !== 'Faire' && market !== 'Shein')"
+                    <p-multiSelect *ngIf="linkSelector(market) && (market !== 'Faire' && market !== 'Shein' && market !== 'Temu')"
                         [options]="marketplacesCategories[market]?.groups" [group]="true" [maxSelectedLabels]="3"
                         [(ngModel)]="designCategories[market]" optionLabel="label" optionValue="path"
                         optionGroupLabel="label" optionGroupChildren="items" [style]="{ width: '200px' }"
@@ -384,6 +384,16 @@
                         placeholder="Select Categories" [style]="{ width: '200px' }" scrollHeight="150px">
                     </p-dropdown>
                     <p-dropdown *ngIf="linkSelector(market) && market == 'Shein'"
+                        [options]="marketplacesCategories[market]?.groups" [group]="true"
+                        [(ngModel)]="designCategories[market]" optionLabel="label" optionValue="value"
+                        placeholder="Select Categories" [style]="{ width: '200px' }" scrollHeight="150px">
+                    </p-dropdown>
+                    <p-dropdown *ngIf="!linkSelector(market) && market == 'Temu'"
+                        [options]="marketplacesCategories[market]?.groups" [group]="true"
+                        [(ngModel)]="ptoDesigns[rowIndex]?.categories[market]" optionLabel="label" optionValue="value"
+                        placeholder="Select Categories" [style]="{ width: '200px' }" scrollHeight="150px">
+                    </p-dropdown>
+                    <p-dropdown *ngIf="linkSelector(market) && market == 'Temu'"
                         [options]="marketplacesCategories[market]?.groups" [group]="true"
                         [(ngModel)]="designCategories[market]" optionLabel="label" optionValue="value"
                         placeholder="Select Categories" [style]="{ width: '200px' }" scrollHeight="150px">

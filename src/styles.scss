@@ -118,6 +118,18 @@ $gutter: 1rem; //for primeflex grid system
     }
 }
 
+.ai-color{
+    background-color: #088d8d;
+    border: 1px solid #088d8d;
+    color: #ffffff;
+
+    &:hover{
+        background-color: #56e8e8 !important;
+        border: 1px solid #0b5c5c !important;
+        color: #4d4d4d !important;
+    }
+}
+
 .min-h-300{
     min-height: 300px;
 }

@@ -13,6 +13,11 @@ export class UploadAWSS3Component implements OnInit, OnDestroy {
     @ViewChild('uploader') uploader: FileUpload;
 
     files = [];
+    buckets = [];
+    selectedBucket = {
+        name: 'PTOS_URL',
+        param: 'ptos-url',
+    };
 
     uploading: boolean = false;
     uploaded: boolean = false;
@@ -25,9 +30,20 @@ export class UploadAWSS3Component implements OnInit, OnDestroy {
     constructor(
         private messageService: MessageService,
         private awsService: AWSService
-    ) {}
+    ) { }
 
-    async ngOnInit() {}
+    async ngOnInit() {
+        this.buckets = [
+            {
+                name: 'PTOS_URL',
+                param: 'ptos-url',
+            },
+            {
+                name: 'CHART_SIZE',
+                param: 'chart-size',
+            }
+        ]
+    }
 
     onClear() {
         this.files = [];
@@ -49,6 +65,10 @@ export class UploadAWSS3Component implements OnInit, OnDestroy {
     onSelectedFiles(event) {
         this.files = event.currentFiles;
         console.log(this.files);
+    }
+
+    assign(event) {
+        this.selectedBucket = event.value;
     }
 
     // async upload(event) {
@@ -85,7 +105,7 @@ export class UploadAWSS3Component implements OnInit, OnDestroy {
     //                 const uploadedFiles = result.data.flatMap((item) => {
     //                     // Usamos extractMockupBase para obtener el mockup base sin la talla
     //                     const mockupBase = this.extractMockupBase(item.img_key);
-                        
+
     //                     // Generar variantes para todas las tallas
     //                     return sizes.map((size) => ({
     //                         mockup: `${mockupBase}${size}`,
@@ -151,69 +171,91 @@ export class UploadAWSS3Component implements OnInit, OnDestroy {
         try {
             this.uploading = true;
             this.uploaded = false;
-    
+
             const files = event.files;
             const batchSize = 100;
             const delayBetweenBatches = 10000;
             this.startCountdown(files.length * 2);
-    
+
             const sizesAdult = ["00S", "00M", "00L", "0XL", "2XL", "3XL", "4XL", "5XL"];
             const sizesToddler = ["02T", "03T", "04T", "05T"];
             const sizesYouth = ["0XS", "00S", "00M", "00L", "0XL"];
             const sizesBaby = ["0NB", "06M", "12M", "18M", "24M"];
-    
+
             const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-    
+
             const uploadBatches = async () => {
                 for (let i = 0; i < files.length; i += batchSize) {
                     const batch = files.slice(i, i + batchSize);
-                    const result = await this.awsService.upload(batch);
-    
-                    const uploadedFiles = result.data.flatMap((item) => {
-                        const mockupBase = this.extractMockupBase(item.img_key);
-    
-                        // Detectar tipo de talla según el mockup
-                        const sizes = mockupBase.includes("YO") 
-                            ? sizesYouth 
-                            : mockupBase.includes("TO") 
-                            ? sizesToddler 
-                            : mockupBase.includes("BB") 
-                            ? sizesBaby 
-                            : sizesAdult;
-    
-                        return sizes.map((size) => ({
-                            mockup: `${mockupBase}${size}`,
-                            img_url: item.img_url,
-                        }));
-                    });
-    
-                    await Promise.all(
-                        uploadedFiles.map((data) =>
-                            this.awsService.saveUrls(data)
-                        )
-                    );
-    
-                    this.filesUploaded = [
-                        ...(this.filesUploaded || []),
-                        ...uploadedFiles,
-                    ];
-    
+
+                    //TODO: Poner aqui una condicion para procesar las imagenes segun el Bucket de destino,
+                    // por default ira a PTO_URL
+                    if (this.selectedBucket && this.selectedBucket.name == "PTOS_URL") {
+                        const result = await this.awsService.upload(batch, this.selectedBucket.param);
+                        console.log(result);
+
+                        const uploadedFiles = result.data.flatMap((item) => {
+                            const mockupBase = this.extractMockupBase(item.img_key);
+
+                            // Detectar tipo de talla según el mockup
+                            const sizes = mockupBase.includes("YO")
+                                ? sizesYouth
+                                : mockupBase.includes("TO")
+                                    ? sizesToddler
+                                    : mockupBase.includes("BB")
+                                        ? sizesBaby
+                                        : sizesAdult;
+
+                            return sizes.map((size) => ({
+                                mockup: `${mockupBase}${size}`,
+                                img_url: item.img_url,
+                            }));
+                        });
+
+                        await Promise.all(
+                            uploadedFiles.map((data) =>
+                                this.awsService.saveUrls(data)
+                            )
+                        );
+
+                        this.filesUploaded = [
+                            ...(this.filesUploaded || []),
+                            ...uploadedFiles,
+                        ];
+                    } else if (this.selectedBucket && this.selectedBucket.name == "CHART_SIZE") {
+                        const result = await this.awsService.upload(batch, this.selectedBucket.param);
+                        console.log(result);
+
+                        const uploadedFiles = result.data.flatMap((item) => {
+                            const fileName = this.extractFileName(item.img_key);
+                            return {
+                                mockup: `${fileName}`,
+                                img_url: item.img_url,
+                            }
+                        });
+
+                        this.filesUploaded = [
+                            ...(this.filesUploaded || []),
+                            ...uploadedFiles,
+                        ];
+                    }
+
                     await delay(delayBetweenBatches);
                 }
             };
-    
+
             await uploadBatches();
-    
+
             const groupedList = this.groupByMockup(this.filesUploaded);
             this.exportExcel(groupedList);
-    
+
             this.messageService.add({
                 severity: 'success',
                 summary: 'Success',
                 detail: 'Files uploaded successfully',
                 life: 3000,
             });
-    
+
             this.uploader.clear();
             this.uploading = false;
             this.uploaded = true;
@@ -227,7 +269,7 @@ export class UploadAWSS3Component implements OnInit, OnDestroy {
             });
         }
     }
-    
+
 
     extractMockupBase(fileName: string) {
         const fileNamePart = fileName.substring(fileName.lastIndexOf('/') + 1);
@@ -235,12 +277,24 @@ export class UploadAWSS3Component implements OnInit, OnDestroy {
         // Dividir el nombre en dos partes alrededor del primer guion '-'
         const dashIndex = fileNamePart.indexOf('-');
         const underscoreIndex = fileNamePart.indexOf('__');
-    
+
         // Si se encuentran tanto el guion como el '__', extraer la base del mockup
         if (dashIndex !== -1 && underscoreIndex !== -1) {
             // Obtener la parte entre el guion y '__', eliminando los últimos tres caracteres
             const mockupBase = fileNamePart.substring(dashIndex + 1, underscoreIndex - 3);
             return mockupBase;
+        }
+
+        return '';
+    }
+
+    extractFileName(fileName: string) {
+        const fileNamePart = fileName.substring(fileName.lastIndexOf('/') + 1);
+        const parts = fileNamePart.split('-');
+
+        // Verificar que hay al menos dos partes y quitar la extensión si existe
+        if (parts.length > 1) {
+            return parts[1].replace(/\.[^.]+$/, ''); // Elimina la extensión del archivo
         }
 
         return '';

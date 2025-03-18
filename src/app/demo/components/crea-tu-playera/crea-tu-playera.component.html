@@ -5,6 +5,80 @@
             <h1 class="mt-0">{{countdownMessage}}</h1>
         </div>
     </div>
+    
+    <!----------------------------------- SwiftPOD Table --------------------------------------------->
+    <p-toast position="bottom-right" key="br" />
+    <div class="card col-12 px-6 py-6 ">
+        <p-toolbar styleClass="mt-4">
+            <ng-template pTemplate="left">
+                <div class="my-2 flex gap-4 align-items-center">
+                    <h1 class="mb-0 mr-2">SwiftPOD status updated</h1>
+                </div>
+
+            </ng-template>
+
+            <ng-template pTemplate="right">
+                <div class="flex gap-5 justify-content-between">
+                    <span *ngFor="let store of ordersByStore">
+                        <h4>{{store.site_name}}: {{store.count}}</h4>
+                    </span>
+                    <!-- <span><h4>Amazon: </h4></span>
+                    <span><h4>eBay: </h4></span>
+                    <span><h4>Etsy: </h4></span> -->
+                </div>
+            </ng-template>
+        </p-toolbar>
+        <div class="mt-2">
+            <div>
+                <p-table [value]="swiftpodOrders" [scrollable]="true" scrollHeight="400px"
+                    [tableStyle]="{'min-width': '50rem'}">
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th>Site order ID</th>
+                            <th>Order ID</th>
+                            <th>Swift ID</th>
+                            <th>Site name</th>
+                            <th>Date status</th>
+                            <th>Status</th>
+                            <th>Carrier</th>
+                            <th>Tracking number</th>
+                            <th>Tracking URL</th>
+                            <th>Date Shipment</th>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-order>
+                        <tr [ngClass]="getRowClass(order)">
+                            <td>{{order.site_order_id}}</td>
+                            <td>{{order.order_id}}</td>
+                            <td>{{order.swift_id}}</td>
+                            <td>{{order.site_name}}</td>
+                            <td>{{order.date_status}}</td>
+                            <td>
+                                <span [ngClass]="getStatusClass(order.status)">
+                                  {{ order.status }}
+                                </span>
+                              </td>
+                            <td>{{order.carrier}}</td>
+                            <td>{{order.tracking_code}}</td>
+                            <td>{{order.tracking_url}}</td>
+                            <td>{{order.date_shipment}}</td>
+
+                        </tr>
+                    </ng-template>
+                </p-table>
+            </div>
+        </div>
+    </div>
+    <button pButton pRipple class="p-button-primary mb-3" [disabled]="ordersWithoutUpdate.length == 0"
+        (click)="processOrdersWithoutUpdate()">
+        <ng-container *ngIf="!processing; else loading">
+            Orders without update
+        </ng-container>
+        <ng-template #loading>
+            <i class="pi pi-spin pi-spinner" style="font-size: 1.5rem"></i>
+        </ng-template>
+    </button>
+    <!----------------------------------- Crea Tu Playera ---------------------------------------->
     <div class="card col-12 px-6 py-6 ">
         <p-toolbar styleClass="mt-4">
             <ng-template pTemplate="left">
@@ -19,7 +93,8 @@
         </p-toolbar>
         <div class="mt-2">
             <div>
-                <p-table [value]="ctpOrders" [scrollable]="true" scrollHeight="400px" [tableStyle]="{'min-width': '50rem'}">
+                <p-table [value]="ctpOrders" [scrollable]="true" scrollHeight="400px"
+                    [tableStyle]="{'min-width': '50rem'}">
                     <ng-template pTemplate="header">
                         <tr>
                             <th>Site order ID</th>
@@ -66,7 +141,8 @@
         </p-toolbar>
         <div class="mt-2">
             <div>
-                <p-table [value]="tpbOrders" [scrollable]="true" scrollHeight="400px" [tableStyle]="{'min-width': '50rem'}">
+                <p-table [value]="tpbOrders" [scrollable]="true" scrollHeight="400px"
+                    [tableStyle]="{'min-width': '50rem'}">
                     <ng-template pTemplate="header">
                         <tr>
                             <th>Site order ID</th>
@@ -97,70 +173,4 @@
             </div>
         </div>
     </div>
-    <!----------------------------------- SwiftPOD Table --------------------------------------------->
-    <p-toast position="bottom-right" key="br" />
-    <div class="card col-12 px-6 py-6 ">
-        <p-toolbar styleClass="mt-4">
-            <ng-template pTemplate="left">
-                <div class="my-2 flex gap-4 align-items-center">
-                    <h1 class="mb-0 mr-2">SwiftPOD status updated</h1>
-                </div>
-                
-            </ng-template>
-
-            <ng-template pTemplate="right">
-                <div class="flex gap-5 justify-content-between">
-                    <span *ngFor="let store of ordersByStore"><h4>{{store.site_name}}: {{store.count}}</h4></span>
-                    <!-- <span><h4>Amazon: </h4></span>
-                    <span><h4>eBay: </h4></span>
-                    <span><h4>Etsy: </h4></span> -->
-                </div>
-            </ng-template>
-        </p-toolbar>
-        <div class="mt-2">
-            <div>
-                <p-table [value]="swiftpodOrders" [scrollable]="true" scrollHeight="400px" [tableStyle]="{'min-width': '50rem'}">
-                    <ng-template pTemplate="header">
-                        <tr>
-                            <th>Site order ID</th>
-                            <th>Order ID</th>
-                            <th>Swift ID</th>
-                            <th>Site name</th>
-                            <th>Date status</th>
-                            <th>Status</th>
-                            <th>Carrier</th>
-                            <th>Tracking number</th>
-                            <th>Tracking URL</th>
-                            <th>Date Shipment</th>
-                        </tr>
-                    </ng-template>
-                    <ng-template pTemplate="body" let-order>
-                        <tr [ngClass]="{'bg-green-300': order.updated}">
-                            <td>{{order.site_order_id}}</td>
-                            <td>{{order.order_id}}</td>
-                            <td>{{order.swift_id}}</td>
-                            <td>{{order.site_name}}</td>
-                            <td>{{order.date_status}}</td>
-                            <td>{{order.status}}</td>
-                            <td>{{order.carrier}}</td>
-                            <td>{{order.tracking_code}}</td>
-                            <td>{{order.tracking_url}}</td>
-                            <td>{{order.date_shipment}}</td>
-                            
-                        </tr>
-                    </ng-template>
-                </p-table>
-            </div>
-        </div>
-    </div>
-    <button pButton pRipple class="p-button-primary mb-3"
-    [disabled] = "ordersWithoutUpdate.length == 0"
-    (click)="processOrdersWithoutUpdate()">
-    <ng-container *ngIf="!processing; else loading">
-        Orders without update
-    </ng-container>
-    <ng-template #loading>
-        <i class="pi pi-spin pi-spinner" style="font-size: 1.5rem"></i>
-    </ng-template>
-    </button>
 </div>

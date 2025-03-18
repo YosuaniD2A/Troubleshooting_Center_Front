@@ -26,5 +26,8 @@ export class MockupGeneratorService {
     updateMockups(): Promise<any>{
         return lastValueFrom(this.http.get<any>(`${this.baseUrl}getMockupsFromDynamic`));
     }; 
-
+    
+    getColorsBySTyle(style): Promise<any>{
+        return lastValueFrom(this.http.post<any>(`${this.baseUrl}getColorsByStyle`, { style }));
+    }; 
 }

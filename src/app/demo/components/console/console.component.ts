@@ -150,7 +150,7 @@ export class ConsoleComponent implements OnInit {
                         item.sku.includes('UNSPP')
                     ) {
                         print_files.push({
-                            key: 'poster',
+                            key: 'front',
                             url: item.front_art_url,
                         });
                     } else {
@@ -161,9 +161,9 @@ export class ConsoleComponent implements OnInit {
                     }
                 }
                 if (item.front_mockup_url !== '') {
-                    if (item.front_print_area == 'poster') {
+                    if (item.front_print_area == 'poster' || item.sku.includes('UNSPP')) {
                         preview_files.push({
-                            key: 'poster',
+                            key: 'front',
                             url: item.front_mockup_url,
                         });
                     } else {

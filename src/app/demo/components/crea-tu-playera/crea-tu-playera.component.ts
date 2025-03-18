@@ -19,6 +19,7 @@ const headers = new Headers({
 
 @Component({
     templateUrl: './crea-tu-playera.component.html',
+    styleUrls: ['./crea-tu-playera.component.scss'],
     providers: [MessageService],
 })
 export class CreaTuPlayeraComponent implements OnInit, OnDestroy {
@@ -45,7 +46,7 @@ export class CreaTuPlayeraComponent implements OnInit, OnDestroy {
         private http: HttpClient,
         private messageService: MessageService,
         private orderUpdate: OrderUpdateService
-    ) {}
+    ) { }
 
     async ngOnInit() {
         this.startCountdown();
@@ -172,6 +173,30 @@ export class CreaTuPlayeraComponent implements OnInit, OnDestroy {
     async getOrdersWithoutUpdate() {
         const result = await this.swiftPodService.getOrdersWithoutUpdate();
         this.ordersWithoutUpdate = result.data;
+    }
+
+    getStatusClass(status: string): string {
+        switch (status) {
+            case 'new_order':
+                return 'status new-order'; // Azul
+            case 'in_production':
+                return 'status in-production'; // Amarillo
+            case 'shipped':
+                return 'status shipped'; // Verde
+            default:
+                return 'status default'; // Gris (para casos no contemplados)
+        }
+    }
+
+    getRowClass(order: any): string {
+        if (order.updated) {
+            if (order.status === 'shipped') {
+                return 'bg-green-300'; // Verde si está actualizado y enviado
+            } else if (order.status === 'in_production') {
+                return 'bg-yellow-300'; // Amarillo si está actualizado y en producción
+            }
+        }
+        return ''; // Sin clase adicional si no cumple las condiciones
     }
 
     //---------------- Update zone ----------------------------------------------
@@ -562,7 +587,7 @@ export class CreaTuPlayeraComponent implements OnInit, OnDestroy {
         this.processing = true;
         try {
             console.log(this.ordersWithoutUpdate);
-            
+
             const processed = await this.creaTuPlayerService.processOrdersWithoutUpdate(this.ordersWithoutUpdate);
             console.log(processed);
             this.messageService.add({
@@ -572,7 +597,7 @@ export class CreaTuPlayeraComponent implements OnInit, OnDestroy {
                 key: 'br',
                 life: 3000,
             });
-            
+
         } catch (error) {
             this.messageService.add({
                 severity: 'error',

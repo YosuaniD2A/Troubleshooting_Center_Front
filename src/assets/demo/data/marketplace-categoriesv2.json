@@ -568,5 +568,108 @@
                 ]
             }
         ]
+    },
+    "Temu": {
+        "groups": [
+            {
+                "label": "Men",
+                "value": "general",
+                "items": [
+                    {
+                        "label": "T-Shirts",
+                        "value": "30478",
+                        "path": "Clothing, Shoes & Jewelry / Men / Clothing / T-Shirts & Tanks / T-Shirts"
+                    },
+                    {
+                        "label": "Sweatshirts",
+                        "value": "30466",
+                        "path": "Clothing, Shoes & Jewelry / Men / Clothing / Fashion Hoodies & Sweatshirts / Fashion Sweatshirts"
+                    },
+                    {
+                        "label": "Hoodies",
+                        "value": "30467",
+                        "path": "Clothing, Shoes & Jewelry / Men / Clothing / Fashion Hoodies & Sweatshirts / Fashion Hoodies"
+                    },
+                    {
+                        "label": "Tank Top",
+                        "value": "30479",
+                        "path": "Clothing, Shoes & Jewelry / Men / Clothing / T-Shirts & Tanks / Tank Tops"
+                    }
+                ]
+            },
+            {
+                "label": "Women",
+                "value": "general",
+                "items": [
+                    {
+                        "label": "T-Shirts",
+                        "value": "29069",
+                        "path": "Clothing, Shoes & Jewelry / Women / Clothing / Tops, Tees & Blouses / T-Shirts"
+                    },
+                    {
+                        "label": "Tanks & Camis",
+                        "value": "29071",
+                        "path": "Clothing, Shoes & Jewelry / Women / Clothing / Tops, Tees & Blouses / Tanks & Camis"
+                    },
+                    {
+                        "label": "Sweatshirts",
+                        "value": "29066",
+                        "path": "Clothing, Shoes & Jewelry / Women / Clothing / Fashion Hoodies & Sweatshirts / Fashion Sweatshirts"
+                    },
+                    {
+                        "label": "Hoodies",
+                        "value": "29065",
+                        "path": "Clothing, Shoes & Jewelry / Women / Clothing / Fashion Hoodies & Sweatshirts / Fashion Hoodies"
+                    }
+                ]
+            },
+            {
+                "label": "Girls",
+                "value": "general",
+                "items": [
+                    {
+                        "label": "T-Shirts",
+                        "value": "29553",
+                        "path": "Clothing, Shoes & Jewelry / Girls / Clothing / Tops, Tees & Blouses / Tees"
+                    },
+                    {
+                        "label": "Sweatshirts",
+                        "value": "29689",
+                        "path": "Clothing, Shoes & Jewelry / Girls / Clothing / Fashion Hoodies & Sweatshirts / Fashion Sweatshirts"
+                    },
+                    {
+                        "label": "Hoodies",
+                        "value": "29690",
+                        "path": "Clothing, Shoes & Jewelry / Girls / Clothing / Fashion Hoodies & Sweatshirts / Fashion Hoodies"
+                    }
+                ]
+            },
+            {
+                "label": "Boys",
+                "value": "general",
+                "items": [
+                    {
+                        "label": "T-Shirts",
+                        "value": "30843",
+                        "path": "Clothing, Shoes & Jewelry / Boys / Clothing / Tops, Tees & Shirts / Tees"
+                    },
+                    {
+                        "label": "Tank Tops",
+                        "value": "30841",
+                        "path": "Clothing, Shoes & Jewelry / Boys / Clothing / Tops, Tees & Shirts / Tank Tops"
+                    },
+                    {
+                        "label": "Sweatshirts",
+                        "value": "30847",
+                        "path": "Clothing, Shoes & Jewelry / Boys / Clothing / Fashion Hoodies & Sweatshirts / Fashion Sweatshirts"
+                    },
+                    {
+                        "label": "Hoodies",
+                        "value": "30846",
+                        "path": "Clothing, Shoes & Jewelry / Boys / Clothing / Fashion Hoodies & Sweatshirts / Fashion Hoodies"
+                    }
+                ]
+            }
+        ]
     }
 }

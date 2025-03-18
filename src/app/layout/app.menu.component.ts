@@ -27,13 +27,19 @@ export class AppMenuComponent implements OnInit {
                     // { label: 'Shutterstock License & Download', icon: 'pi pi-fw pi-download', routerLink: ['/shutterstock'] },
                     { label: 'Orders status', icon: 'pi pi-fw pi-cloud-upload', routerLink: ['/crea-tu-playera'] },
                     { label: 'Sales Reports by Periods', icon: 'pi pi-fw pi-chart-bar', routerLink: ['/sales-reports'] },
-                    { label: 'Change Broken Images', icon: 'pi pi-fw pi-images', routerLink: ['/broken-images'] },                  
+                    //{ label: 'Change Broken Images', icon: 'pi pi-fw pi-images', routerLink: ['/broken-images'] },                  
                     { label: 'Scalablepress - Whithout Design_Id', icon: 'pi pi-fw pi-question', routerLink: ['/scalablepress'] },
-                    { label: 'Correct Shipping Addresses', icon: 'pi pi-fw pi-map', routerLink: ['/shipping-address'] },
-                    { label: 'Upload Files', icon: 'pi pi-fw pi-upload', routerLink: ['/upload-ptos'] },
-                    { label: 'AWS Upload Images', icon: 'pi pi-fw pi-amazon', routerLink: ['/upload-aws-s3'] },
-                    { label: 'Mockup Generator', icon: 'pi pi-fw pi-tag', routerLink: ['/mockup-generator'] }                
+                    //{ label: 'Correct Shipping Addresses', icon: 'pi pi-fw pi-map', routerLink: ['/shipping-address'] },
+                    { label: 'Dropbox Upload Images', icon: 'pi pi-fw pi-upload', routerLink: ['/upload-ptos'] },
+                    { label: 'AWS Upload Images', icon: 'pi pi-fw pi-amazon', routerLink: ['/upload-aws-s3'] }              
                 ]
+            },
+            {
+                label: 'AI Generators',
+                items: [
+                    { label: 'Metadata Info Generator', icon: 'pi pi-fw pi-sparkles', routerLink: ['/info-generator'] },
+                    { label: 'Mockup Generator', icon: 'pi pi-fw pi-tag', routerLink: ['/mockup-generator'] }                
+                ] 
             },
             {
                 label: 'Teeblox',

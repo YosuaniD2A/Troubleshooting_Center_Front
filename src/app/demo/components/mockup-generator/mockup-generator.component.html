@@ -66,7 +66,7 @@
                 <div class="field col-12 md:col-3 mb-0">
                     <label for="type" class="font-bold">Type</label>
                     <p-dropdown [options]="type" [(ngModel)]="selectedType" id="type" optionLabel="name"
-                        placeholder="Select an option" [showClear]="true"
+                        placeholder="Select an option" [showClear]="true" (onChange)="onTypeChange($event)"
                         [ngClass]="{ 'ng-dirty ng-invalid': errors.includes('type') }" />
                 </div>
                 <div class="field col-12 md:col-3 mb-0">

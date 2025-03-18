@@ -416,6 +416,10 @@ export class ListingGeneratorComponent implements OnInit {
         const colorObj = this.colors.find((item) => item.pod_code === pod_code);
         return colorObj ? colorObj.color : '';
     }
+    getColorUrlByPodCode(pod_code) {
+        const colorObj = this.colors.find((item) => item.pod_code === pod_code);
+        return colorObj ? colorObj.url : '';
+    }
 
     resetParams() {
         this.step1 = 'step';
@@ -524,7 +528,7 @@ export class ListingGeneratorComponent implements OnInit {
     }
 
     async processPTO() {
-        try {
+        try {           
             this.activeMessage = false;
             this.synchronizeData();
             this.validateDesigns(this.ptoDesigns);
@@ -647,6 +651,8 @@ export class ListingGeneratorComponent implements OnInit {
                 child_data,
                 parents_data
             );
+            console.log(masterList);
+            
 
             const wb: XLSX.WorkBook = XLSX.utils.book_new();
 
@@ -792,6 +798,7 @@ export class ListingGeneratorComponent implements OnInit {
                             ...detail.sizes.map((size) => ({
                                 full_sku: size.full_sku,
                                 color: this.getColorNameByPodCode(size.color),
+                                color_url: this.getColorUrlByPodCode(size.color),
                                 size: size.size.replace(/^0+/, ''),
                                 price: size.price,
                                 msrp: size.msrp,
@@ -822,16 +829,15 @@ export class ListingGeneratorComponent implements OnInit {
                                     ([marketplace, categoryArray]) => [
                                         marketplace,
                                         Array.isArray(categoryArray)
-                                            ? Array.from(
-                                                new Set(categoryArray)
-                                            ).join(', ')
-                                            : '',
+                                            ? Array.from(new Set(categoryArray)).join(', ')  // Si es array, concatenar con coma
+                                            : categoryArray // Si es string, solo mostrar el string tal cual
                                     ]
                                 )
                             ),
                             childrens: detail.sizes.map((size) => ({
                                 full_sku: size.full_sku,
                                 color: this.getColorNameByPodCode(size.color),
+                                color_url: this.getColorUrlByPodCode(size.color),
                                 size: size.size.replace(/^0+/, ''),
                                 price: size.price,
                                 msrp: size.msrp,
@@ -1673,8 +1679,8 @@ export class ListingGeneratorComponent implements OnInit {
                     'Machine Wash', // Care Instructions
                     'No', // Is Customizable?
                     'Crew Neck', // Neck Style
-                    this.amazonSleeveStyle(parent.styles), // Sleeve Type
-                    this.amazonSleeveStyle(parent.styles) == 'Long Sleeve' ? 'Pull On' : '', //Closure Type
+                    this.sleeveStyle(parent.styles), // Sleeve Type
+                    this.sleeveStyle(parent.styles) == 'Long Sleeve' ? 'Pull On' : '', //Closure Type
                     'Child', // Parentage Level
                     'Variation', // Child Relationship Type
                     parent.parent_sku, // Parent SKU
@@ -2955,7 +2961,7 @@ export class ListingGeneratorComponent implements OnInit {
                             child.image1, //First Image
                             '', //Back Image
                             child.image4, //Square Chart
-                            '', //Color Index Image
+                            child.color_url, //Color Index Image
                             child.image2, //Detail image 1
                             child.image3, //Detail image 2
                             '', //Detail image 3
@@ -2965,7 +2971,7 @@ export class ListingGeneratorComponent implements OnInit {
                             '', //Detail image 7
                             '', //Detail image 8
                             '', //Detail image 9
-                            '', //Seller SKU
+                            child.full_sku, //Seller SKU
                             200, //Inventory [U.S.+PS4343240944]
                             5.3, //Weight
                             'oz', //Unit of weight
@@ -3018,7 +3024,7 @@ export class ListingGeneratorComponent implements OnInit {
                             '', //Multilingual product description [es]
                             '', //Brand
                             child.image1, //First Image
-                            '', //Back Image
+                            child.color_url, //Back Image
                             child.image4, //Square Chart
                             '', //Color Index Image
                             child.image2, //Detail image 1
@@ -3030,7 +3036,7 @@ export class ListingGeneratorComponent implements OnInit {
                             '', //Detail image 7
                             '', //Detail image 8
                             '', //Detail image 9
-                            '', //Seller SKU
+                            child.full_sku, //Seller SKU
                             200, //Inventory [U.S.+PS4343240944]
                             5.3, //Weight
                             'oz', //Unit of weight
@@ -3083,7 +3089,7 @@ export class ListingGeneratorComponent implements OnInit {
                             child.image1, //First Image
                             '', //Back Image
                             child.image4, //Square Chart
-                            '', //Color Index Image
+                            child.color_url, //Color Index Image
                             child.image2, //Detail image 1
                             child.image3, //Detail image 2
                             '', //Detail image 3
@@ -3093,7 +3099,7 @@ export class ListingGeneratorComponent implements OnInit {
                             '', //Detail image 7
                             '', //Detail image 8
                             '', //Detail image 9
-                            '', //Seller SKU
+                            child.full_sku, //Seller SKU
                             200, //Inventory [U.S.+PS4343240944]
                             10.5, //Weight
                             'oz', //Unit of weight
@@ -3148,7 +3154,7 @@ export class ListingGeneratorComponent implements OnInit {
                             child.image1, //First Image
                             '', //Back Image
                             child.image4, //Square Chart
-                            '', //Color Index Image
+                            child.color_url, //Color Index Image
                             child.image2, //Detail image1
                             child.image3, //Detail image2
                             '', //Detail image3
@@ -3158,7 +3164,7 @@ export class ListingGeneratorComponent implements OnInit {
                             '', //Detail image7
                             '', //Detail image8
                             '', //Detail image9
-                            '', //Seller SKU
+                            child.full_sku, //Seller SKU
                             200, //Inventory[U.S.+PS4343240944]
                             5.3, //Weight
                             'oz', //Unit of weight
@@ -3213,7 +3219,7 @@ export class ListingGeneratorComponent implements OnInit {
                             child.image1, //First Image
                             '', //Back Image
                             child.image4, //Square Chart
-                            '', //Color Index Image
+                            child.color_url, //Color Index Image
                             child.image2, //Detail image1
                             child.image3, //Detail image2
                             '', //Detail image3
@@ -3223,7 +3229,7 @@ export class ListingGeneratorComponent implements OnInit {
                             '', //Detail image7
                             '', //Detail image8
                             '', //Detail image9
-                            '', //Seller SKU
+                            child.full_sku, //Seller SKU
                             200, //Inventory[U.S.+PS4343240944]
                             20.5, //Weight
                             'oz', //unit of weight
@@ -3279,7 +3285,7 @@ export class ListingGeneratorComponent implements OnInit {
                             child.image1, //First Image
                             '', //Back Image
                             child.image4, //Square Chart
-                            '', //Color Index Image
+                            child.color_url, //Color Index Image
                             child.image2, //Detail image 1
                             child.image3, //Detail image 2
                             '', //Detail image 3
@@ -3289,7 +3295,7 @@ export class ListingGeneratorComponent implements OnInit {
                             '', //Detail image 7
                             '', //Detail image 8
                             '', //Detail image 9
-                            '', //Seller SKU
+                            child.full_sku, //Seller SKU
                             200, //Inventory [U.S.+PS4343240944]
                             5.3, //Weight
                             'oz', //Unit of weight
@@ -3341,7 +3347,7 @@ export class ListingGeneratorComponent implements OnInit {
                             child.image1, //First Image
                             '', //Back Image
                             child.image4, //Square Chart
-                            '', //Color Index Image
+                            child.color_url, //Color Index Image
                             child.image2, //Detail image 1
                             child.image3, //Detail image 2
                             '', //Detail image 3
@@ -3351,7 +3357,7 @@ export class ListingGeneratorComponent implements OnInit {
                             '', //Detail image 7
                             '', //Detail image 8
                             '', //Detail image 9
-                            '', //Seller SKU
+                            child.full_sku, //Seller SKU
                             200, //Inventory [U.S.+PS4343240944]
                             5.3, //Weight
                             'oz', //Unit of weight
@@ -3406,7 +3412,7 @@ export class ListingGeneratorComponent implements OnInit {
                             child.image1, //First Image
                             '', //Back Image
                             child.image4, //Square Chart
-                            '', //Color Index Image
+                            child.color_url, //Color Index Image
                             child.image2, //Detail image 1
                             child.image3, //Detail image 2
                             '', //Detail image 3
@@ -3416,7 +3422,7 @@ export class ListingGeneratorComponent implements OnInit {
                             '', //Detail image 7
                             '', //Detail image 8
                             '', //Detail image 9
-                            '', //Seller SKU
+                            child.full_sku, //Seller SKU
                             200, //Inventory [U.S.+PS4343240944]
                             20.5, //Weight
                             'oz', //Unit of weight
@@ -3476,7 +3482,7 @@ export class ListingGeneratorComponent implements OnInit {
                             child.image1, //First Image
                             '', //Back Image
                             child.image4, //Square Chart
-                            '', //Color Index Image
+                            child.color_url, //Color Index Image
                             child.image2, //Detail image 1
                             child.image3, //Detail image 2
                             '', //Detail image 3
@@ -3486,7 +3492,7 @@ export class ListingGeneratorComponent implements OnInit {
                             '', //Detail image 7
                             '', //Detail image 8
                             '', //Detail image 9
-                            '', //Seller SKU
+                            child.full_sku, //Seller SKU
                             200, //Inventory [U.S.+PS4343240944]
                             10.5, //Weight
                             'oz', //Unit of weight
@@ -3602,12 +3608,132 @@ export class ListingGeneratorComponent implements OnInit {
     }
     generateTemuTemplate(masterList: any[]) {
         const headerRow1 = [
+            "Category",
+            "Product Name",
+            "Contribution Goods",
+            "Contribution SKU",
+            "Product Description",
+            "Bullet Point",
+            "Bullet Point",
+            "Bullet Point",
+            "Detail Images URL",
+            "Detail Images URL",
+            "Detail Images URL",
+            "12 - Material",
+            "15 - Composition: Cotton",
+            "15 - Composition: Polyester",
+            "26 - Pattern",
+            "83 - Details",
+            "21 - Collar Style",
+            "19 - Style",
+            "20 - Operation Instruction",
+            "22 - Fabric",
+            "115 - Applicable People",
+            "76 - Season",
+            "24 - Sheer",
+            "27 - Sleeve Type",
+            "29 - Sleeve Length",
+            "28 - Length",
+            "114 - Fit Type",
+            "1192 - Weaving Method",
+            "1919 - Printing Type",
+            "6926 - Fabric Texture 1",
+            "6930 - Fabric Weight 1 (g/m²) - value",
+            "6930 - Fabric Weight 1 (g/m²) - unit",
+            "6928 - Lining Texture",
+            "6934 - Lining Weight (g/m²) - value",
+            "6934 - Lining Weight (g/m²) - unit",
+            "6547 - Lining Ingredients: Polyester",
+            "6547 - Lining Ingredients: Cotton",
+            "Variation Theme",
+            "Size Family",
+            "Sub-Size Family",
+            "Size",
+            "Color",
+            "Unit",
+            "US Size",
+            "3 - Tops - Product - Chest",
+            "3 - Tops - Product - Length",
+            "SKU Images URL (x10)",
+            "Quantity",
+            "Base Price - USD",
+            "List Price - USD",
+            "Weight - lb",
+            "Length - in",
+            "Width - in",
+            "Height - in",
+            "Handling Time",
+            "Shipping Template",
+            "Import Designation",
+            "Fulfillment Channel",
+            "Country/Region of Origin",
+            "California Proposition 65 Warning Type"
         ];
 
         const data: any[][] = [];
         masterList.forEach((parent) => {
             parent.childrens.forEach((child: any, index: number) => {
                 data.push([
+                    parent.categories.Temu, //Category
+                    parent.title, //Product Name
+                    parent.parent_sku, //Contribution Goods
+                    child.full_sku, //Contribution SKU
+                    parent.description, //Product Description
+                    parent.feature1, //Bullet Point
+                    parent.feature2, //Bullet Point
+                    parent.feature3, //Bullet Point
+                    child.image1, //Detail Images URL
+                    child.image2, //Detail Images URL
+                    child.image4, //Detail Images URL
+                    this.temuMaterial(parent.styles), //12 - Material
+                    this.percentCotton(parent.styles), //15 - Composition: Cotton
+                    this.percentPolyester(parent.styles), //15 - Composition: Polyester
+                    'Solid color', //26 - Pattern
+                    'None', //83 - Details
+                    'Crew Neck', //21 - Collar Style
+                    'Casual', //19 - Style
+                    'Machine wash, do not dry clean', //20 - Operation Instruction
+                    'Non-Stretch', //22 - Fabric
+                    this.temuAgeGroup(parent.classification), //115 - Applicable People
+                    'All-season', //76 - Season
+                    'No', //24 - Sheer
+                    'Regular Sleeve', //27 - Sleeve Type
+                    this.sleeveStyle(parent.styles), //29 - Sleeve Length
+                    'Short Length', //28 - Length
+                    'Regular', //114 - Fit Type
+                    'Non-woven Fabric', //1192 - Weaving Method
+                    'Positioning Printing', //1919 - Printing Type
+                    'Smooth fabric', //6926 - Fabric Texture 1
+                    180, //6930 - Fabric Weight 1 (g/m²) - value
+                    'g/m²', //6930 - Fabric Weight 1 (g/m²) - unit
+                    'Smooth fabric', //6928 - Lining Texture
+                    180, //6934 - Lining Weight (g/m²) - value
+                    'g/m²', //6934 - Lining Weight (g/m²) - unit
+                    this.percentPolyester(parent.styles), //6547 - Lining Ingredients: Polyester
+                    this.percentCotton(parent.styles), //6547 - Lining Ingredients: Cotton
+                    'Color × Size', //Variation Theme
+                    '10000 - US/EU size', //Size Family
+                    '10 - Alpha', //Sub-Size Family
+                    this.temuTranslateSize(child.size), //Size
+                    child.color, //Color
+                    'in-lbs-fl oz', //Unit
+                    this.temuTranslateSize(child.size), //US Size
+                    this.itemChest(child.size, parent.styles), //3 - Tops - Product - Chest
+                    this.itemLength(child.size, parent.styles), //3 - Tops - Product - Length
+                    child.image2, //SKU Images URL (x10)
+                    200, //Quantity
+                    child.price, //Base Price - USD
+                    child.price, //List Price - USD
+                    this.itemWeight(parent.styles), //Weight - lb
+                    this.itemLength(child.size, parent.styles), //Length - in
+                    this.itemWidth(child.size, parent.styles), //Width - in
+                    this.itemHeight(child.size, parent.styles), //Height - in
+                    '2 Days', //Handling Time
+                    'Shipping Address', //Shipping Template
+                    'Made in the USA and Imported', //Import Designation
+                    'I will ship this item myself', //Fulfillment Channel
+                    'United States', //Country/Region of Origin
+                    'No Warning Applicable' //California Proposition 65 Warning Type
                 ]);
             });
         });
@@ -3686,153 +3812,6 @@ export class ListingGeneratorComponent implements OnInit {
             default:
                 return '';
         }
-    }
-    colorCategory(color: string) {
-        const colorGroup = {
-            Beige: [],
-            Black: [
-                'Black',
-                'Sport Grey/black',
-                'Indigo Black Heather',
-                'Black/polka Dots',
-                'Black Heather',
-                'Solid Black',
-                'Vintage Black',
-                'Solid Black Blend',
-            ],
-            Blue: [
-                'Heather Blue',
-                'Light Blue Heather',
-                'Pool Blue',
-                'Carolina Blue',
-                'Tahiti Blue',
-                'Royal blue',
-                'Baby Blue',
-                'Blue',
-                'Blue Dusk',
-                'Heather Columbia Blue',
-                'Solid Cool Blue',
-                'Solid Light Blue',
-                'Heather Ice Blue',
-                'Indigo Blue',
-                'Navy Blue',
-                'Navy',
-                'Blue Jean',
-                'Blue Spruce',
-                'Flo Blue',
-                'Ice Blue',
-                'Lagoon Blue',
-                'Mystic Blue',
-                'Royal',
-                'Light Blue'
-            ],
-            Bronze: [],
-            Brown: ['Brown', 'Pebble Brown'],
-            Clear: [],
-            Gold: [
-                'Vegas Gold',
-                'Solid Gold',
-                'Heather Yellow Gold',
-                'Gold',
-                'Old Gold',
-            ],
-            Gray: [
-                'Grey',
-                'Heather Cool Grey',
-                'Grey Triblend',
-                'Sport Grey',
-                'Warm Grey',
-                'Ice Grey',
-                'Ash Grey',
-                'Heather Grey',
-                'Sport Grey/black',
-                'Dark Grey',
-                'Solid Warm Grey',
-                'Solid Dark Grey',
-                'Solid Light Grey',
-                'Dark Grey Heather',
-                'Charcoal Grey',
-                'Ash',
-                'Oxford Grey',
-            ],
-            Green: [
-                'Military Green',
-                'Kelly Green Heather',
-                'Electric Green',
-                'Antique Irish Green',
-                'Solid Military Green',
-                'Kelly green',
-                'Forest Green',
-                'Green',
-                'Irish Green',
-                'Turf Green',
-                'Solid Forest Green',
-                'Solid Kelly Green',
-                'Heather Green',
-                'Kelly Green',
-                'Light Green',
-                'Safety Green',
-                'Lime'
-            ],
-            Multicolor: [],
-            Orange: [
-                'Light Orange',
-                'Tennessee Orange',
-                'Texas Orange',
-                'Orange',
-                'Antique Orange',
-                'Burnt Orange',
-            ],
-            Pink: [
-                'Hot Pink',
-                'Classic Pink',
-                'Safety Pink',
-                'Bright Pink',
-                'Vintage Hot Pink',
-                'Cardinal Red',
-                'Heather Red',
-                'True Red',
-                'Solid Red',
-                'Canvas Red',
-                'Solid Cardinal Red',
-                'Heliconia',
-                'Light Pink'
-            ],
-            Purple: [
-                'Purple Rush',
-                'Purple',
-                'Heather Team Purple',
-                'Solid Purple Rush',
-                'Team Purple',
-            ],
-            Red: [
-                'Cherry Red',
-                'Red Heather',
-                'Vintage Red',
-                'Cherry Red',
-                'Red',
-            ],
-            Silver: ['Silver', 'New Silver'],
-            White: [
-                'Vintage White',
-                'White/color Dots',
-                'White',
-                'Solid White',
-                'WHITE MARLE',
-                'White/black',
-                'Grey/white',
-                'Black To White',
-            ],
-            Yellow: ['Yellow', 'Pale Yellow', 'Neon Yellow', 'Maize Yellow', 'Daisy'],
-        };
-
-        for (const [group, colors] of Object.entries(colorGroup)) {
-            if (colors.includes(color)) {
-                return group;
-            }
-        }
-
-        return '';
     }
     walmartGender(classification: string) {
         switch (classification) {
@@ -4068,25 +4047,6 @@ export class ListingGeneratorComponent implements OnInit {
                 return '';
         }
     }
-    amazonSleeveStyle(style: string) {
-        const productStyleMap: { [key: string]: string } = {
-            'T-shirt': 'Short Sleeve',
-            'T-shirt Color': 'Short Sleeve',
-            'Tie Dye Crystal': 'Short Sleeve',
-            'Tie Dye Cyclone': 'Short Sleeve',
-            'Tie Dye Spiral': 'Short Sleeve',
-            'Long Sleeve': 'Long Sleeve',
-            'Hoddie': 'Long Sleeve',
-            'Sweatshirt': 'Long Sleeve',
-            'Crop Tee': 'Short Sleeve',
-            'Crop Top': 'Short Sleeve',
-            'Tank Top': 'Sleeveless',
-            'Racerback Tank': 'Sleeveless',
-            'Bodysuit': 'Short Sleeve',
-        }
-        const normalizedType = style.trim();
-        return productStyleMap[normalizedType] || '';
-    }
 
     //--------------------------Funciones especificas de Pipeline -----------------------------------
 
@@ -4191,31 +4151,6 @@ export class ListingGeneratorComponent implements OnInit {
         }
 
         return '';
-    }
-    itemWeight(style: string) {
-        switch (style) {
-            case 'T-shirt':
-                return 5.30;
-            case 'Long Sleeve':
-                return 5.30;
-            case 'Hoddie':
-                return 20.50;
-            case 'Sweatshirt':
-                return 10.50;
-            case 'Crop Tee':
-                return 5.30;
-            case 'Crop Top':
-                return 5.30;
-            case 'Tank Top':
-                return 5.30;
-            case 'Racerback Tank':
-                return 5.30;
-            case 'Bodysuit':
-                return 4.50;
-
-            default:
-                return 0.00;
-        }
     }
     faireMaterial(style: string) {
         const productStyleMap: { [key: string]: string } = {
@@ -4352,5 +4287,361 @@ export class ListingGeneratorComponent implements OnInit {
         }
         const normalizedType = style.trim();
         return productStyleMap[normalizedType] || '';
+    }
+
+    //--------------------------Funciones especificas de Temu -----------------------------------
+
+    temuMaterial(style: string) {
+        const productStyleMap: { [key: string]: string } = {
+            'T-shirt': 'Cotton',
+            'T-shirt Color': 'Cotton',
+            'Tie Dye Crystal': 'Cotton',
+            'Tie Dye Cyclone': 'Cotton',
+            'Tie Dye Spiral': 'Cotton',
+            'Long Sleeve': 'Cotton',
+            'Hoddie': 'Cotton & Polyester',
+            'Sweatshirt': 'Cotton & Polyester',
+            'Crop Tee': 'Cotton',
+            'Crop Top': 'Cotton',
+            'Tank Top': 'Cotton & Polyester',
+            'Racerback Tank': 'Cotton & Polyester',
+            'Bodysuit': 'Cotton',
+        }
+        const normalizedType = style.trim();
+        return productStyleMap[normalizedType] || '';
+    }
+    temuAgeGroup(classification: string) {
+        switch (classification) {
+            case 'ME':
+                return 'Adult';
+            case 'WO':
+                return 'Adult';
+            case 'BB':
+                return 'Baby';
+            case 'TO':
+                return 'Toddler';
+            case 'YO':
+                return 'Teen';
+
+            default:
+                return '';
+        }
+    }
+    temuTranslateSize(size) {
+        switch (size) {
+            case 'XS':
+                return 'XS';
+            case 'S':
+                return 'S';
+            case 'M':
+                return 'M';
+            case 'L':
+                return 'L';
+            case 'XL':
+                return 'XL';
+            case '2XL':
+                return 'XXL';
+            case '3XL':
+                return 'XXXL';
+            case '4XL':
+                return '4XL';
+            case '5XL':
+                return '5XL';
+
+            default:
+                return '';
+        }
+    }
+
+    //-------------------------- General Funtions ------------------------------
+
+    colorCategory(color: string) {
+        const colorGroup = {
+            Beige: [],
+            Black: [
+                'Black',
+                'Sport Grey/black',
+                'Indigo Black Heather',
+                'Black/polka Dots',
+                'Black Heather',
+                'Solid Black',
+                'Vintage Black',
+                'Solid Black Blend',
+            ],
+            Blue: [
+                'Heather Blue',
+                'Light Blue Heather',
+                'Pool Blue',
+                'Carolina Blue',
+                'Tahiti Blue',
+                'Royal blue',
+                'Baby Blue',
+                'Blue',
+                'Blue Dusk',
+                'Heather Columbia Blue',
+                'Solid Cool Blue',
+                'Solid Light Blue',
+                'Heather Ice Blue',
+                'Indigo Blue',
+                'Navy Blue',
+                'Navy',
+                'Blue Jean',
+                'Blue Spruce',
+                'Flo Blue',
+                'Ice Blue',
+                'Lagoon Blue',
+                'Mystic Blue',
+                'Royal',
+                'Light Blue'
+            ],
+            Bronze: [],
+            Brown: ['Brown', 'Pebble Brown'],
+            Clear: [],
+            Gold: [
+                'Vegas Gold',
+                'Solid Gold',
+                'Heather Yellow Gold',
+                'Gold',
+                'Old Gold',
+            ],
+            Gray: [
+                'Grey',
+                'Heather Cool Grey',
+                'Grey Triblend',
+                'Sport Grey',
+                'Warm Grey',
+                'Ice Grey',
+                'Ash Grey',
+                'Heather Grey',
+                'Sport Grey/black',
+                'Dark Grey',
+                'Solid Warm Grey',
+                'Solid Dark Grey',
+                'Solid Light Grey',
+                'Dark Grey Heather',
+                'Charcoal Grey',
+                'Ash',
+                'Oxford Grey',
+            ],
+            Green: [
+                'Military Green',
+                'Kelly Green Heather',
+                'Electric Green',
+                'Antique Irish Green',
+                'Solid Military Green',
+                'Kelly green',
+                'Forest Green',
+                'Green',
+                'Irish Green',
+                'Turf Green',
+                'Solid Forest Green',
+                'Solid Kelly Green',
+                'Heather Green',
+                'Kelly Green',
+                'Light Green',
+                'Safety Green',
+                'Lime'
+            ],
+            Multicolor: [],
+            Orange: [
+                'Light Orange',
+                'Tennessee Orange',
+                'Texas Orange',
+                'Orange',
+                'Antique Orange',
+                'Burnt Orange',
+            ],
+            Pink: [
+                'Hot Pink',
+                'Classic Pink',
+                'Safety Pink',
+                'Bright Pink',
+                'Vintage Hot Pink',
+                'Cardinal Red',
+                'Heather Red',
+                'True Red',
+                'Solid Red',
+                'Canvas Red',
+                'Solid Cardinal Red',
+                'Heliconia',
+                'Light Pink'
+            ],
+            Purple: [
+                'Purple Rush',
+                'Purple',
+                'Heather Team Purple',
+                'Solid Purple Rush',
+                'Team Purple',
+            ],
+            Red: [
+                'Cherry Red',
+                'Red Heather',
+                'Vintage Red',
+                'Cherry Red',
+                'Red',
+            ],
+            Silver: ['Silver', 'New Silver'],
+            White: [
+                'Vintage White',
+                'White/color Dots',
+                'White',
+                'Solid White',
+                'WHITE MARLE',
+                'White/black',
+                'Grey/white',
+                'Black To White',
+            ],
+            Yellow: ['Yellow', 'Pale Yellow', 'Neon Yellow', 'Maize Yellow', 'Daisy'],
+        };
+
+        for (const [group, colors] of Object.entries(colorGroup)) {
+            if (colors.includes(color)) {
+                return group;
+            }
+        }
+
+        return '';
+    }
+    sleeveStyle(style: string) {
+        const productStyleMap: { [key: string]: string } = {
+            'T-shirt': 'Short Sleeve',
+            'T-shirt Color': 'Short Sleeve',
+            'Tie Dye Crystal': 'Short Sleeve',
+            'Tie Dye Cyclone': 'Short Sleeve',
+            'Tie Dye Spiral': 'Short Sleeve',
+            'Long Sleeve': 'Long Sleeve',
+            'Hoddie': 'Long Sleeve',
+            'Sweatshirt': 'Long Sleeve',
+            'Crop Tee': 'Short Sleeve',
+            'Crop Top': 'Short Sleeve',
+            'Tank Top': 'Sleeveless',
+            'Racerback Tank': 'Sleeveless',
+            'Bodysuit': 'Short Sleeve',
+        }
+        const normalizedType = style.trim();
+        return productStyleMap[normalizedType] || '';
+    }
+    percentCotton(style: string) {
+        const productStyleMap: { [key: string]: string } = {
+            'T-shirt': '100',
+            'T-shirt Color': '100',
+            'Tie Dye Crystal': '100',
+            'Tie Dye Cyclone': '100',
+            'Tie Dye Spiral': '100',
+            'Long Sleeve': '100',
+            'Hoddie': '50',
+            'Sweatshirt': '75',
+            'Crop Tee': '100',
+            'Crop Top': '100',
+            'Tank Top': '50',
+            'Racerback Tank': '60',
+            'Bodysuit': '100',
+        }
+        const normalizedType = style.trim();
+        return productStyleMap[normalizedType] || '';
+    }
+    percentPolyester(style: string) {
+        const productStyleMap: { [key: string]: string } = {
+            'T-shirt': '',
+            'T-shirt Color': '',
+            'Tie Dye Crystal': '',
+            'Tie Dye Cyclone': '',
+            'Tie Dye Spiral': '',
+            'Long Sleeve': '',
+            'Hoddie': '50',
+            'Sweatshirt': '25',
+            'Crop Tee': '',
+            'Crop Top': '',
+            'Tank Top': '50',
+            'Racerback Tank': '40',
+            'Bodysuit': '',
+        }
+        const normalizedType = style.trim();
+        return productStyleMap[normalizedType] || '';
+    }
+    itemWeight(style: string) {
+        switch (style) {
+            case 'T-shirt':
+                return 5.30;
+            case 'Long Sleeve':
+                return 5.30;
+            case 'Hoddie':
+                return 20.50;
+            case 'Sweatshirt':
+                return 10.50;
+            case 'Crop Tee':
+                return 5.30;
+            case 'Crop Top':
+                return 5.30;
+            case 'Tank Top':
+                return 5.30;
+            case 'Racerback Tank':
+                return 5.30;
+            case 'Bodysuit':
+                return 4.50;
+
+            default:
+                return 0.00;
+        }
+    }
+    itemChest(size, style) {
+        const chestSizes = {
+            "T-shirt": { "XS": 32, "S": 36, "M": 40, "L": 44, "XL": 48, "2XL": 52, "3XL": 56, "4XL": 60, "5XL": 64, "2T": 20, "3T": 22, "4T": 24, "5T": 26, "NB": 16, "6M": 17, "12M": 18, "18M": 19, "24M": 20 },
+            "Hoodie": { "XS": 34, "S": 38, "M": 42, "L": 46, "XL": 50, "2XL": 54, "3XL": 58, "4XL": 62, "5XL": 66, "2T": 22, "3T": 24, "4T": 26, "5T": 28 },
+            "Sweatshirt": { "XS": 34, "S": 38, "M": 42, "L": 46, "XL": 50, "2XL": 54, "3XL": 58, "4XL": 62, "5XL": 66, "2T": 22, "3T": 24, "4T": 26, "5T": 28 },
+            "Long Sleeve": { "XS": 32, "S": 36, "M": 40, "L": 44, "XL": 48, "2XL": 52, "3XL": 56, "4XL": 60, "5XL": 64, "2T": 20, "3T": 22, "4T": 24, "5T": 26 },
+            "Crop Tee": { "XS": 32, "S": 34, "M": 36, "L": 38, "XL": 40, "2XL": 42, "3XL": 44 },
+            "Crop Top": { "XS": 32, "S": 34, "M": 36, "L": 38, "XL": 40, "2XL": 42, "3XL": 44 },
+            "Tank Top": { "XS": 30, "S": 34, "M": 38, "L": 42, "XL": 46, "2XL": 50, "3XL": 54, "4XL": 58, "5XL": 62 },
+            "Racerback Tank": { "XS": 30, "S": 34, "M": 38, "L": 42, "XL": 46, "2XL": 50, "3XL": 54, "4XL": 58, "5XL": 62 },
+            "Bodysuit": { "NB": 16, "6M": 17, "12M": 18, "18M": 19, "24M": 20 }
+        };
+    
+        return chestSizes[style]?.[size] ?? 0;
+    }
+    itemLength(size, style) {
+        const lengthChart = {
+            "T-shirt": {"2T": 15, "3T": 16, "4T": 17, "5T": 18,"NB": 11, "6M": 12, "12M": 13, "18M": 14, "24M": 15,"XS": 14.75, "S": 15.62, "M": 17, "L": 18.5, "XL": 20,"2XL": 21.5, "3XL": 22.87, "4XL": 24.25, "5XL": 25.37 },
+            "Bodysuit": { "NB": 11, "6M": 12, "12M": 13, "18M": 14, "24M": 15 },
+            "Hoodie": { "2T": 15, "3T": 16, "4T": 17, "5T": 18, "XS": 32, "S": 33, "M": 34, "L": 35, "XL": 36, "2XL": 37, "3XL": 38, "4XL": 39, "5XL": 40 },
+            "Sweatshirt": { "2T": 15, "3T": 16, "4T": 17, "5T": 18, "XS": 32, "S": 33, "M": 34, "L": 35, "XL": 36, "2XL": 37, "3XL": 38, "4XL": 39, "5XL": 40 },
+            "Long Sleeve": { "2T": 15, "3T": 16, "4T": 17, "5T": 18, "XS": 32, "S": 33, "M": 34, "L": 35, "XL": 36, "2XL": 37, "3XL": 38, "4XL": 39, "5XL": 40 },
+            'Crop Tee': { "XS": 15.75, "S": 16.75, "M": 18, "L": 19.5, "XL": 20.75, '2XL': 22 },
+            'Crop Top': { "XS": 15.75, "S": 16.75, "M": 18, "L": 19.5, "XL": 20.75, '2XL': 22 },
+            'Tank Top': { "XS": 14.75, "S": 15.62, "M": 17, "L": 18.5, "XL": 20,"2XL": 21.5, "3XL": 22.87, "4XL": 24.25, "5XL": 25.37 },
+            'Racerback Tank': { "XS": 14.75, "S": 15.62, "M": 17, "L": 18.5, "XL": 20,"2XL": 21.5, "3XL": 22.87, "4XL": 24.25, "5XL": 25.37 },
+        };
+
+        return lengthChart[style]?.[size] ?? 0.00;
+    }
+    itemWidth(size, style) {
+        const widths = {
+            "T-shirt": { "XS": 27, "S": 28, "M": 29, "L": 30, "XL": 31, "2XL": 32, "3XL": 33, "4XL": 34, "5XL": 35, "2T": 12, "3T": 13, "4T": 14, "5T": 15, "NB": 10, "6M": 10.5, "12M": 11, "18M": 11.5, "24M": 12 },
+            "Hoodie": { "XS": 25, "S": 26, "M": 27, "L": 28, "XL": 29, "2XL": 30, "3XL": 31, "4XL": 32, "5XL": 33, "2T": 13, "3T": 14, "4T": 15, "5T": 16 },
+            "Sweatshirt": { "XS": 25, "S": 26, "M": 27, "L": 28, "XL": 29, "2XL": 30, "3XL": 31, "4XL": 32, "5XL": 33, "2T": 13, "3T": 14, "4T": 15, "5T": 16 },
+            "Long Sleeve": { "XS": 16, "S": 18, "M": 20, "L": 22, "XL": 24, "2XL": 26, "3XL": 28, "4XL": 30, "5XL": 32, "2T": 12, "3T": 13, "4T": 14, "5T": 15 },
+            "Crop Tee": { "XS": 16, "S": 17, "M": 18, "L": 19, "XL": 20, "2XL": 21, "3XL": 22 },
+            "Crop Top": { "XS": 16, "S": 17, "M": 18, "L": 19, "XL": 20, "2XL": 21, "3XL": 22 },
+            "Tank Top": { "XS": 14, "S": 16, "M": 18, "L": 20, "XL": 22, "2XL": 24, "3XL": 26, "4XL": 28, "5XL": 30 },
+            "Racerback Tank": { "XS": 14, "S": 16, "M": 18, "L": 20, "XL": 22, "2XL": 24, "3XL": 26, "4XL": 28, "5XL": 30 },
+            "Bodysuit": { "NB": 8, "6M": 8.5, "12M": 9, "18M": 9.5, "24M": 10 }
+        };
+
+        return widths[style]?.[size] ?? 0;
+    }
+    itemHeight(size, style) {
+        const heights = {
+            "T-shirt": { "XS": 16, "S": 18, "M": 20, "L": 22, "XL": 24, "2XL": 26, "3XL": 28, "4XL": 30, "5XL": 32, "2T": 15, "3T": 16, "4T": 17, "5T": 18, "NB": 12, "6M": 13, "12M": 14, "18M": 15, "24M": 16 },
+            "Hoodie": { "XS": 18, "S": 20, "M": 22, "L": 24, "XL": 26, "2XL": 28, "3XL": 30, "4XL": 32, "5XL": 34, "2T": 16, "3T": 17, "4T": 18, "5T": 19 },
+            "Sweatshirt": { "XS": 18, "S": 20, "M": 22, "L": 24, "XL": 26, "2XL": 28, "3XL": 30, "4XL": 32, "5XL": 34, "2T": 16, "3T": 17, "4T": 18, "5T": 19 },
+            "Long Sleeve": { "XS": 26, "S": 28, "M": 29, "L": 30, "XL": 31, "2XL": 32, "3XL": 33, "4XL": 34, "5XL": 35, "2T": 15, "3T": 16, "4T": 17, "5T": 18 },
+            "Crop Tee": { "XS": 16, "S": 17, "M": 18, "L": 19, "XL": 20, "2XL": 21, "3XL": 22 },
+            "Crop Top": { "XS": 16, "S": 17, "M": 18, "L": 19, "XL": 20, "2XL": 21, "3XL": 22 },
+            "Tank Top": { "XS": 25, "S": 26, "M": 27, "L": 28, "XL": 29, "2XL": 30, "3XL": 31, "4XL": 32, "5XL": 33 },
+            "Racerback Tank": { "XS": 25, "S": 26, "M": 27, "L": 28, "XL": 29, "2XL": 30, "3XL": 31, "4XL": 32, "5XL": 33 },
+            "Bodysuit": { "NB": 14, "6M": 15, "12M": 16, "18M": 17, "24M": 18 }
+        };
+
+        return heights[style]?.[size] ?? 0;
     }
 }

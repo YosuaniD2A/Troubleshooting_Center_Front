@@ -4,6 +4,8 @@
         <h1 class="mb-0 mr-2">Upload to </h1>
         <img src="assets/demo/images/pngwing.png" width="100px" alt="">
     </div>
+    <p-dropdown [options]="buckets" (onChange)="assign($event)" optionLabel="name" [showClear]="true"
+            placeholder="Select AWS Bucket"></p-dropdown>
 </p-toolbar>
 <div class="flex gap-3 px-3 py-3">
     <div class="card mb-0 col-12 md:col-4 px-6 py-6 ">
