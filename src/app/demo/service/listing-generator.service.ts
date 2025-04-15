@@ -19,6 +19,10 @@ export class ListingGeneratorService {
         return lastValueFrom(this.http.get<any>(`${this.baseUrl}getPTO/${pto}`))
     }
 
+    getLicense(sku): Promise<any> {
+        return lastValueFrom(this.http.get<any>(`${this.baseUrl}getLicense/${sku}`))
+    }
+
     getMockups(pto): Promise<any> {
         return lastValueFrom(this.http.get<any>(`${this.baseUrl}getMockups/${pto}`))
     }

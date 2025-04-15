@@ -106,7 +106,7 @@ export class ConsoleComponent implements OnInit {
             case 'swiftpod':
                 return false;
             case 'crea_tu_playera':
-                if (site_name === 'Amazon Mexico' || site_name === 'Walmart') {
+                if (site_name === 'Amazon Mexico' || site_name === 'Walmart' || site_name === 'Amazon MX') {
                     return false;
                 } else {
                     return true;
@@ -624,6 +624,30 @@ export class ConsoleComponent implements OnInit {
                     return lightColors.includes(color)
                         ? 'https://www.dropbox.com/scl/fi/aqnoc1vhv9bcnp1sc5v2x/COCA-COLA-NECK-LABEL_BLACK.png?rlkey=ta9s2tgkxtioxxz2ch2n5fnoy&st=5xb7r5vb&raw=1'
                         : 'https://www.dropbox.com/scl/fi/x33qmdppr79p5zobrcex9/COCA-COLA-NECK-LABEL_WHITE.png?rlkey=jel74fg286maujvr04airm6jw&st=o8nm2fm4&raw=1';
+                case 'Dubble Bubble':
+                    return lightColors.includes(color)
+                        ? 'https://www.dropbox.com/scl/fi/0l1k2un1lwapx9qxbs0jv/DUBBLE-BUBBLE-NECK-PRINT-BLACK.png?rlkey=fujj0jdlrt7q6spvgdpdl29md&st=dn0hff58&raw=1'
+                        : 'https://www.dropbox.com/scl/fi/b42vpj8zmazta2zw7gsyn/DUBBLE-BUBBLE-NECK-PRINT-WHITE.png?rlkey=65arr3gy8nggifc496gifqi4f&st=2h7henfp&raw=1';
+                case 'Fanta':
+                    return lightColors.includes(color)
+                        ? 'https://www.dropbox.com/scl/fi/92kjke01yqwib73s23ycf/FANTA-NECK-LABEL_BLACK.png?rlkey=uie2s2aubmaakbhewpmhzaps7&st=b3datxdb&raw=1'
+                        : 'https://www.dropbox.com/scl/fi/1f2u9m9qdxlhuietwzvb0/FANTA-NECK-LABEL_WHITE.png?rlkey=o7r1rcmj5q6mh0napk1io0u9x&st=9lkfl0ox&raw=1';
+                case 'Tootsie Roll':
+                    return lightColors.includes(color)
+                        ? 'https://www.dropbox.com/scl/fi/1zsozrg05nert4qb3ay6m/TOOTSIE-ROLL-NECK-LABEL_BLACK.png?rlkey=ae6e1rlmgj8ancff2s567n3gm&st=adawoix8&raw=1'
+                        : 'https://www.dropbox.com/scl/fi/8pj8axd1suvzb1qlk5zn4/TOOTSIE-ROLL-NECK-LABEL_WHITE.png?rlkey=erskijsuqw5r517fm34gy20j4&st=s6d0k0ty&raw=1';
+                case 'Legends Of Lucha Libre':
+                    return lightColors.includes(color)
+                        ? 'https://www.dropbox.com/scl/fi/ei767uc2s818v0ljhu4b3/LEGENDS-OF-LUCHA-LIBRE_NECK-LABEL.png?rlkey=opmby6tobqlns35v7t6pbaucs&st=s3jhcdq7&raw=1'
+                        : 'https://www.dropbox.com/scl/fi/6xrfp8l1taqaholg4orii/LEGENDS-OF-LUCHA-LIBRE_NECK-LABEL_WHITE.png?rlkey=cbzju33ia5sy5xa7kir7cabmb&st=xr2ml4mh&raw=1';
+                case 'Sprite':
+                    return lightColors.includes(color)
+                        ? 'https://www.dropbox.com/scl/fi/nofzenilt0b8v5yed3j2s/SPRITE_NECK-LABEL_BLACK.png?rlkey=5n75du6l0hxn1agdgx0ko8qcs&st=aec8do9f&raw=1'
+                        : 'https://www.dropbox.com/scl/fi/pqcolpd3464d71dapukjx/SPRITE_NECK-LABEL_WHITE.png?rlkey=e1frb99vdbztr1hby01v593wt&st=wytzxyz5&raw=1';
+                case 'Van Holten Pickles':
+                    return lightColors.includes(color)
+                        ? 'https://www.dropbox.com/scl/fi/73zzlei9yjw1v7444ujlv/VAN-HOLTEN-S-NECK-LABEL_BLACK.png?rlkey=320b9rlsc6ldcrz13lkxum0wd&st=4j0pc92u&raw=1'
+                        : 'https://www.dropbox.com/scl/fi/u5rtxq6l2kg99qqzf5ihw/VAN-HOLTEN-S-NECK-LABEL_WHITE.png?rlkey=jgxiavt2kcc0i5tij5g2ia872&st=2le468px&raw=1';
 
                 default:
                     return 'empty';
@@ -713,6 +737,7 @@ export class ConsoleComponent implements OnInit {
 
     selectToken(siteName: string): any {
         const token1GroupStore = [
+            'Amazon MX',
             'Amazon Mexico',
             'SmartPrintsInk',
             'Wish',

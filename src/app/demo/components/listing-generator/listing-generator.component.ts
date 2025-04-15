@@ -72,6 +72,7 @@ export class ListingGeneratorComponent implements OnInit {
 
     //Variables de link & unlink
     theme: string = '';
+    selectedLicense: string = '';
     generalKeywords: string = '';
     generalDescription: string = '';
     generalFeature1: string = '';
@@ -103,7 +104,21 @@ export class ListingGeneratorComponent implements OnInit {
         { name: 'Toddlers', value: 'toddlers' },
         { name: 'Unisex Child', value: 'unisex-child' },
     ];
+    swiftpodLicenses: any[] = [
+        { name: 'Emmet Otters', value: 'mens' },
+        { name: 'Emoji', value: 'Emoji' },
+        { name: 'Hola Churro', value: 'Hola Churro' },
+        { name: 'Sid The Science Kid', value: 'Sid The Science Kid' },
+        { name: 'Icee', value: 'Icee' },
+        { name: 'Dippin Dots', value: 'Dippin Dots' },
+        { name: 'Coca Cola', value: 'Coca Cola' },
+        { name: 'Dubble Bubble', value: 'Dubble Bubble' },
+        { name: 'Fanta', value: 'Fanta' },
+        { name: 'Tootsie Roll', value: 'Tootsie Roll' },
+        { name: 'Legends Of Lucha Libre', value: 'Legends Of Lucha Libre' },
+    ];
     issues: string[] = [];
+    clothesWithPoly = ['Hoddie', 'Sweatshirt', 'Tank Top', 'Racerback Tank']
 
     constructor(
         private messageService: MessageService,
@@ -125,6 +140,7 @@ export class ListingGeneratorComponent implements OnInit {
         }, 2000);
 
         this.ptoDesigns = Array.from({ length: 7 }).map((_, i) => `Item #${i}`);
+
     }
 
     async loadData() {
@@ -528,7 +544,7 @@ export class ListingGeneratorComponent implements OnInit {
     }
 
     async processPTO() {
-        try {           
+        try {
             this.activeMessage = false;
             this.synchronizeData();
             this.validateDesigns(this.ptoDesigns);
@@ -647,12 +663,12 @@ export class ListingGeneratorComponent implements OnInit {
 
     async processForStep4(child_data: any[], parents_data: any[]) {
         try {
-            const masterList = this.generateMasterList(
+            const masterList = await this.generateMasterList(
                 child_data,
                 parents_data
             );
             console.log(masterList);
-            
+
 
             const wb: XLSX.WorkBook = XLSX.utils.book_new();
 
@@ -774,88 +790,283 @@ export class ListingGeneratorComponent implements OnInit {
 
     //--------------------------- End Process --------------------------------------------------------------
 
-    generateMasterList(responseRelationship: any[], designs: any[]) {
-        const masterList: Record<string, any> = {}; // Usar un objeto para evitar duplicados en `parent_sku`
-
+    async generateMasterList(responseRelationship: any[], designs: any[]) {
+        const masterMap = new Map<string, any>();
+    
+        // Crear un mapa de relaciones para un acceso rápido
+        const relationshipMap = new Map<string, any[]>();
+    
+        for (const rel of responseRelationship) {
+            const key = `${rel.design}_${rel.classification}`;
+            if (!relationshipMap.has(key)) {
+                relationshipMap.set(key, []);
+            }
+            relationshipMap.get(key)?.push(rel);
+        }
+    
+        // Función para mapear categorías
+        const mapCategories = (categories: any) => {
+            return Object.fromEntries(
+                Object.entries(categories).map(([marketplace, categoryArray]) => [
+                    marketplace,
+                    Array.isArray(categoryArray)
+                        ? Array.from(new Set(categoryArray)).join(', ')
+                        : categoryArray
+                ])
+            );
+        };
+    
         for (const design of designs) {
-            // Dividir las clasificaciones y procesar cada una
             const classifications = design.classification
                 .split(',')
                 .map((cls: string) => cls.trim());
-
+    
             for (const classification of classifications) {
-                // Filtrar detalles relacionados con la clasificación actual
-                const relatedDetails = responseRelationship.filter(
-                    (item) =>
-                        item.design === design.design.slice(2) && // Extraer código de diseño sin prefijo
-                        item.classification === classification
-                );
-
+                const key = `${design.design.slice(2)}_${classification}`;
+                const relatedDetails = relationshipMap.get(key) || [];
+    
                 for (const detail of relatedDetails) {
-                    // Si el `parent_sku` ya existe, agregar más hijos
-                    if (masterList[detail.parent_sku]) {
-                        masterList[detail.parent_sku].childrens.push(
-                            ...detail.sizes.map((size) => ({
-                                full_sku: size.full_sku,
-                                color: this.getColorNameByPodCode(size.color),
-                                color_url: this.getColorUrlByPodCode(size.color),
-                                size: size.size.replace(/^0+/, ''),
-                                price: size.price,
-                                msrp: size.msrp,
-                                mpn: size.mpn,
-                                image1: size.urls[0] ? size.urls[0] : '',
-                                image2: size.urls[1] ? size.urls[1] : '',
-                                image3: size.urls[2] ? size.urls[2] : '',
-                                image4: this.assignFourthImage(classification, design.styles),
-                            }))
-                        );
-                    } else {
-                        // Crear un nuevo `parent_sku`
-                        masterList[detail.parent_sku] = {
+                    const parentSku = detail.parent_sku;
+    
+                    // Si el padre no existe, lo creamos
+                    if (!masterMap.has(parentSku)) {
+                        const parent = {
                             pto: design.pto,
-                            parent_sku: detail.parent_sku,
-                            title: design.title,
+                            parent_sku: parentSku,
+                            title: '',  // Inicialmente vacío
                             theme: design.theme,
                             description: design.description,
-                            classification: classification,
+                            classification,
                             feature1: design.feature1,
                             feature2: design.feature2,
                             feature3: design.feature3,
                             keywords: design.keywords,
                             styles: design.styles,
                             amazonDepart: design.amazonDepart,
-                            categories: Object.fromEntries(
-                                Object.entries(design.categories).map(
-                                    ([marketplace, categoryArray]) => [
-                                        marketplace,
-                                        Array.isArray(categoryArray)
-                                            ? Array.from(new Set(categoryArray)).join(', ')  // Si es array, concatenar con coma
-                                            : categoryArray // Si es string, solo mostrar el string tal cual
-                                    ]
-                                )
-                            ),
-                            childrens: detail.sizes.map((size) => ({
-                                full_sku: size.full_sku,
-                                color: this.getColorNameByPodCode(size.color),
-                                color_url: this.getColorUrlByPodCode(size.color),
-                                size: size.size.replace(/^0+/, ''),
-                                price: size.price,
-                                msrp: size.msrp,
-                                mpn: size.mpn,
-                                image1: size.urls[0] ? size.urls[0] : '',
-                                image2: size.urls[1] ? size.urls[1] : '',
-                                image3: size.urls[2] ? size.urls[2] : '',
-                                image4: this.assignFourthImage(classification, design.styles),
-                            })),
+                            categories: mapCategories(design.categories),
+                            childrens: []
                         };
+    
+                        // Usamos `await` directamente para resolver la promesa antes de agregar los hijos
+                        try {
+                            parent.title = await this.formatTitle(parentSku, design.title, classification, design.styles);
+                        } catch (error) {
+                            console.error(`Error al formatear título para ${parentSku}:`, error);
+                            parent.title = design.title; // Usar el título original si hay un error
+                        }
+    
+                        masterMap.set(parentSku, parent);
                     }
+    
+                    // Agregar hijos al padre después de formatear el título
+                    const parent = masterMap.get(parentSku);
+    
+                    parent.childrens.push(
+                        ...detail.sizes.map((size) => ({
+                            full_sku: size.full_sku,
+                            color: this.getColorNameByPodCode(size.color),
+                            color_url: this.getColorUrlByPodCode(size.color),
+                            size: size.size.replace(/^0+/, ''),  // Eliminar ceros a la izquierda
+                            price: size.price,
+                            msrp: size.msrp,
+                            mpn: size.mpn,
+                            image1: size.urls[0] || '',
+                            image2: size.urls[1] || '',
+                            image3: size.urls[2] || '',
+                            image4: this.assignFourthImage(classification, design.styles),
+                        }))
+                    );
                 }
             }
         }
-
-        // Convertir `masterList` en un array
-        return Object.values(masterList);
+    
+        // Convertir el Map en un array
+        return Array.from(masterMap.values());
     }
+    
+    // async generateMasterList(responseRelationship: any[], designs: any[]) {
+    //     const masterMap = new Map<string, any>();
+
+    //     // Crear un mapa de relaciones para un acceso rápido
+    //     const relationshipMap = new Map<string, any[]>();
+
+    //     for (const rel of responseRelationship) {
+    //         const key = `${rel.design}_${rel.classification}`;
+    //         if (!relationshipMap.has(key)) {
+    //             relationshipMap.set(key, []);
+    //         }
+    //         relationshipMap.get(key)?.push(rel);
+    //     }
+
+    //     // Función para mapear categorías
+    //     const mapCategories = (categories: any) => {
+    //         return Object.fromEntries(
+    //             Object.entries(categories).map(([marketplace, categoryArray]) => [
+    //                 marketplace,
+    //                 Array.isArray(categoryArray)
+    //                     ? Array.from(new Set(categoryArray)).join(', ')
+    //                     : categoryArray
+    //             ])
+    //         );
+    //     };
+
+    //     // Array para manejar todas las promesas de `formatTitle`
+    //     const promises: Promise<void>[] = [];
+
+    //     for (const design of designs) {
+    //         const classifications = design.classification
+    //             .split(',')
+    //             .map((cls: string) => cls.trim());
+
+    //         for (const classification of classifications) {
+    //             const key = `${design.design.slice(2)}_${classification}`;
+    //             const relatedDetails = relationshipMap.get(key) || [];
+
+    //             for (const detail of relatedDetails) {
+    //                 const parentSku = detail.parent_sku;
+    //                 if (!masterMap.has(detail.parent_sku)) {
+
+    //                     // Crear un nuevo padre con un placeholder para el título (que se llenará luego de resolver la promesa)
+    //                     const parent = {
+    //                         pto: design.pto,
+    //                         parent_sku: parentSku,
+    //                         title: '', // Inicialmente vacío, se llenará después
+    //                         theme: design.theme,
+    //                         description: design.description,
+    //                         classification,
+    //                         feature1: design.feature1,
+    //                         feature2: design.feature2,
+    //                         feature3: design.feature3,
+    //                         keywords: design.keywords,
+    //                         styles: design.styles,
+    //                         amazonDepart: design.amazonDepart,
+    //                         categories: mapCategories(design.categories),
+    //                         childrens: []
+    //                     };
+
+    //                     masterMap.set(parentSku, parent);
+
+    //                     // Agregar la promesa de `formatTitle` a la lista
+    //                     promises.push(
+    //                         this.formatTitle(parentSku, design.title, classification, design.styles)
+    //                             .then((formattedTitle) => {
+    //                                 parent.title = formattedTitle;
+    //                             })
+    //                     );
+    //                 }
+
+
+    //                 // Agregar hijos (childrens)
+    //                 const parent = masterMap.get(detail.parent_sku);
+    //                 parent.childrens.push(
+    //                     ...detail.sizes.map((size) => ({
+    //                         full_sku: size.full_sku,
+    //                         color: this.getColorNameByPodCode(size.color),
+    //                         color_url: this.getColorUrlByPodCode(size.color),
+    //                         size: size.size.replace(/^0+/, ''),
+    //                         price: size.price,
+    //                         msrp: size.msrp,
+    //                         mpn: size.mpn,
+    //                         image1: size.urls[0] || '',
+    //                         image2: size.urls[1] || '',
+    //                         image3: size.urls[2] || '',
+    //                         image4: this.assignFourthImage(classification, design.styles),
+    //                     }))
+    //                 );
+    //             }
+    //         }
+    //     }
+
+    //     // Esperar a que todas las promesas de `formatTitle` se resuelvan
+    //     await Promise.all(promises);
+
+    //     // Convertir el Map en un array
+    //     return Array.from(masterMap.values());
+    // }
+
+
+    // generateMasterList(responseRelationship: any[], designs: any[]) {
+    //     const masterList: Record<string, any> = {}; // Usar un objeto para evitar duplicados en `parent_sku`
+
+    //     for (const design of designs) {
+    //         // Dividir las clasificaciones y procesar cada una
+    //         const classifications = design.classification
+    //             .split(',')
+    //             .map((cls: string) => cls.trim());
+
+    //         for (const classification of classifications) {
+    //             // Filtrar detalles relacionados con la clasificación actual
+    //             const relatedDetails = responseRelationship.filter(
+    //                 (item) =>
+    //                     item.design === design.design.slice(2) && // Extraer código de diseño sin prefijo
+    //                     item.classification === classification
+    //             );
+
+    //             for (const detail of relatedDetails) {
+    //                 // Si el `parent_sku` ya existe, agregar más hijos
+    //                 if (masterList[detail.parent_sku]) {
+    //                     masterList[detail.parent_sku].childrens.push(
+    //                         ...detail.sizes.map((size) => ({
+    //                             full_sku: size.full_sku,
+    //                             color: this.getColorNameByPodCode(size.color),
+    //                             color_url: this.getColorUrlByPodCode(size.color),
+    //                             size: size.size.replace(/^0+/, ''),
+    //                             price: size.price,
+    //                             msrp: size.msrp,
+    //                             mpn: size.mpn,
+    //                             image1: size.urls[0] ? size.urls[0] : '',
+    //                             image2: size.urls[1] ? size.urls[1] : '',
+    //                             image3: size.urls[2] ? size.urls[2] : '',
+    //                             image4: this.assignFourthImage(classification, design.styles),
+    //                         }))
+    //                     );
+    //                 } else {
+    //                     // Crear un nuevo `parent_sku`
+    //                     masterList[detail.parent_sku] = {
+    //                         pto: design.pto,
+    //                         parent_sku: detail.parent_sku,
+    //                         title: this.formatTitle(detail.parent_sku, design.title, classification, design.styles),
+    //                         theme: design.theme,
+    //                         description: design.description,
+    //                         classification: classification,
+    //                         feature1: design.feature1,
+    //                         feature2: design.feature2,
+    //                         feature3: design.feature3,
+    //                         keywords: design.keywords,
+    //                         styles: design.styles,
+    //                         amazonDepart: design.amazonDepart,
+    //                         categories: Object.fromEntries(
+    //                             Object.entries(design.categories).map(
+    //                                 ([marketplace, categoryArray]) => [
+    //                                     marketplace,
+    //                                     Array.isArray(categoryArray)
+    //                                         ? Array.from(new Set(categoryArray)).join(', ')  // Si es array, concatenar con coma
+    //                                         : categoryArray // Si es string, solo mostrar el string tal cual
+    //                                 ]
+    //                             )
+    //                         ),
+    //                         childrens: detail.sizes.map((size) => ({
+    //                             full_sku: size.full_sku,
+    //                             color: this.getColorNameByPodCode(size.color),
+    //                             color_url: this.getColorUrlByPodCode(size.color),
+    //                             size: size.size.replace(/^0+/, ''),
+    //                             price: size.price,
+    //                             msrp: size.msrp,
+    //                             mpn: size.mpn,
+    //                             image1: size.urls[0] ? size.urls[0] : '',
+    //                             image2: size.urls[1] ? size.urls[1] : '',
+    //                             image3: size.urls[2] ? size.urls[2] : '',
+    //                             image4: this.assignFourthImage(classification, design.styles),
+    //                         })),
+    //                     };
+    //                 }
+    //             }
+    //         }
+    //     }
+
+    //     // Convertir `masterList` en un array
+    //     return Object.values(masterList);
+    // }
 
     assignFourthImage(classification, style) {
         const urls = {
@@ -991,9 +1202,9 @@ export class ListingGeneratorComponent implements OnInit {
                 'Smartprints', //brand
                 'New without tags', //condition
                 '', //condition_note
-                '', //Precio
+                parent.childrens[0].price, //Precio
                 '', //notes
-                '', //MSRP
+                parent.childrens[0].msrp, //MSRP
                 parent.categories.Ebay, //category_name
                 '', //store_product_url
                 'Smartprints', //manufacturer
@@ -1016,8 +1227,8 @@ export class ListingGeneratorComponent implements OnInit {
                 'Color', //variation_2
                 parent.childrens[0].image1, //product_image_1
                 parent.childrens[0].image2, //product_image_2
-                parent.childrens[0].image3, //product_image_3
-                parent.childrens[0].image4, //product_image_4
+                parent.childrens[0].image4, //product_image_3
+                '', //product_image_4
                 '', //delete
             ]);
             parent.childrens.forEach((child: any) => {
@@ -1054,8 +1265,8 @@ export class ListingGeneratorComponent implements OnInit {
                     child.color, //variation_2',
                     child.image1, //product_image_1',
                     child.image2, //product_image_2',
-                    child.image3, //product_image_3',
-                    child.image4, //product_image_4',
+                    child.image4, //product_image_3',
+                    '', //product_image_4',
                     '', //delete',
                 ]);
             });
@@ -1121,8 +1332,8 @@ export class ListingGeneratorComponent implements OnInit {
             'Color Category (+)',
             'Condition',
             'Fabric Care Instructions (+)',
-            'Fabric Material Name',
             'Fabric Material Percentage',
+            'Fabric Material Name',
             'Gender',
             'Has Written Warranty',
             'Measure',
@@ -1245,8 +1456,8 @@ export class ListingGeneratorComponent implements OnInit {
             'colorCategory',
             'condition',
             'fabricCareInstructions',
-            'materialName',
             'materialPercentage',
+            'materialName',
             'gender',
             'has_written_warranty',
             'productNetContentMeasure',
@@ -1372,8 +1583,8 @@ export class ListingGeneratorComponent implements OnInit {
                     this.colorCategory(child.color), // colorCategory',
                     'New', // condition',
                     'Machine Wash', // fabricCareInstructions',
-                    'Cotton', // materialName',
                     100, // materialPercentage',
+                    'Cotton', // materialName',
                     this.walmartGender(parent.classification), // gender',
                     'Yes - Warranty Text', // has_written_warranty',
                     1, // productNetContentMeasure',
@@ -1387,8 +1598,8 @@ export class ListingGeneratorComponent implements OnInit {
                     '', // upperBodyStrapConfiguration',
                     '', // academicInstitution',
                     child.image2, // productSecondaryImageURL',
-                    child.image3, // productSecondaryImageURL',
                     child.image4, // productSecondaryImageURL',
+                    '', // productSecondaryImageURL',
                     '', // measure',
                     '', // unit',
                     '', // measure',
@@ -1494,208 +1705,1257 @@ export class ListingGeneratorComponent implements OnInit {
         // saveAs(dataBlob, 'Walmart_template.xlsx');
     }
     generateAmazonTemplate(masterList: any[]) {
-        const headerRow = [
-            'Seller SKU',
-            'Record Action',
-            'Product Type',
-            'Item Name',
-            'Brand Name',
-            'Is exempt from supplier declared external product identifier',
-            'Item Type Keyword',
-            'Amazon(CA,AU) - Categorie',
-            'Model Name',
-            'Offering Condition Type',
-            'List Price',
-            'Merchant Shipping Group',
-            'Import Designation',
-            'Fulfillment Channel Code (US)',
-            'Quantity (US)',
-            'Handling Time (US)',
-            'Your Price USD (Sell on Amazon, US)',
-            'Product Description',
-            'Bullet Point',
-            'Bullet Point',
-            'Bullet Point',
-            'Generic Keywords',
-            'Special Features',
-            'Special Features',
-            'Special Features',
-            'Lifestyle',
-            'Style',
-            'Department Name',
-            'Target Gender',
-            'Age Range Description',
-            'Shirt Size System',
-            'Shirt Size Class',
-            'Shirt Size Value',
-            'Shirt Size To Range',
-            'Shirt Body Type',
-            'Shirt Height Type',
-            'Material',
-            'Fabric Type',
-            'Pattern',
-            'Special Size',
-            'Color Map',
-            'Color',
-            'Item Length Description',
-            'Part Number',
-            'Theme',
-            'Fit Type',
-            'Care Instructions',
-            'Is Customizable?',
-            'Neck Style',
-            'Sleeve Type',
-            'Closure Type',
-            'Parentage Level',
-            'Child Relationship Type',
-            'Parent SKU',
-            'Variation Theme Name',
-            'Country of Origin',
-            'Dangerous Goods Regulations',
-            'Main Image URL',
-            'Other Image URL',
-            'Other Image URL',
-            'Other Image URL',
-            'Package Weight',
-            'Package Weight Unit',
+        const headerRowShirts = [
+            "Seller SKU",
+            "Record Action",
+            "Product Type",
+            "Item Name",
+            "Brand Name",
+            "External Product ID Type",
+            "External Product ID",
+            "Merchant Existing Asin",
+            "Is exempt from supplier declared external product identifier",
+            "Item Type Keyword",
+            "Collar Style",
+            "Collar Style",
+            "Age Gender Category",
+            "Model Number",
+            "Model Name",
+            "UNSPSC Code",
+            "National Stock Number",
+            "Model Year",
+            "Skip Offer",
+            "Offering Condition Type",
+            "List Price",
+            "Merchant Shipping Group",
+            "Import Designation",
+            "Fulfillment Channel Code (US)",
+            "Quantity (US)",
+            "Handling Time (US)",
+            "Restock Date (US)",
+            "Inventory Always Available (US)",
+            "Your Price USD (Sell on Amazon, US)",
+            "Pricing Rule (Sell on Amazon, US)",
+            "Minimum Seller Alllowed Price (Sell on Amazon, US)",
+            "Maximum Seller Allowed Price (Sell on Amazon, US)",
+            "Sale Price USD (Sell on Amazon, US)",
+            "Sale Start Date (Sell on Amazon, US)",
+            "Sale End Date (Sell on Amazon, US)",
+            "Offering Release Date (Sell on Amazon, US)",
+            "Stop Selling Date (Sell on Amazon, US)",
+            "Your Price USD (Amazon Business (B2B), US)",
+            "Minimum Seller Alllowed Price (Amazon Business (B2B), US)",
+            "Maximum Seller Allowed Price (Amazon Business (B2B), US)",
+            "Offering Release Date (Amazon Business (B2B), US)",
+            "Stop Selling Date (Amazon Business (B2B), US)",
+            "Quantity Price Type (Amazon Business (B2B), US)",
+            "Quantity Threshold (Lower Bound, Amazon Business (B2B), US)",
+            "Quantity Price (Fixed Price/Percentage Discount, Amazon Business (B2B), US)",
+            "Quantity Threshold (Lower Bound, Amazon Business (B2B), US)",
+            "Quantity Price (Fixed Price/Percentage Discount, Amazon Business (B2B), US)",
+            "Quantity Threshold (Lower Bound, Amazon Business (B2B), US)",
+            "Quantity Price (Fixed Price/Percentage Discount, Amazon Business (B2B), US)",
+            "Quantity Threshold (Lower Bound, Amazon Business (B2B), US)",
+            "Quantity Price (Fixed Price/Percentage Discount, Amazon Business (B2B), US)",
+            "Quantity Threshold (Lower Bound, Amazon Business (B2B), US)",
+            "Quantity Price (Fixed Price/Percentage Discount, Amazon Business (B2B), US)",
+            "Product Description",
+            "Bullet Point",
+            "Bullet Point",
+            "Bullet Point",
+            "Bullet Point",
+            "Bullet Point",
+            "Generic Keywords",
+            "Special Features",
+            "Special Features",
+            "Special Features",
+            "Special Features",
+            "Special Features",
+            "Lifestyle",
+            "Style",
+            "Department Name",
+            "Target Gender",
+            "Age Range Description",
+            "Shirt Size System",
+            "Shirt Size Class",
+            "Shirt Size Value",
+            "Shirt Size To Range",
+            "Neck Size Value",
+            "Neck Size To Value",
+            "Sleeve Length Value",
+            "Sleeve Length To Value",
+            "Shirt Body Type",
+            "Shirt Height Type",
+            "Material",
+            "Material",
+            "Material",
+            "Fabric Type",
+            "Number of Items",
+            "Item Package Quantity",
+            "Strap Type",
+            "Strap Type",
+            "Strap Type",
+            "Subject Character",
+            "Special Size",
+            "Color Map",
+            "Color",
+            "Item Length Description",
+            "Metal Type",
+            "Gem Type",
+            "Occasion",
+            "Occasion",
+            "Occasion",
+            "Occasion",
+            "Occasion",
+            "Part Number",
+            "Item Shape",
+            "Theme",
+            "Ring Size",
+            "Fit Type",
+            "Pocket Description",
+            "Care Instructions",
+            "Magnification Strength",
+            "Magnification Strength Unit",
+            "Shaft Material",
+            "Denomination",
+            "Edition",
+            "Configuration",
+            "Platform for Display",
+            "Design Name",
+            "Is Customizable?",
+            "Pre Printed Text",
+            "Capacity",
+            "Capacity Unit",
+            "Lens Color",
+            "Lens Width",
+            "Occasion",
+            "Flavor",
+            "Wattage",
+            "Voltage",
+            "Package Type",
+            "Pattern",
+            "Item Form",
+            "Unit Count",
+            "Unit Count Type",
+            "Golf Club Flex",
+            "Golf Club Loft",
+            "Golf Club Loft Unit",
+            "Sport Type",
+            "Sport Type",
+            "League Name",
+            "Team Name",
+            "Athlete",
+            "Scent",
+            "Hand Orientation",
+            "Back Style",
+            "Back Style",
+            "Back Style",
+            "Back Style",
+            "Back Style",
+            "Band Color",
+            "Cup Size",
+            "Embellishment Feature",
+            "Embellishment Feature",
+            "Embellishment Feature",
+            "Embellishment Feature",
+            "Embellishment Feature",
+            "Grip Size",
+            "Grip Type",
+            "Inseam Length",
+            "Length Range",
+            "Neck Style",
+            "Neck Style",
+            "Neck Style",
+            "Neck Style",
+            "Neck Style",
+            "Top Style",
+            "Top Style",
+            "Top Style",
+            "Top Style",
+            "Top Style",
+            "Width Range",
+            "Number of Pockets",
+            "Fabric Stretchability",
+            "Shirt Form Type",
+            "Sleeve Cuff Style",
+            "Sleeve Cuff Style",
+            "Sleeve Type",
+            "Closure Type",
+            "Closure Type",
+            "Animal Theme",
+            "Hemline Form",
+            "Hemline Form",
+            "Hemline Form",
+            "Hemline Form",
+            "Hemline Form",
+            "Fashion Decade",
+            "Parentage Level",
+            "Child Relationship Type",
+            "Parent SKU",
+            "Variation Theme Name",
+            "Country of Origin",
+            "Item Weight",
+            "Item Weight Unit",
+            "California Proposition 65 Chemical Name(s)",
+            "FCC ID",
+            "SDoC Contact Name",
+            "SDoC Contact US Mailing Address",
+            "SDoC Contact Email Address",
+            "SDOC Contact US Phone Number",
+            "Compliance Weave Type",
+            "Compliance - Shirt Type",
+            "Main Image URL",
+            "Other Image URL",
+            "Other Image URL",
+            "Other Image URL",
+            "Other Image URL",
+            "Other Image URL",
+            "Other Image URL",
+            "Other Image URL",
+            "Other Image URL",
+            "Swatch Image URL",
+            "Package Length",
+            "Package Length Unit",
+            "Package Width",
+            "Package Width Unit",
+            "Package Height",
+            "Package Height Unit",
+            "Package Weight",
+            "Package Weight Unit",
+            "Item Display Weight",
+            "Item Display Weight Unit"
         ];
+        const headerRowSweatshirt = [
+            "SKU",
+            "Listing Action",
+            "Product Type",
+            "Item Name",
+            "Brand Name",
+            "External Product ID Type",
+            "External Product ID",
+            "Merchant Suggested ASIN",
+            "Is exempt from supplier declared external product identifier",
+            "Item Type Keyword",
+            "Model Number",
+            "Model Name",
+            "Manufacturer",
+            "UNSPSC Code",
+            "National Stock Number",
+            "Skip Offer",
+            "Item Condition",
+            "List Price",
+            "Merchant Shipping Group",
+            "Import Designation",
+            "Fulfillment Channel Code (US)",
+            "Quantity (US)",
+            "Handling Time (US)",
+            "Restock Date (US)",
+            "Inventory Always Available (US)",
+            "Your Price USD (Sell on Amazon, US)",
+            "Pricing Rule (Sell on Amazon, US)",
+            "Minimum Seller Alllowed Price (Sell on Amazon, US)",
+            "Maximum Seller Allowed Price (Sell on Amazon, US)",
+            "Sale Price USD (Sell on Amazon, US)",
+            "Sale Start Date (Sell on Amazon, US)",
+            "Sale End Date (Sell on Amazon, US)",
+            "Offering Release Date (Sell on Amazon, US)",
+            "Stop Selling Date (Sell on Amazon, US)",
+            "Your Price USD (Amazon Business (B2B), US)",
+            "Minimum Seller Alllowed Price (Amazon Business (B2B), US)",
+            "Maximum Seller Allowed Price (Amazon Business (B2B), US)",
+            "Offering Release Date (Amazon Business (B2B), US)",
+            "Stop Selling Date (Amazon Business (B2B), US)",
+            "Quantity Price Type (Amazon Business (B2B), US)",
+            "Quantity Threshold (Lower Bound, Amazon Business (B2B), US)",
+            "Quantity Price (Fixed Price/Percentage Discount, Amazon Business (B2B), US)",
+            "Quantity Threshold (Lower Bound, Amazon Business (B2B), US)",
+            "Quantity Price (Fixed Price/Percentage Discount, Amazon Business (B2B), US)",
+            "Quantity Threshold (Lower Bound, Amazon Business (B2B), US)",
+            "Quantity Price (Fixed Price/Percentage Discount, Amazon Business (B2B), US)",
+            "Quantity Threshold (Lower Bound, Amazon Business (B2B), US)",
+            "Quantity Price (Fixed Price/Percentage Discount, Amazon Business (B2B), US)",
+            "Quantity Threshold (Lower Bound, Amazon Business (B2B), US)",
+            "Quantity Price (Fixed Price/Percentage Discount, Amazon Business (B2B), US)",
+            "Product Description",
+            "Bullet Point",
+            "Bullet Point",
+            "Bullet Point",
+            "Bullet Point",
+            "Bullet Point",
+            "Generic Keywords",
+            "Lifestyle",
+            "Style",
+            "Department Name",
+            "Target Gender",
+            "Age Range Description",
+            "Apparel Size System",
+            "Apparel Size Class",
+            "Apparel Size Value",
+            "Apparel Size To Range",
+            "Apparel Size Body Type",
+            "Apparel Size Height Type",
+            "Material",
+            "Material",
+            "Material",
+            "Fabric Type",
+            "Pattern",
+            "Number of Items",
+            "Item Package Quantity",
+            "Subject Character",
+            "Special Size",
+            "Color Map",
+            "Color",
+            "Item Length Description",
+            "Metal Type",
+            "Gem Type",
+            "Occasion",
+            "Occasion",
+            "Occasion",
+            "Occasion",
+            "Occasion",
+            "Part Number",
+            "Item Shape",
+            "Theme",
+            "Ring Size",
+            "Fit Type",
+            "Pocket Description",
+            "Pocket Description",
+            "Pocket Description",
+            "Pocket Description",
+            "Pocket Description",
+            "Care Instructions",
+            "Magnification Strength",
+            "Magnification Strength Unit",
+            "Shaft Material",
+            "Edition",
+            "Configuration",
+            "Platform for Display",
+            "Wireless Provider",
+            "Lens Color",
+            "Lens Width",
+            "Service Provider",
+            "Flavor",
+            "Wattage",
+            "Memory Storage Capacity",
+            "Memory Storage Capacity Unit",
+            "Customer Package Type",
+            "Pattern",
+            "Unit Count",
+            "Golf Club Flex",
+            "Golf Club Loft",
+            "Golf Club Loft Unit",
+            "League Name",
+            "Team Name",
+            "Athlete",
+            "Scent",
+            "Hand Orientation",
+            "Band Color",
+            "Cup Size",
+            "Embellishment Feature",
+            "Embellishment Feature",
+            "Embellishment Feature",
+            "Embellishment Feature",
+            "Embellishment Feature",
+            "Grip Size",
+            "Ink Color",
+            "Length Range",
+            "Neck Style",
+            "Neck Style",
+            "Neck Style",
+            "Neck Style",
+            "Neck Style",
+            "Version for Country",
+            "Width Range",
+            "Sleeve Type",
+            "Closure Type",
+            "Closure Type",
+            "Sweater Form",
+            "Garment Closure Length Description",
+            "Hemline Form",
+            "Hemline Form",
+            "Hemline Form",
+            "Hemline Form",
+            "Hemline Form",
+            "Parentage Level",
+            "Child Relationship Type",
+            "Parent SKU",
+            "Variation Theme Name",
+            "Country of Origin",
+            "Dangerous Goods Regulations",
+            "GHS Class",
+            "Hazmat Aspect",
+            "Hazmat",
+            "Safety Data Sheet (SDS or MSDS) URL",
+            "Item Weight",
+            "Item Weight Unit",
+            "California Proposition 65 Chemical Name(s)",
+            "FCC ID",
+            "SDoC Contact Name",
+            "SDoC Contact US Mailing Address",
+            "SDoC Contact Email Address",
+            "SDOC Contact US Phone Number",
+            "Main Image URL",
+            "Other Image URL",
+            "Other Image URL",
+            "Other Image URL",
+            "Other Image URL",
+            "Other Image URL",
+            "Other Image URL",
+            "Other Image URL",
+            "Other Image URL",
+            "Swatch Image URL",
+            "Item Package Length",
+            "Package Length Unit",
+            "Item Package Width",
+            "Package Width Unit",
+            "Item Package Height",
+            "Package Height Unit",
+            "Package Weight",
+            "Package Weight Unit",
+            "Item Display Weight",
+            "Item Display Weight Unit",
+        ]
 
         // Datos de las filas (padres e hijos)
         const data: any[][] = [];
-        masterList.forEach((parent) => {
-            data.push([
-                parent.parent_sku, // Seller SKU
-                'Full Update', // Record Action
-                this.amazonProductType(parent.styles), // Product Type
-                parent.title, // Item Name
-                'Smartprints', // Brand Name
-                '', // Is exempt from supplier declared external product identifier
-                this.amazonItemTypeKeyword(parent.styles), // Item Type Keyword
-                '', // Amazon(CA,AU) - Categorie
-                '', // Model Name
-                '', // Offering Condition Type
-                '', // List Price
-                '', // Merchant Shipping Group
-                'Made in the USA and Imported', // Import Designation
-                'DEFAULT', // Fulfillment Channel Code (US)
-                200, // Quantity (US)
-                '', // Handling Time (US)
-                '', // Your Price USD (Sell on Amazon, US)
-                parent.description, // Product Description
-                parent.feature1, // Bullet Point
-                parent.feature2, // Bullet Point
-                parent.feature3, // Bullet Point
-                parent.keywords, // Generic Keywords
-                'Breathable', // Special Features
-                'Absorbent', // Special Features
-                'Lightweight', // Special Features
-                '', // Lifestyle
-                '', // Style
-                parent.amazonDepart, // Department Name
-                this.amazonTargetGender(parent.amazonDepart), // Target Gender
-                this.amazonAgeRangeDesc(parent.classification), // Age Range Description
-                '', // Shirt Size System
-                '', // Shirt Size Class
-                '', // Shirt Size Value
-                '', // Shirt Size To Range
-                '', // Shirt Body Type
-                '', // Shirt Height Type
-                '', // Material
-                this.amazonFabricType(parent.styles), // Fabric Type
-                'Solid', // Pattern
-                '', // Special Size
-                '', // Color Map
-                '', // Color
-                '', // Item Length Description
-                '', // Part Number
-                parent.theme, // Theme
-                '', // Fit Type
-                'Machine Wash', // Care Instructions
-                '', // Is Customizable?
-                '', // Neck Style
-                '', // Sleeve Type
-                '', // Closure Type
-                'Parent', // Parentage Level
-                'Variation', // Child Relationship Type
-                '', // Parent SKU
-                'SIZE/COLOR', // Variation Theme Name
-                'United States', // Country of Origin
-                'Not Applicable', // Dangerous Goods Regulations
-                parent.childrens[0].image1, // Main Image URL
-                '', // Other Image URL
-                '', // Other Image URL
-                '', // Other Image URL
-                '', // Package Weight
-                '', // Package Weight Unit
-            ]);
-            parent.childrens.forEach((child: any) => {
+        if (masterList[0].styles === 'Hoddie' || masterList[0].styles === 'Sweatshirt') {
+            masterList.forEach((parent) => {
                 data.push([
-                    child.full_sku, // Seller SKU
-                    'Full Update', // Record Action
-                    this.amazonProductType(parent.styles), // Product Type
-                    parent.title, // Item Name
-                    'Smartprints', // Brand Name
-                    'Yes', // Is exempt from supplier declared external product identifier
-                    this.amazonItemTypeKeyword(parent.styles), // Item Type Keyword
-                    '', //parent.categories.Amazon, // Amazon(CA,AU) - Categorie
-                    'N/A', // Model Name
-                    'New', // Offering Condition Type
-                    child.price, // List Price
-                    'Migrated Template', // Merchant Shipping Group
-                    'Made in the USA and Imported', // Import Designation
-                    'DEFAULT', // Fulfillment Channel Code (US)
-                    200, // Quantity (US)
-                    '', // Handling Time (US)
-                    child.price, // Your Price USD (Sell on Amazon, US)
-                    parent.description, // Product Description
-                    parent.feature1, // Bullet Point
-                    parent.feature2, // Bullet Point
-                    parent.feature3, // Bullet Point
-                    parent.keywords, // Generic Keywords
-                    'Breathable', // Special Features
-                    'Absorbent', // Special Features
-                    'Lightweight', // Special Features
-                    'Casual', // Lifestyle
-                    this.amazonStyle(parent.styles), // Style
-                    parent.amazonDepart, // Department Name
-                    this.amazonTargetGender(parent.amazonDepart), // Target Gender
-                    this.amazonAgeRangeDesc(parent.classification), // Age Range Description
-                    'US', // Shirt Size System
-                    'Alpha', // Shirt Size Class
-                    this.amazonTranslateSize(child.size), // Shirt Size Value
-                    this.amazonTranslateSizePlus(child.size), // Shirt Size To Range
-                    'Regular', // Shirt Body Type
-                    'Regular', // Shirt Height Type
-                    '', // Material
-                    this.amazonFabricType(parent.styles), // Fabric Type
-                    'Solid', // Pattern
-                    'Standard', // Special Size
-                    this.colorCategory(child.color), // Color Map
-                    child.color, // Color
-                    'Standard Length', // Item Length Description
-                    child.mpn, // Part Number
-                    parent.theme, // Theme
-                    'Regular Fit', // Fit Type
-                    'Machine Wash', // Care Instructions
-                    'No', // Is Customizable?
-                    'Crew Neck', // Neck Style
-                    this.sleeveStyle(parent.styles), // Sleeve Type
-                    this.sleeveStyle(parent.styles) == 'Long Sleeve' ? 'Pull On' : '', //Closure Type
-                    'Child', // Parentage Level
-                    'Variation', // Child Relationship Type
-                    parent.parent_sku, // Parent SKU
-                    'SIZE/COLOR', // Variation Theme Name
-                    'United States', // Country of Origin
-                    'Not Applicable', // Dangerous Goods Regulations
-                    child.image1, // Main Image URL
-                    child.image2, // Other Image URL
-                    child.image3, // Other Image URL
-                    child.image4, // Other Image URL
-                    this.itemWeight(parent.styles), // Package Weight
-                    'Ounces', // Package Weight Unit
+                    parent.parent_sku, //SKU
+                    'Full Update', //Listing Action
+                    this.amazonProductType(parent.styles), //Product Type
+                    parent.title, //Item Name
+                    'Smartprints', //Brand Name
+                    '', //External Product ID Type
+                    '', //External Product ID
+                    '', //Merchant Suggested ASIN
+                    '', //Is exempt from supplier declared external product identifier
+                    this.amazonItemTypeKeyword(parent.styles), //Item Type Keyword
+                    '', //Model Number
+                    'N/A', //Model Name
+                    '', //Manufacturer
+                    '', //UNSPSC Code
+                    '', //National Stock Number
+                    '', //Skip Offer
+                    '', //Item Condition
+                    parent.childrens[0].price, //List Price
+                    '', //Merchant Shipping Group
+                    'Made in the USA and Imported', //Import Designation
+                    'DEFAULT', //Fulfillment Channel Code (US)
+                    200, //Quantity (US)
+                    3, //Handling Time (US)
+                    '', //Restock Date (US)
+                    '', //Inventory Always Available (US)
+                    parent.childrens[0].price, //Your Price USD (Sell on Amazon, US)
+                    '', //Pricing Rule (Sell on Amazon, US)
+                    '', //Minimum Seller Alllowed Price (Sell on Amazon, US)
+                    '', //Maximum Seller Allowed Price (Sell on Amazon, US)
+                    '', //Sale Price USD (Sell on Amazon, US)
+                    '', //Sale Start Date (Sell on Amazon, US)
+                    '', //Sale End Date (Sell on Amazon, US)
+                    '', //Offering Release Date (Sell on Amazon, US)
+                    '', //Stop Selling Date (Sell on Amazon, US)
+                    '', //Your Price USD (Amazon Business (B2B), US)
+                    '', //Minimum Seller Alllowed Price (Amazon Business (B2B), US)
+                    '', //Maximum Seller Allowed Price (Amazon Business (B2B), US)
+                    '', //Offering Release Date (Amazon Business (B2B), US)
+                    '', //Stop Selling Date (Amazon Business (B2B), US)
+                    '', //Quantity Price Type (Amazon Business (B2B), US)
+                    '', //Quantity Threshold (Lower Bound, Amazon Business (B2B), US)
+                    '', //Quantity Price (Fixed Price/Percentage Discount, Amazon Business (B2B), US)
+                    '', //Quantity Threshold (Lower Bound, Amazon Business (B2B), US)
+                    '', //Quantity Price (Fixed Price/Percentage Discount, Amazon Business (B2B), US)
+                    '', //Quantity Threshold (Lower Bound, Amazon Business (B2B), US)
+                    '', //Quantity Price (Fixed Price/Percentage Discount, Amazon Business (B2B), US)
+                    '', //Quantity Threshold (Lower Bound, Amazon Business (B2B), US)
+                    '', //Quantity Price (Fixed Price/Percentage Discount, Amazon Business (B2B), US)
+                    '', //Quantity Threshold (Lower Bound, Amazon Business (B2B), US)
+                    '', //Quantity Price (Fixed Price/Percentage Discount, Amazon Business (B2B), US)
+                    parent.description, //Product Description
+                    parent.feature1, //Bullet Point
+                    parent.feature2, //Bullet Point
+                    parent.feature3, //Bullet Point
+                    '', //Bullet Point
+                    '', //Bullet Point
+                    parent.keywords, //Generic Keywords
+                    'Casual', //Lifestyle
+                    '', //Style
+                    '', //Department Name
+                    this.amazonTargetGender(parent.amazonDepart), //Target Gender
+                    this.amazonAgeRangeDesc(parent.classification), //Age Range Description
+                    '', //Apparel Size System
+                    '', //Apparel Size Class
+                    '', //Apparel Size Value
+                    '', //Apparel Size To Range
+                    '', //Apparel Size Body Type
+                    '', //Apparel Size Height Type
+                    '', //Material
+                    '', //Material
+                    '', //Material
+                    this.amazonFabricType(parent.styles), //Fabric Type
+                    'Solid', //Pattern
+                    '', //Number of Items
+                    '', //Item Package Quantity
+                    '', //Subject Character
+                    '', //Special Size
+                    '', //Color Map
+                    '', //Color
+                    'Standard Length', //Item Length Description
+                    '', //Metal Type
+                    '', //Gem Type
+                    '', //Occasion
+                    '', //Occasion
+                    '', //Occasion
+                    '', //Occasion
+                    '', //Occasion
+                    '', //Part Number
+                    '', //Item Shape
+                    '', //Theme
+                    '', //Ring Size
+                    '', //Fit Type
+                    '', //Pocket Description
+                    '', //Pocket Description
+                    '', //Pocket Description
+                    '', //Pocket Description
+                    '', //Pocket Description
+                    'Machine Wash', //Care Instructions
+                    '', //Magnification Strength
+                    '', //Magnification Strength Unit
+                    '', //Shaft Material
+                    '', //Edition
+                    '', //Configuration
+                    '', //Platform for Display
+                    '', //Wireless Provider
+                    '', //Lens Color
+                    '', //Lens Width
+                    '', //Service Provider
+                    '', //Flavor
+                    '', //Wattage
+                    '', //Memory Storage Capacity
+                    '', //Memory Storage Capacity Unit
+                    '', //Customer Package Type
+                    '', //Pattern
+                    '', //Unit Count
+                    '', //Golf Club Flex
+                    '', //Golf Club Loft
+                    '', //Golf Club Loft Unit
+                    '', //League Name
+                    '', //Team Name
+                    '', //Athlete
+                    '', //Scent
+                    '', //Hand Orientation
+                    '', //Band Color
+                    '', //Cup Size
+                    '', //Embellishment Feature
+                    '', //Embellishment Feature
+                    '', //Embellishment Feature
+                    '', //Embellishment Feature
+                    '', //Embellishment Feature
+                    '', //Grip Size
+                    '', //Ink Color
+                    '', //Length Range
+                    'Crew Neck', //Neck Style
+                    '', //Neck Style
+                    '', //Neck Style
+                    '', //Neck Style
+                    '', //Neck Style
+                    '', //Version for Country
+                    '', //Width Range
+                    this.sleeveStyle(parent.styles), //Sleeve Type
+                    'Pull On', //Closure Type
+                    '', //Closure Type
+                    '', //Sweater Form
+                    '', //Garment Closure Length Description
+                    '', //Hemline Form
+                    '', //Hemline Form
+                    '', //Hemline Form
+                    '', //Hemline Form
+                    '', //Hemline Form
+                    'Parent', //Parentage Level
+                    'Variation', //Child Relationship Type
+                    '', //Parent SKU
+                    'SIZE/COLOR', //Variation Theme Name
+                    'United States', //Country of Origin
+                    'Not Applicable', //Dangerous Goods Regulations
+                    '', //GHS Class
+                    '', //Hazmat Aspect
+                    '', //Hazmat
+                    '', //Safety Data Sheet (SDS or MSDS) URL
+                    '', //Item Weight
+                    '', //Item Weight Unit
+                    '', //California Proposition 65 Chemical Name(s)
+                    '', //FCC ID
+                    '', //SDoC Contact Name
+                    '', //SDoC Contact US Mailing Address
+                    '', //SDoC Contact Email Address
+                    '', //SDOC Contact US Phone Number
+                    parent.childrens[0].image1, //Main Image URL
+                    '', //Other Image URL
+                    parent.childrens[0].image4, //Other Image URL
+                    '', //Other Image URL
+                    '', //Other Image URL
+                    '', //Other Image URL
+                    '', //Other Image URL
+                    '', //Other Image URL
+                    '', //Other Image URL
+                    '', //Swatch Image URL
+                    '', //Item Package Length
+                    '', //Package Length Unit
+                    '', //Item Package Width
+                    '', //Package Width Unit
+                    '', //Item Package Height
+                    '', //Package Height Unit
+                    '', //Package Weight
+                    '', //Package Weight Unit
+                    '', //Item Display Weight
+                    '', //Item Display Weight Unit
                 ]);
+                parent.childrens.forEach((child: any) => {
+                    data.push([
+                        child.full_sku, //SKU
+                        'Full Update', //Listing Action
+                        this.amazonProductType(parent.styles), //Product Type
+                        parent.title, //Item Name
+                        'Smartprints', //Brand Name
+                        '', //External Product ID Type
+                        '', //External Product ID
+                        '', //Merchant Suggested ASIN
+                        'Yes', //Is exempt from supplier declared external product identifier
+                        this.amazonItemTypeKeyword(parent.styles), //Item Type Keyword
+                        '', //Model Number
+                        'N/A', //Model Name
+                        '', //Manufacturer
+                        '', //UNSPSC Code
+                        '', //National Stock Number
+                        '', //Skip Offer
+                        'New', //Item Condition
+                        child.price, //List Price
+                        'Migrated Template', //Merchant Shipping Group
+                        'Made in the USA and Imported', //Import Designation
+                        'DEFAULT', //Fulfillment Channel Code (US)
+                        200, //Quantity (US)
+                        3, //Handling Time (US)
+                        '', //Restock Date (US)
+                        '', //Inventory Always Available (US)
+                        child.price, //Your Price USD (Sell on Amazon, US)
+                        '', //Pricing Rule (Sell on Amazon, US)
+                        '', //Minimum Seller Alllowed Price (Sell on Amazon, US)
+                        '', //Maximum Seller Allowed Price (Sell on Amazon, US)
+                        '', //Sale Price USD (Sell on Amazon, US)
+                        '', //Sale Start Date (Sell on Amazon, US)
+                        '', //Sale End Date (Sell on Amazon, US)
+                        '', //Offering Release Date (Sell on Amazon, US)
+                        '', //Stop Selling Date (Sell on Amazon, US)
+                        '', //Your Price USD (Amazon Business (B2B), US)
+                        '', //Minimum Seller Alllowed Price (Amazon Business (B2B), US)
+                        '', //Maximum Seller Allowed Price (Amazon Business (B2B), US)
+                        '', //Offering Release Date (Amazon Business (B2B), US)
+                        '', //Stop Selling Date (Amazon Business (B2B), US)
+                        '', //Quantity Price Type (Amazon Business (B2B), US)
+                        '', //Quantity Threshold (Lower Bound, Amazon Business (B2B), US)
+                        '', //Quantity Price (Fixed Price/Percentage Discount, Amazon Business (B2B), US)
+                        '', //Quantity Threshold (Lower Bound, Amazon Business (B2B), US)
+                        '', //Quantity Price (Fixed Price/Percentage Discount, Amazon Business (B2B), US)
+                        '', //Quantity Threshold (Lower Bound, Amazon Business (B2B), US)
+                        '', //Quantity Price (Fixed Price/Percentage Discount, Amazon Business (B2B), US)
+                        '', //Quantity Threshold (Lower Bound, Amazon Business (B2B), US)
+                        '', //Quantity Price (Fixed Price/Percentage Discount, Amazon Business (B2B), US)
+                        '', //Quantity Threshold (Lower Bound, Amazon Business (B2B), US)
+                        '', //Quantity Price (Fixed Price/Percentage Discount, Amazon Business (B2B), US)
+                        parent.description, //Product Description
+                        parent.feature1, //Bullet Point
+                        parent.feature2, //Bullet Point
+                        parent.feature3, //Bullet Point
+                        '', //Bullet Point
+                        '', //Bullet Point
+                        parent.keywords, //Generic Keywords
+                        'Casual', //Lifestyle
+                        this.amazonStyle(parent.styles), //Style
+                        parent.amazonDepart, //Department Name
+                        this.amazonTargetGender(parent.amazonDepart), //Target Gender
+                        this.amazonAgeRangeDesc(parent.classification), //Age Range Description
+                        'US', //Apparel Size System
+                        'Alpha', //Apparel Size Class
+                        this.amazonTranslateSize(child.size), //Apparel Size Value
+                        '', //Apparel Size To Range
+                        'Regular', //Apparel Size Body Type
+                        '', //Apparel Size Height Type
+                        'Cotton', //Material
+                        this.clothesWithPoly.includes(parent.styles) ? 'Polyester' : '', //Material
+                        '', //Material
+                        this.amazonFabricType(parent.styles), //Fabric Type
+                        'Solid', //Pattern
+                        '', //Number of Items
+                        '', //Item Package Quantity
+                        '', //Subject Character
+                        'Standard', //Special Size
+                        this.colorCategory(child.color), //Color Map
+                        child.color, //Color
+                        'Standard Length', //Item Length Description
+                        '', //Metal Type
+                        '', //Gem Type
+                        '', //Occasion
+                        '', //Occasion
+                        '', //Occasion
+                        '', //Occasion
+                        '', //Occasion
+                        child.mpn, //Part Number
+                        '', //Item Shape
+                        '', //Theme
+                        '', //Ring Size
+                        'Regular Fit', //Fit Type
+                        '', //Pocket Description
+                        '', //Pocket Description
+                        '', //Pocket Description
+                        '', //Pocket Description
+                        '', //Pocket Description
+                        'Machine Wash', //Care Instructions
+                        '', //Magnification Strength
+                        '', //Magnification Strength Unit
+                        '', //Shaft Material
+                        '', //Edition
+                        '', //Configuration
+                        '', //Platform for Display
+                        '', //Wireless Provider
+                        '', //Lens Color
+                        '', //Lens Width
+                        '', //Service Provider
+                        '', //Flavor
+                        '', //Wattage
+                        '', //Memory Storage Capacity
+                        '', //Memory Storage Capacity Unit
+                        '', //Customer Package Type
+                        'Solid', //Pattern
+                        '', //Unit Count
+                        '', //Golf Club Flex
+                        '', //Golf Club Loft
+                        '', //Golf Club Loft Unit
+                        '', //League Name
+                        '', //Team Name
+                        '', //Athlete
+                        '', //Scent
+                        '', //Hand Orientation
+                        '', //Band Color
+                        '', //Cup Size
+                        '', //Embellishment Feature
+                        '', //Embellishment Feature
+                        '', //Embellishment Feature
+                        '', //Embellishment Feature
+                        '', //Embellishment Feature
+                        '', //Grip Size
+                        '', //Ink Color
+                        '', //Length Range
+                        'Crew Neck', //Neck Style
+                        '', //Neck Style
+                        '', //Neck Style
+                        '', //Neck Style
+                        '', //Neck Style
+                        '', //Version for Country
+                        '', //Width Range
+                        this.sleeveStyle(parent.styles), //Sleeve Type
+                        'Pull On', //Closure Type
+                        '', //Closure Type
+                        '', //Sweater Form
+                        '', //Garment Closure Length Description
+                        '', //Hemline Form
+                        '', //Hemline Form
+                        '', //Hemline Form
+                        '', //Hemline Form
+                        '', //Hemline Form
+                        'Child', //Parentage Level
+                        'Variation', //Child Relationship Type
+                        parent.parent_sku, //Parent SKU
+                        'SIZE/COLOR', //Variation Theme Name
+                        'United States', //Country of Origin
+                        'Not Applicable', //Dangerous Goods Regulations
+                        '', //GHS Class
+                        '', //Hazmat Aspect
+                        '', //Hazmat
+                        '', //Safety Data Sheet (SDS or MSDS) URL
+                        '', //Item Weight
+                        '', //Item Weight Unit
+                        '', //California Proposition 65 Chemical Name(s)
+                        '', //FCC ID
+                        '', //SDoC Contact Name
+                        '', //SDoC Contact US Mailing Address
+                        '', //SDoC Contact Email Address
+                        '', //SDOC Contact US Phone Number
+                        child.image1, //Main Image URL
+                        child.image2, //Other Image URL
+                        child.image4, //Other Image URL
+                        '', //Other Image URL
+                        '', //Other Image URL
+                        '', //Other Image URL
+                        '', //Other Image URL
+                        '', //Other Image URL
+                        '', //Other Image URL
+                        '', //Swatch Image URL
+                        '', //Item Package Length
+                        '', //Package Length Unit
+                        '', //Item Package Width
+                        '', //Package Width Unit
+                        '', //Item Package Height
+                        '', //Package Height Unit
+                        this.itemWeight(parent.styles), //Package Weight
+                        'Ounces', //Package Weight Unit
+                        '', //Item Display Weight
+                        '', //Item Display Weight Unit
+                    ]);
+                });
             });
-        });
+        } else {
+            masterList.forEach((parent) => {
+                data.push([
+                    parent.parent_sku, //Seller SKU
+                    'Full Update', //Record Action
+                    this.amazonProductType(parent.styles), //Product Type
+                    parent.title, //Item Name
+                    'Smartprints', //Brand Name
+                    '', //External Product ID Type
+                    '', //External Product ID
+                    '', //Merchant Existing Asin
+                    '', //Is exempt from supplier declared external product identifier
+                    this.amazonItemTypeKeyword(parent.styles), //Item Type Keyword
+                    '', //Collar Style
+                    '', //Collar Style
+                    '', //Age Gender Category
+                    '', //Model Number
+                    '', //Model Name
+                    '', //UNSPSC Code
+                    '', //National Stock Number
+                    '', //Model Year
+                    '', //Skip Offer
+                    '', //Offering Condition Type
+                    parent.childrens[0].price, //List Price
+                    '', //Merchant Shipping Group
+                    'Made in the USA and Imported', //Import Designation
+                    'DEFAULT', //Fulfillment Channel Code (US)
+                    200, //Quantity (US)
+                    3, //Handling Time (US)
+                    '', //Restock Date (US)
+                    '', //Inventory Always Available (US)
+                    parent.childrens[0].price, //Your Price USD (Sell on Amazon, US)
+                    '', //Pricing Rule (Sell on Amazon, US)
+                    '', //Minimum Seller Alllowed Price (Sell on Amazon, US)
+                    '', //Maximum Seller Allowed Price (Sell on Amazon, US)
+                    '', //Sale Price USD (Sell on Amazon, US)
+                    '', //Sale Start Date (Sell on Amazon, US)
+                    '', //Sale End Date (Sell on Amazon, US)
+                    '', //Offering Release Date (Sell on Amazon, US)
+                    '', //Stop Selling Date (Sell on Amazon, US)
+                    '', //Your Price USD (Amazon Business (B2B), US)
+                    '', //Minimum Seller Alllowed Price (Amazon Business (B2B), US)
+                    '', //Maximum Seller Allowed Price (Amazon Business (B2B), US)
+                    '', //Offering Release Date (Amazon Business (B2B), US)
+                    '', //Stop Selling Date (Amazon Business (B2B), US)
+                    '', //Quantity Price Type (Amazon Business (B2B), US)
+                    '', //Quantity Threshold (Lower Bound, Amazon Business (B2B), US)
+                    '', //Quantity Price (Fixed Price/Percentage Discount, Amazon Business (B2B), US)
+                    '', //Quantity Threshold (Lower Bound, Amazon Business (B2B), US)
+                    '', //Quantity Price (Fixed Price/Percentage Discount, Amazon Business (B2B), US)
+                    '', //Quantity Threshold (Lower Bound, Amazon Business (B2B), US)
+                    '', //Quantity Price (Fixed Price/Percentage Discount, Amazon Business (B2B), US)
+                    '', //Quantity Threshold (Lower Bound, Amazon Business (B2B), US)
+                    '', //Quantity Price (Fixed Price/Percentage Discount, Amazon Business (B2B), US)
+                    '', //Quantity Threshold (Lower Bound, Amazon Business (B2B), US)
+                    '', //Quantity Price (Fixed Price/Percentage Discount, Amazon Business (B2B), US)
+                    parent.description, //Product Description
+                    parent.feature1, //Bullet Point
+                    parent.feature2, //Bullet Point
+                    parent.feature3, //Bullet Point
+                    '', //Bullet Point
+                    '', //Bullet Point
+                    parent.keywords, //Generic Keywords
+                    'Breathable', //Special Features
+                    'Absorbent', //Special Features
+                    'Lightweight', //Special Features
+                    '', //Special Features
+                    '', //Special Features
+                    'Casual', //Lifestyle
+                    '', //Style
+                    '', //Department Name
+                    this.amazonTargetGender(parent.amazonDepart), //Target Gender
+                    this.amazonAgeRangeDesc(parent.classification), //Age Range Description
+                    '', //Shirt Size System
+                    '', //Shirt Size Class
+                    '', //Shirt Size Value
+                    '', //Shirt Size To Range
+                    '', //Neck Size Value
+                    '', //Neck Size To Value
+                    '', //Sleeve Length Value
+                    '', //Sleeve Length To Value
+                    '', //Shirt Body Type
+                    '', //Shirt Height Type
+                    '', //Material
+                    '', //Material
+                    '', //Material
+                    this.amazonFabricType(parent.styles), //Fabric Type
+                    '', //Number of Items
+                    '', //Item Package Quantity
+                    '', //Strap Type
+                    '', //Strap Type
+                    '', //Strap Type
+                    '', //Subject Character
+                    '', //Special Size
+                    '', //Color Map
+                    '', //Color
+                    '', //Item Length Description
+                    '', //Metal Type
+                    '', //Gem Type
+                    '', //Occasion
+                    '', //Occasion
+                    '', //Occasion
+                    '', //Occasion
+                    '', //Occasion
+                    '', //Part Number
+                    '', //Item Shape
+                    '', //Theme
+                    '', //Ring Size
+                    '', //Fit Type
+                    '', //Pocket Description
+                    'Machine Wash', //Care Instructions
+                    '', //Magnification Strength
+                    '', //Magnification Strength Unit
+                    '', //Shaft Material
+                    '', //Denomination
+                    '', //Edition
+                    '', //Configuration
+                    '', //Platform for Display
+                    '', //Design Name
+                    '', //Is Customizable?
+                    '', //Pre Printed Text
+                    '', //Capacity
+                    '', //Capacity Unit
+                    '', //Lens Color
+                    '', //Lens Width
+                    '', //Occasion
+                    '', //Flavor
+                    '', //Wattage
+                    '', //Voltage
+                    '', //Package Type
+                    '', //Pattern
+                    '', //Item Form
+                    '', //Unit Count
+                    '', //Unit Count Type
+                    '', //Golf Club Flex
+                    '', //Golf Club Loft
+                    '', //Golf Club Loft Unit
+                    '', //Sport Type
+                    '', //Sport Type
+                    '', //League Name
+                    '', //Team Name
+                    '', //Athlete
+                    '', //Scent
+                    '', //Hand Orientation
+                    '', //Back Style
+                    '', //Back Style
+                    '', //Back Style
+                    '', //Back Style
+                    '', //Back Style
+                    '', //Band Color
+                    '', //Cup Size
+                    '', //Embellishment Feature
+                    '', //Embellishment Feature
+                    '', //Embellishment Feature
+                    '', //Embellishment Feature
+                    '', //Embellishment Feature
+                    '', //Grip Size
+                    '', //Grip Type
+                    '', //Inseam Length
+                    '', //Length Range
+                    'Crew Neck', //Neck Style
+                    '', //Neck Style
+                    '', //Neck Style
+                    '', //Neck Style
+                    '', //Neck Style
+                    '', //Top Style
+                    '', //Top Style
+                    '', //Top Style
+                    '', //Top Style
+                    '', //Top Style
+                    '', //Width Range
+                    '', //Number of Pockets
+                    '', //Fabric Stretchability
+                    '', //Shirt Form Type
+                    '', //Sleeve Cuff Style
+                    '', //Sleeve Cuff Style
+                    this.sleeveStyle(parent.styles), //Sleeve Type
+                    '', //Closure Type
+                    '', //Closure Type
+                    '', //Animal Theme
+                    '', //Hemline Form
+                    '', //Hemline Form
+                    '', //Hemline Form
+                    '', //Hemline Form
+                    '', //Hemline Form
+                    '', //Fashion Decade
+                    'Parent', //Parentage Level
+                    'Variation', //Child Relationship Type
+                    '', //Parent SKU
+                    'SIZE/COLOR', //Variation Theme Name
+                    'United States', //Country of Origin
+                    '', //Item Weight
+                    '', //Item Weight Unit
+                    '', //California Proposition 65 Chemical Name(s)
+                    '', //FCC ID
+                    '', //SDoC Contact Name
+                    '', //SDoC Contact US Mailing Address
+                    '', //SDoC Contact Email Address
+                    '', //SDOC Contact US Phone Number
+                    '', //Compliance Weave Type
+                    '', //Compliance - Shirt Type
+                    parent.childrens[0].image1, //Main Image URL
+                    '', //Other Image URL
+                    '', //Other Image URL
+                    '', //Other Image URL
+                    '', //Other Image URL
+                    '', //Other Image URL
+                    '', //Other Image URL
+                    '', //Other Image URL
+                    '', //Other Image URL
+                    '', //Swatch Image URL
+                    '', //Package Length
+                    '', //Package Length Unit
+                    '', //Package Width
+                    '', //Package Width Unit
+                    '', //Package Height
+                    '', //Package Height Unit
+                    '', //Package Weight
+                    '', //Package Weight Unit
+                    '', //Item Display Weight
+                    '', //Item Display Weight Unit
+                ]);
+                parent.childrens.forEach((child: any) => {
+                    data.push([
+                        child.full_sku, //Seller SKU
+                        'Full Update', //Record Action
+                        this.amazonProductType(parent.styles), //Product Type
+                        parent.title, //Item Name
+                        'Smartprints', //Brand Name
+                        '', //External Product ID Type
+                        '', //External Product ID
+                        '', //Merchant Existing Asin
+                        'Yes', //Is exempt from supplier declared external product identifier
+                        this.amazonItemTypeKeyword(parent.styles), //Item Type Keyword
+                        '', //Collar Style
+                        '', //Collar Style
+                        '', //Age Gender Category
+                        '', //Model Number
+                        'N/A', //Model Name
+                        '', //UNSPSC Code
+                        '', //National Stock Number
+                        '', //Model Year
+                        '', //Skip Offer
+                        'New', //Offering Condition Type
+                        child.price, //List Price
+                        'Migrated Template', //Merchant Shipping Group
+                        'Made in the USA and Imported', //Import Designation
+                        'DEFAULT', //Fulfillment Channel Code (US)
+                        200, //Quantity (US)
+                        3, //Handling Time (US)
+                        '', //Restock Date (US)
+                        '', //Inventory Always Available (US)
+                        child.price, //Your Price USD (Sell on Amazon, US)
+                        '', //Pricing Rule (Sell on Amazon, US)
+                        '', //Minimum Seller Alllowed Price (Sell on Amazon, US)
+                        '', //Maximum Seller Allowed Price (Sell on Amazon, US)
+                        '', //Sale Price USD (Sell on Amazon, US)
+                        '', //Sale Start Date (Sell on Amazon, US)
+                        '', //Sale End Date (Sell on Amazon, US)
+                        '', //Offering Release Date (Sell on Amazon, US)
+                        '', //Stop Selling Date (Sell on Amazon, US)
+                        '', //Your Price USD (Amazon Business (B2B), US)
+                        '', //Minimum Seller Alllowed Price (Amazon Business (B2B), US)
+                        '', //Maximum Seller Allowed Price (Amazon Business (B2B), US)
+                        '', //Offering Release Date (Amazon Business (B2B), US)
+                        '', //Stop Selling Date (Amazon Business (B2B), US)
+                        '', //Quantity Price Type (Amazon Business (B2B), US)
+                        '', //Quantity Threshold (Lower Bound, Amazon Business (B2B), US)
+                        '', //Quantity Price (Fixed Price/Percentage Discount, Amazon Business (B2B), US)
+                        '', //Quantity Threshold (Lower Bound, Amazon Business (B2B), US)
+                        '', //Quantity Price (Fixed Price/Percentage Discount, Amazon Business (B2B), US)
+                        '', //Quantity Threshold (Lower Bound, Amazon Business (B2B), US)
+                        '', //Quantity Price (Fixed Price/Percentage Discount, Amazon Business (B2B), US)
+                        '', //Quantity Threshold (Lower Bound, Amazon Business (B2B), US)
+                        '', //Quantity Price (Fixed Price/Percentage Discount, Amazon Business (B2B), US)
+                        '', //Quantity Threshold (Lower Bound, Amazon Business (B2B), US)
+                        '', //Quantity Price (Fixed Price/Percentage Discount, Amazon Business (B2B), US)
+                        parent.description, //Product Description
+                        parent.feature1, //Bullet Point
+                        parent.feature2, //Bullet Point
+                        parent.feature3, //Bullet Point
+                        '', //Bullet Point
+                        '', //Bullet Point
+                        parent.keywords, //Generic Keywords
+                        'Breathable', //Special Features
+                        'Absorbent', //Special Features
+                        'Lightweight', //Special Features
+                        '', //Special Features
+                        '', //Special Features
+                        'Casual', //Lifestyle
+                        this.amazonStyle(parent.styles), //Style
+                        parent.amazonDepart, //Department Name
+                        this.amazonTargetGender(parent.amazonDepart), //Target Gender
+                        this.amazonAgeRangeDesc(parent.classification), //Age Range Description
+                        'US', //Shirt Size System
+                        'Alpha', //Shirt Size Class
+                        this.amazonTranslateSize(child.size), //Shirt Size Value
+                        this.amazonTranslateSizePlus(child.size), //Shirt Size To Range
+                        '', //Neck Size Value
+                        '', //Neck Size To Value
+                        '', //Sleeve Length Value
+                        '', //Sleeve Length To Value
+                        'Regular', //Shirt Body Type
+                        'Regular', //Shirt Height Type
+                        'Cotton', //Material
+                        this.clothesWithPoly.includes(parent.styles) ? 'Polyester' : '', //Material
+                        '', //Material
+                        this.amazonFabricType(parent.styles), //Fabric Type
+                        '', //Number of Items
+                        '', //Item Package Quantity
+                        '', //Strap Type
+                        '', //Strap Type
+                        '', //Strap Type
+                        '', //Subject Character
+                        'Standard', //Special Size
+                        this.colorCategory(child.color), //Color Map
+                        child.color, //Color
+                        'Standard Length', //Item Length Description
+                        '', //Metal Type
+                        '', //Gem Type
+                        '', //Occasion
+                        '', //Occasion
+                        '', //Occasion
+                        '', //Occasion
+                        '', //Occasion
+                        child.mpn, //Part Number
+                        '', //Item Shape
+                        '', //Theme
+                        '', //Ring Size
+                        'Regular Fit', //Fit Type
+                        '', //Pocket Description
+                        'Machine Wash', //Care Instructions
+                        '', //Magnification Strength
+                        '', //Magnification Strength Unit
+                        '', //Shaft Material
+                        '', //Denomination
+                        '', //Edition
+                        '', //Configuration
+                        '', //Platform for Display
+                        '', //Design Name
+                        '', //Is Customizable?
+                        '', //Pre Printed Text
+                        '', //Capacity
+                        '', //Capacity Unit
+                        '', //Lens Color
+                        '', //Lens Width
+                        '', //Occasion
+                        '', //Flavor
+                        '', //Wattage
+                        '', //Voltage
+                        '', //Package Type
+                        'Solid', //Pattern
+                        '', //Item Form
+                        '', //Unit Count
+                        '', //Unit Count Type
+                        '', //Golf Club Flex
+                        '', //Golf Club Loft
+                        '', //Golf Club Loft Unit
+                        '', //Sport Type
+                        '', //Sport Type
+                        '', //League Name
+                        '', //Team Name
+                        '', //Athlete
+                        '', //Scent
+                        '', //Hand Orientation
+                        '', //Back Style
+                        '', //Back Style
+                        '', //Back Style
+                        '', //Back Style
+                        '', //Back Style
+                        '', //Band Color
+                        '', //Cup Size
+                        '', //Embellishment Feature
+                        '', //Embellishment Feature
+                        '', //Embellishment Feature
+                        '', //Embellishment Feature
+                        '', //Embellishment Feature
+                        '', //Grip Size
+                        '', //Grip Type
+                        '', //Inseam Length
+                        '', //Length Range
+                        'Crew Neck', //Neck Style
+                        '', //Neck Style
+                        '', //Neck Style
+                        '', //Neck Style
+                        '', //Neck Style
+                        '', //Top Style
+                        '', //Top Style
+                        '', //Top Style
+                        '', //Top Style
+                        '', //Top Style
+                        '', //Width Range
+                        '', //Number of Pockets
+                        '', //Fabric Stretchability
+                        '', //Shirt Form Type
+                        '', //Sleeve Cuff Style
+                        '', //Sleeve Cuff Style
+                        this.sleeveStyle(parent.styles), //Sleeve Type
+                        '', //Closure Type
+                        '', //Closure Type
+                        '', //Animal Theme
+                        '', //Hemline Form
+                        '', //Hemline Form
+                        '', //Hemline Form
+                        '', //Hemline Form
+                        '', //Hemline Form
+                        '', //Fashion Decade
+                        'Child', //Parentage Level
+                        'Variation', //Child Relationship Type
+                        parent.parent_sku, //Parent SKU
+                        'SIZE/COLOR', //Variation Theme Name
+                        'United States', //Country of Origin
+                        '', //Item Weight
+                        '', //Item Weight Unit
+                        '', //California Proposition 65 Chemical Name(s)
+                        '', //FCC ID
+                        '', //SDoC Contact Name
+                        '', //SDoC Contact US Mailing Address
+                        '', //SDoC Contact Email Address
+                        '', //SDOC Contact US Phone Number
+                        '', //Compliance Weave Type
+                        '', //Compliance - Shirt Type
+                        child.image1, //Main Image URL
+                        child.image2, //Other Image URL
+                        child.image4, //Other Image URL
+                        '', //Other Image URL
+                        '', //Other Image URL
+                        '', //Other Image URL
+                        '', //Other Image URL
+                        '', //Other Image URL
+                        '', //Other Image URL
+                        '', //Swatch Image URL
+                        '', //Package Length
+                        '', //Package Length Unit
+                        '', //Package Width
+                        '', //Package Width Unit
+                        '', //Package Height
+                        '', //Package Height Unit
+                        this.itemWeight(parent.styles), //Package Weight
+                        'Ounces', //Package Weight Unit
+                        '', //Item Display Weight
+                        '', //Item Display Weight Unit
+                    ]);
+                });
+            });
+        }
+
+        let headerRow;
+        if (masterList[0].styles === 'Hoddie' || masterList[0].styles === 'Sweatshirt') {
+            headerRow = headerRowSweatshirt;
+        } else {
+            headerRow = headerRowShirts;
+        }
 
         const ws: XLSX.WorkSheet = XLSX.utils.aoa_to_sheet([
             headerRow,
@@ -2285,7 +3545,7 @@ export class ListingGeneratorComponent implements OnInit {
                     (index == 0) ? parent.categories.Shopify : '', //Product Category
                     (index == 0) ? this.shopifyProductType(parent.styles) : '', //Type
                     (index == 0) ? parent.keywords : '', //Tags
-                    '', //Collections
+                    (index == 0) ? parent.theme : '', //Collections
                     (index == 0) ? 'Size' : '', //Option1 Name
                     child.size, //Option1 Value
                     '', //Option1 Linked To
@@ -2305,8 +3565,8 @@ export class ListingGeneratorComponent implements OnInit {
                     'TRUE', //Variant Requires Shipping
                     'TRUE', //Variant Taxable
                     '', //Variant Barcode
-                    (index < 5) ? this.shopifyImageSrc(child, index) : '', //Image Src
-                    (index < 4) ? index + 1 : '',
+                    (index < 4) ? this.shopifyImageSrc(child, index) : '', //Image Src
+                    (index < 3) ? index + 1 : '',
                     child.image1,//Variant Image
                     '', //Image Alt Text
                     'FALSE', //Gift Card
@@ -3925,18 +5185,20 @@ export class ListingGeneratorComponent implements OnInit {
     }
     amazonTargetGender(department: string) {
         switch (department) {
-            case 'Mens':
+            case 'mens':
                 return 'Male';
-            case 'Womens':
+            case 'womens':
                 return 'Female';
-            case 'Girls':
+            case 'girls':
                 return 'Female';
-            case 'Boys':
+            case 'boys':
                 return 'Male';
-            case 'Toddlers':
-                return 'Male';
-            case 'Infants':
-                return 'Male';
+            case 'toddlers':
+                return 'Unisex';
+            case 'infants':
+                return 'Unisex';
+            case 'unisex-child':
+                return 'Unisex';
 
             default:
                 return '';
@@ -4224,9 +5486,9 @@ export class ListingGeneratorComponent implements OnInit {
             case 1:
                 return child.image2;
             case 2:
-                return child.image3;
-            case 3:
                 return child.image4;
+            case 3:
+                return '';
 
             default:
                 return '';
@@ -4479,6 +5741,7 @@ export class ListingGeneratorComponent implements OnInit {
                 'Vintage Red',
                 'Cherry Red',
                 'Red',
+                'Maroon'
             ],
             Silver: ['Silver', 'New Silver'],
             White: [
@@ -4492,6 +5755,7 @@ export class ListingGeneratorComponent implements OnInit {
                 'Black To White',
             ],
             Yellow: ['Yellow', 'Pale Yellow', 'Neon Yellow', 'Maize Yellow', 'Daisy'],
+            "Off-White": ['Natural'],
         };
 
         for (const [group, colors] of Object.entries(colorGroup)) {
@@ -4596,20 +5860,20 @@ export class ListingGeneratorComponent implements OnInit {
             "Racerback Tank": { "XS": 30, "S": 34, "M": 38, "L": 42, "XL": 46, "2XL": 50, "3XL": 54, "4XL": 58, "5XL": 62 },
             "Bodysuit": { "NB": 16, "6M": 17, "12M": 18, "18M": 19, "24M": 20 }
         };
-    
+
         return chestSizes[style]?.[size] ?? 0;
     }
     itemLength(size, style) {
         const lengthChart = {
-            "T-shirt": {"2T": 15, "3T": 16, "4T": 17, "5T": 18,"NB": 11, "6M": 12, "12M": 13, "18M": 14, "24M": 15,"XS": 14.75, "S": 15.62, "M": 17, "L": 18.5, "XL": 20,"2XL": 21.5, "3XL": 22.87, "4XL": 24.25, "5XL": 25.37 },
+            "T-shirt": { "2T": 15, "3T": 16, "4T": 17, "5T": 18, "NB": 11, "6M": 12, "12M": 13, "18M": 14, "24M": 15, "XS": 14.75, "S": 15.62, "M": 17, "L": 18.5, "XL": 20, "2XL": 21.5, "3XL": 22.87, "4XL": 24.25, "5XL": 25.37 },
             "Bodysuit": { "NB": 11, "6M": 12, "12M": 13, "18M": 14, "24M": 15 },
             "Hoodie": { "2T": 15, "3T": 16, "4T": 17, "5T": 18, "XS": 32, "S": 33, "M": 34, "L": 35, "XL": 36, "2XL": 37, "3XL": 38, "4XL": 39, "5XL": 40 },
             "Sweatshirt": { "2T": 15, "3T": 16, "4T": 17, "5T": 18, "XS": 32, "S": 33, "M": 34, "L": 35, "XL": 36, "2XL": 37, "3XL": 38, "4XL": 39, "5XL": 40 },
             "Long Sleeve": { "2T": 15, "3T": 16, "4T": 17, "5T": 18, "XS": 32, "S": 33, "M": 34, "L": 35, "XL": 36, "2XL": 37, "3XL": 38, "4XL": 39, "5XL": 40 },
             'Crop Tee': { "XS": 15.75, "S": 16.75, "M": 18, "L": 19.5, "XL": 20.75, '2XL': 22 },
             'Crop Top': { "XS": 15.75, "S": 16.75, "M": 18, "L": 19.5, "XL": 20.75, '2XL': 22 },
-            'Tank Top': { "XS": 14.75, "S": 15.62, "M": 17, "L": 18.5, "XL": 20,"2XL": 21.5, "3XL": 22.87, "4XL": 24.25, "5XL": 25.37 },
-            'Racerback Tank': { "XS": 14.75, "S": 15.62, "M": 17, "L": 18.5, "XL": 20,"2XL": 21.5, "3XL": 22.87, "4XL": 24.25, "5XL": 25.37 },
+            'Tank Top': { "XS": 14.75, "S": 15.62, "M": 17, "L": 18.5, "XL": 20, "2XL": 21.5, "3XL": 22.87, "4XL": 24.25, "5XL": 25.37 },
+            'Racerback Tank': { "XS": 14.75, "S": 15.62, "M": 17, "L": 18.5, "XL": 20, "2XL": 21.5, "3XL": 22.87, "4XL": 24.25, "5XL": 25.37 },
         };
 
         return lengthChart[style]?.[size] ?? 0.00;
@@ -4643,5 +5907,33 @@ export class ListingGeneratorComponent implements OnInit {
         };
 
         return heights[style]?.[size] ?? 0;
+    }
+
+    async formatTitle(sku: string, title: string, classification: string, style: string): Promise<string> {
+        const classificationMap: { [key: string]: string } = {
+            WO: "Women's",
+            ME: "Men's",
+            YO: "Youth's",
+            TO: "Toddler's",
+            BB: "Baby's"
+        };
+        console.log(sku, title, classification, style);
+
+
+        const classificationText = classificationMap[classification.toUpperCase()] || classification;
+
+        try {
+            const respo = await this.listingGeneratorService.getLicense(sku);
+
+            const isLicensed = respo.data?.is_licensed === 'yes';
+            const licenseName = respo.data?.license_name || '';
+
+            return isLicensed
+                ? `Officially Licensed ${licenseName} ${title} ${classificationText} ${style}`
+                : `${title} ${classificationText} ${style}`;
+        } catch (error) {
+            console.error('Error fetching license:', error);
+            return `${title} ${classificationText} ${style}`;
+        }
     }
 }

@@ -121,7 +121,8 @@
                     <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
                 </th>
                 <th rowspan="2">Image</th>
-                <th rowspan="2">Title</th>
+                <th rowspan="2">Basic Title</th>
+                <!-- <th rowspan="2">License</th> -->
                 <th rowspan="2">Theme</th>
                 <th rowspan="2">Classification</th>
                 <th rowspan="2" style="width: 100px">Style Code</th>
@@ -171,7 +172,8 @@
                             class="cursor-pointer hugeicons--unlink-04"></span>
                     </div>
                 </th>
-                <th rowspan="2" style="width: 200px" *ngIf="selectedMarketplace.includes('Amazon')">Amazon Department Name</th>
+                <th rowspan="2" style="width: 200px" *ngIf="selectedMarketplace.includes('Amazon')">Amazon Department
+                    Name</th>
                 <th [attr.colspan]="selectedMarketplace?.length || 2" class="text-center">Categories</th>
             </tr>
             <tr>
@@ -210,6 +212,12 @@
                         </ng-template>
                     </p-cellEditor>
                 </td>
+                <!-- <td>
+                    <p-dropdown [options]="swiftpodLicenses" [(ngModel)]="selectedLicense" optionLabel="name"
+                        optionValue="value" placeholder="Select License" [style]="{ width: '200px' }"
+                        scrollHeight="150px">
+                    </p-dropdown>
+                </td> -->
                 <td class="w-150" [ngClass]="{ 'bg-red-300': theme == '' }" [pEditableColumn]="theme"
                     pEditableColumnField="theme">
                     <p-cellEditor>
@@ -347,7 +355,8 @@
                         </ng-template>
                     </p-cellEditor>
                 </td>
-                <td class="w-250" *ngIf="selectedMarketplace.includes('Amazon')" [ngClass]="{ 'bg-red-300': !generalAmazonDepart }">
+                <td class="w-250" *ngIf="selectedMarketplace.includes('Amazon')"
+                    [ngClass]="{ 'bg-red-300': !generalAmazonDepart }">
                     <p-dropdown [options]="amazonDepartmentNames" [(ngModel)]="generalAmazonDepart" optionLabel="name"
                         placeholder="Select a department" />
                 </td>
@@ -356,13 +365,15 @@
                     ((!linkSelector(market) && ptoDesigns[rowIndex]?.categories[market]?.length == 0) || 
                     (linkSelector(market) && (designCategories[market]?.length == 0 || designCategories[market] == undefined)))  
                      }">
-                    <p-multiSelect *ngIf="!linkSelector(market) && (market !== 'Faire' && market !== 'Shein' && market !== 'Temu')"
+                    <p-multiSelect
+                        *ngIf="!linkSelector(market) && (market !== 'Faire' && market !== 'Shein' && market !== 'Temu')"
                         [options]="marketplacesCategories[market]?.groups" [group]="true" [maxSelectedLabels]="3"
                         [(ngModel)]="ptoDesigns[rowIndex]?.categories[market]" optionLabel="label" optionValue="path"
                         optionGroupLabel="label" optionGroupChildren="items" [style]="{ width: '200px' }"
                         scrollHeight="150px" defaultLabel="Select Categories">
                     </p-multiSelect>
-                    <p-multiSelect *ngIf="linkSelector(market) && (market !== 'Faire' && market !== 'Shein' && market !== 'Temu')"
+                    <p-multiSelect
+                        *ngIf="linkSelector(market) && (market !== 'Faire' && market !== 'Shein' && market !== 'Temu')"
                         [options]="marketplacesCategories[market]?.groups" [group]="true" [maxSelectedLabels]="3"
                         [(ngModel)]="designCategories[market]" optionLabel="label" optionValue="path"
                         optionGroupLabel="label" optionGroupChildren="items" [style]="{ width: '200px' }"
@@ -426,8 +437,7 @@
                 <label for="am">Amazon</label>
             </div>
             <div class="min-wid flex align-items-center gap-1">
-                <p-checkbox name="group1" value="Ebay" [(ngModel)]="tempSelectedMarketplace" 
-                inputId="eb"></p-checkbox>
+                <p-checkbox name="group1" value="Ebay" [(ngModel)]="tempSelectedMarketplace" inputId="eb"></p-checkbox>
                 <label for="eb">Ebay</label>
             </div>
             <div class="min-wid flex align-items-center gap-1">
@@ -441,18 +451,15 @@
                 <label for="sh">Shopify</label>
             </div>
             <div class="min-wid flex align-items-center gap-1">
-                <p-checkbox name="group1" value="Faire" [(ngModel)]="tempSelectedMarketplace" 
-                inputId="fa"></p-checkbox>
+                <p-checkbox name="group1" value="Faire" [(ngModel)]="tempSelectedMarketplace" inputId="fa"></p-checkbox>
                 <label for="fa">Faire</label>
             </div>
             <div class="min-wid flex align-items-center gap-1">
-                <p-checkbox name="group1" value="Shein" [(ngModel)]="tempSelectedMarketplace" 
-                inputId="sn"></p-checkbox>
+                <p-checkbox name="group1" value="Shein" [(ngModel)]="tempSelectedMarketplace" inputId="sn"></p-checkbox>
                 <label for="sn">Shein</label>
             </div>
             <div class="min-wid flex align-items-center gap-1">
-                <p-checkbox name="group1" value="Temu" [(ngModel)]="tempSelectedMarketplace" 
-                inputId="tm"></p-checkbox>
+                <p-checkbox name="group1" value="Temu" [(ngModel)]="tempSelectedMarketplace" inputId="tm"></p-checkbox>
                 <label for="tm">Temu</label>
             </div>
         </div>

@@ -76,11 +76,17 @@
                         [ngClass]="{ 'ng-dirty ng-invalid': errors.includes('printArea') }" />
                 </div>
                 <div class="field col-12 md:col-3 mb-0">
+                    <label for="store" class="font-bold">Destination store</label>
+                    <p-dropdown [options]="storesGroup" [(ngModel)]="selectedStore" id="store" optionLabel="name"
+                        placeholder="Select an store" [showClear]="true"
+                        [ngClass]="{ 'ng-dirty ng-invalid': errors.includes('store') }" />
+                </div>
+                <div class="field col-12 md:col-3 mb-0">
                     <label for="amount" class="font-bold">Mockups</label>
                     <p-inputNumber id="amount" inputId="minmax" mode="decimal" placeholder="Mockup amount"
                         [(ngModel)]="selectedMockupAmount" suffix=" Mockups" [min]="2" [max]="5" />
                 </div>
-                <div class="field col-12 md:col-6 mb-0">
+                <div class="field col-12 md:col-3 mb-0">
                     <label for="color" class="font-bold">Colors</label>
                     <!-- <p-dropdown [options]="color" [(ngModel)]="selectedColor" id="color" optionLabel="name"
                         [showClear]="true" placeholder="Select an option" [ngClass]="{ 'ng-dirty ng-invalid': errors.includes('color') }">

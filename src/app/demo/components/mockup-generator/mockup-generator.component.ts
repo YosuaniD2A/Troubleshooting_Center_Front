@@ -19,11 +19,13 @@ export class MockupGeneratorComponent implements OnInit {
   type: any[] | undefined;
   categories: any[] | undefined;
   printArea: any[] | undefined;
+  storesGroup: any[] | undefined;
   color: any[] | undefined;
 
   selectedType: any | undefined;
   selectedCategory: any | undefined;
   selectedPrintArea: any | undefined;
+  selectedStore: any | undefined;
   selectedColors: any | undefined;
   selectedMockupAmount: number = 2;
   downloadPath: string = "C:\\Users\\loren\\Documents\\0-MOCKUPS GENERATOR";
@@ -258,7 +260,8 @@ export class MockupGeneratorComponent implements OnInit {
     { "name": "Solid Indigo", "code": "#4B0082" },
     { "name": "Midnight Navy", "code": "#191970" },
     { "name": "Solid Purple Rush", "code": "#800080" },
-    { "name": "Solid Hot Pink", "code": "#FF69B4" }
+    { "name": "Solid Hot Pink", "code": "#FF69B4" },
+    { "name": "Off White", "code": "#F7F4EB" }
   ]
 
   constructor(
@@ -293,6 +296,11 @@ export class MockupGeneratorComponent implements OnInit {
       { name: 'Front', code: 'front' },
       { name: 'Back', code: 'back' },
       // { name: 'Pocket', code: 'pocket' }
+    ];
+    this.storesGroup = [
+      { name: 'General', code: 'general' },
+      { name: 'Shain & Temu', code: 'china' },
+      { name: 'Faire', code: 'faire' }
     ];
     this.color = this.colors_base
 
@@ -344,6 +352,7 @@ export class MockupGeneratorComponent implements OnInit {
     if (!data.category) this.errors.push("category");
     if (!data.type) this.errors.push("type");
     if (!data.printArea) this.errors.push("printArea");
+    if (!data.store) this.errors.push("store");
     if (!data.colors) this.errors.push("colors");
   }
 
@@ -354,6 +363,7 @@ export class MockupGeneratorComponent implements OnInit {
         category: this.selectedCategory?.code,
         type: this.selectedType?.code,
         printArea: this.selectedPrintArea?.code,
+        store: this.selectedStore?.code,
         colors: this.selectedColors?.map(color => {
           return color.code
         }),

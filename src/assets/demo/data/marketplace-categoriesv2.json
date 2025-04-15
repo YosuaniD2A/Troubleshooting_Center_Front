@@ -72,8 +72,8 @@
                 "value": "men",
                 "items": [
                     {
-                        "label": "Tshirts, Crop and Tank tops",
-                        "value": "tshirts crop and tank tops",
+                        "label": "Tshirts and Tank tops",
+                        "value": "tshirts and tank tops",
                         "path": "Clothing, Shoes & Accessories > Men > Men's Clothing > Shirts > T-Shirts"
                     },
                     {
@@ -88,14 +88,30 @@
                 "value": "women",
                 "items": [
                     {
-                        "label": "T-Shirts",
-                        "value": "tshirts",
+                        "label": "T-Shirts and Tops",
+                        "value": "tshirts and tops",
                         "path": "Clothing, Shoes & Accessories > Women > Women's Clothing > Tops"
                     },
                     {
                         "label": "Hoodie, Sweatshirt & Long Sleeve",
                         "value": "hoddie",
                         "path": "Clothing, Shoes & Accessories > Women > Women's Clothing > Activewear > Hoodies & Sweatshirts"
+                    }
+                ]
+            },
+            {
+                "label": "Youth",
+                "value": "youth",
+                "items": [
+                    {
+                        "label": "T-Shirts",
+                        "value": "tshirts",
+                        "path": "Clothing, Shoes & Accessories > Kids > Unisex Kids > Unisex Kids' Clothing (Sizes 4 & Up) > Tops & T-Shirts"
+                    },
+                    {
+                        "label": "Hoodie, Sweatshirt",
+                        "value": "hoddie",
+                        "path": "Clothing, Shoes & Accessories > Kids > Unisex Kids > Unisex Kids' Clothing (Sizes 4 & Up) > Sweatshirts & Hoodies"
                     }
                 ]
             },
